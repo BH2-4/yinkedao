@@ -713,6 +713,16 @@ function renderSealMockSvg({ prompt, seed }: SealImageRequest): string {
     }
   }
 
+  /* 天然石纹微线（rng 驱动——素面也有石纹，seed 变化可见） */
+  for (let i = 0; i < 5; i++) {
+    const vy = by + bh * 0.15 + rng() * bh * 0.7;
+    const vx = bx + 20 + rng() * (bw - 40);
+    const vw = 30 + rng() * 60;
+    piece.push(
+      `<path d="M ${vx} ${vy} q ${vw * 0.4} ${-10 - rng() * 14} ${vw} ${4 - rng() * 8}" stroke="rgba(120,110,95,0.16)" stroke-width="3" fill="none" stroke-linecap="round"/>`,
+    );
+  }
+
   /* 印面留白占位（文字层后叠加的位置示意） */
   const faceY = form.seal_form === "rectangle" ? (H - bh * 1.05) / 2 + 30 + bh * 1.05 : by + bh;
   piece.push(

@@ -34,9 +34,7 @@ function pathnameToStage(pathname: string | null): string {
   if (!pathname || pathname === "/") return "home";
   if (pathname.startsWith("/design-interview")) return "interview";
   if (pathname.startsWith("/global-design")) return "global";
-  if (pathname.startsWith("/cultural-match")) return "match";
-  if (pathname.startsWith("/design-translation")) return "translation";
-  if (pathname.startsWith("/design-proposal")) return "proposal";
+  if (pathname.startsWith("/design-brief")) return "brief";
   if (pathname.startsWith("/design-render")) return "render";
   return "home";
 }

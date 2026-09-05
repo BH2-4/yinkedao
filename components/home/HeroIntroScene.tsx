@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { PointerEvent } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
@@ -57,11 +57,10 @@ export function HeroIntroScene() {
   /* 鼠标微视差 —— 归一化指针值 [-1, 1]，位移在子组件内做弹簧 */
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
-  const [finePointer, setFinePointer] = useState(false);
-
-  useEffect(() => {
-    setFinePointer(window.matchMedia("(pointer: fine)").matches);
-  }, []);
+  /* 惰性检测（不进渲染输出，无 hydration mismatch；避免 effect 内同步 setState） */
+  const [finePointer] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches,
+  );
 
   function handlePointerMove(e: PointerEvent<HTMLDivElement>) {
     if (reduce || !finePointer) return;

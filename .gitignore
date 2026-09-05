@@ -46,3 +46,4 @@ _patch_render.mjs
 test-*.png
 test-*.json
 .DS_Store
+.vercel-token

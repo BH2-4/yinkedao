@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Check } from "lucide-react";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import type {
@@ -14,6 +14,9 @@ type Props = {
   /** 当前题在流程中的序号（1-based） */
   step: number;
   answers: InterviewAnswers;
+  /** 本维度自由文本补充（可选，实时保存） */
+  note: string;
+  onNoteChange: (text: string) => void;
   onAnswer: (id: InterviewQuestionId, value: string[]) => void;
   onSkip: (id: InterviewQuestionId) => void;
   onBack: () => void;
@@ -31,6 +34,8 @@ export function QuestionCard({
   question,
   step,
   answers,
+  note,
+  onNoteChange,
   onAnswer,
   onSkip,
   onBack,
@@ -38,12 +43,8 @@ export function QuestionCard({
 }: Props) {
   const { t } = useI18n();
   const isMulti = question.mode === "multiple";
+  /* 切题重置由父级 key={currentId} 重挂载完成（无 effect、无级联渲染） */
   const [pending, setPending] = useState<string[]>([]);
-
-  // 切题时重置多选暂存（回退重答亦然）
-  useEffect(() => {
-    setPending([]);
-  }, [question.id]);
 
   const answered = answers[question.id];
   const maxSelect = question.maxSelect ?? 1;
@@ -131,6 +132,25 @@ export function QuestionCard({
             </button>
           );
         })}
+      </div>
+
+      {/* 每维度补充输入（可选）——自由文本，实时保存 */}
+      <div className="flex flex-col gap-2">
+        <label
+          htmlFor={`note-${question.id}`}
+          className="font-mono text-[11px] tracking-[0.16em] text-[var(--color-silver-600)] uppercase"
+        >
+          {t("interview.noteLabel")}
+        </label>
+        <input
+          id={`note-${question.id}`}
+          type="text"
+          value={note}
+          maxLength={60}
+          onChange={(e) => onNoteChange(e.target.value)}
+          placeholder={t("interview.notePlaceholder")}
+          className="w-full max-w-md rounded-[2px] border border-[var(--color-line)] bg-transparent px-4 py-2.5 text-[13px] text-[var(--color-silver-200)] outline-none transition-colors duration-300 placeholder:text-[var(--color-silver-600)] focus:border-[rgba(245,245,247,0.28)]"
+        />
       </div>
 
       {isMulti && (

@@ -132,9 +132,7 @@ function routeIntensity(pathname: string | null): RouteIntensity {
   if (!pathname) return { density: 1.0, speed: 1.0, lines: true, driftX: 0, driftY: 0, parallaxMul: 1.0 };
   if (pathname.startsWith("/design-interview")) return { density: 0.55, speed: 0.7, lines: false, driftX: 0, driftY: 0, parallaxMul: 0.6 };
   if (pathname.startsWith("/global-design")) return { density: 0.7, speed: 0.85, lines: false, driftX: 0, driftY: 0, parallaxMul: 0.75 };
-  if (pathname.startsWith("/cultural-match")) return { density: 0.9, speed: 1.0, lines: true, driftX: 0, driftY: 0, parallaxMul: 0.95 };
-  if (pathname.startsWith("/design-translation")) return { density: 0.85, speed: 0.95, lines: true, driftX: 0, driftY: 0, parallaxMul: 0.9 };
-  if (pathname.startsWith("/design-proposal")) return { density: 0.95, speed: 1.0, lines: true, driftX: 0, driftY: 0, parallaxMul: 1.0 };
+  if (pathname.startsWith("/design-brief")) return { density: 0.9, speed: 1.0, lines: true, driftX: 0, driftY: 0, parallaxMul: 0.95 };
   if (pathname.startsWith("/design-render")) return { density: 1.1, speed: 1.15, lines: true, driftX: 0, driftY: 0, parallaxMul: 1.1 };
   /* Home — biased right-drift + rise, and the deepest parallax feel. */
   return { density: 1.0, speed: 1.0, lines: true, driftX: 0.012, driftY: -0.006, parallaxMul: 1.15 };

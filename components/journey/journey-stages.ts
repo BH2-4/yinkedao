@@ -1,9 +1,9 @@
 /**
- * JOURNEY — 一次设计旅程的空间定义。
+ * JOURNEY — 三站流程的空间定义（六站漏斗 → 三站直流程）。
  *
- * 整个定制流程被组织为「同一空间中的六个节点」：
- *   00 PROLOGUE  记忆访谈（可选起点）
- *   01–05        从你的故事到最终银饰
+ *   00 五维度访谈   /design-interview  石料→用途→外形→装饰→印面（含「帮我全决定」跳级）
+ *   01 参数单确认   /design-brief       五维度参数单展示/回改/印文输入（URL 持久化）
+ *   02 效果图       /design-render      质感层渲染（文字层由字体引擎另行叠加）
  *
  * 该常量只描述站点与路由的对应关系——不含任何业务状态，
  * 导航层（顶栏 JOURNEY 菜单、右侧 JourneyRail、首页 JourneySection）
@@ -15,41 +15,20 @@ export const JOURNEY_STAGES = [
     href: "/design-interview",
     nameKey: "journey.stations.s0.name",
     descKey: "journey.stations.s0.desc",
-    prologue: true,
+    prologue: false,
   },
   {
     code: "01",
-    href: "/global-design",
+    href: "/design-brief",
     nameKey: "journey.stations.s1.name",
     descKey: "journey.stations.s1.desc",
     prologue: false,
   },
   {
     code: "02",
-    href: "/cultural-match",
+    href: "/design-render",
     nameKey: "journey.stations.s2.name",
     descKey: "journey.stations.s2.desc",
-    prologue: false,
-  },
-  {
-    code: "03",
-    href: "/design-translation",
-    nameKey: "journey.stations.s3.name",
-    descKey: "journey.stations.s3.desc",
-    prologue: false,
-  },
-  {
-    code: "04",
-    href: "/design-proposal",
-    nameKey: "journey.stations.s4.name",
-    descKey: "journey.stations.s4.desc",
-    prologue: false,
-  },
-  {
-    code: "05",
-    href: "/design-render",
-    nameKey: "journey.stations.s5.name",
-    descKey: "journey.stations.s5.desc",
     prologue: false,
   },
 ] as const;

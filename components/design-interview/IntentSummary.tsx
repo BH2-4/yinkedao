@@ -12,9 +12,33 @@ type Props = {
   continuing: boolean;
 };
 
+/** 摘要字段格（模块级——避免 render 内创建组件） */
+function Fact({
+  label,
+  display,
+  dim,
+}: {
+  label: string;
+  display: string;
+  dim?: boolean;
+}) {
+  return (
+    <div className="flex flex-col gap-1.5 border-t border-l border-[var(--color-line)] p-4 first:border-l-0 sm:p-5">
+      <span className="font-mono text-[11px] tracking-[0.18em] text-[var(--color-silver-500)] uppercase">
+        {label}
+      </span>
+      <span
+        className={`text-[13px] ${dim ? "text-[var(--color-silver-600)]" : "text-[var(--color-silver-200)]"}`}
+      >
+        {display}
+      </span>
+    </div>
+  );
+}
+
 /**
  * 完成摘要：以设计工作室「Brief Review」的形式呈现 UserDesignIntent。
- * 只呈现用户偏好本身，不含任何文化结论——文化匹配完全留给 Stage 2。
+ * 只呈现用户偏好本身，不含任何文化结论——文化匹配完全留给溯源知识库。
  * 文案与词条来自 messages/*.json 的 interview 段。
  */
 export function IntentSummary({
@@ -36,27 +60,6 @@ export function IntentSummary({
 
   const orDash = (category: string, token: string): string =>
     token === "unknown" ? "—" : value(category, token);
-
-  const Fact = ({
-    label,
-    display,
-    dim,
-  }: {
-    label: string;
-    display: string;
-    dim?: boolean;
-  }) => (
-    <div className="flex flex-col gap-1.5 border-t border-l border-[var(--color-line)] p-4 first:border-l-0 sm:p-5">
-      <span className="font-mono text-[11px] tracking-[0.18em] text-[var(--color-silver-500)] uppercase">
-        {label}
-      </span>
-      <span
-        className={`text-[13px] ${dim ? "text-[var(--color-silver-600)]" : "text-[var(--color-silver-200)]"}`}
-      >
-        {display}
-      </span>
-    </div>
-  );
 
   return (
     <section className="animate-fade-in flex flex-col gap-8">

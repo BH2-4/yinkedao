@@ -296,14 +296,6 @@ function pick<T extends string>(answer: string[] | null | undefined): T | null {
   return first as T;
 }
 
-function joinLabels(
-  tokens: string[],
-  labelOf: (token: string) => string,
-  separator: string,
-): string {
-  return tokens.map(labelOf).join(separator);
-}
-
 /** 规则模板 user_context（AI 不可用 / 校验失败时的兜底，文案经 i18n 注入） */
 export function buildRuleUserContext(
   intent: Omit<UserDesignIntent, "user_context" | "confidence">,
@@ -368,10 +360,7 @@ export function buildRuleUserContext(
  *  - 明确单选 1.0 / 探索选项 0.35
  *  - 跳过或未问 0.25
  */
-function fieldConfidence(
-  answer: string[] | null | undefined,
-  question: InterviewQuestion,
-): number {
+function fieldConfidence(answer: string[] | null | undefined): number {
   if (answer === null) return 0.25; // 明确跳过
   if (!answer || answer.length === 0) return 0.25; // 未问 / 未答
   if (answer[0] === "unsure") return 0.35;
@@ -384,28 +373,28 @@ function confidencesOf(
   intent: Omit<UserDesignIntent, "user_context" | "confidence">,
 ): number[] {
   return [
-    fieldConfidence(answers.stone_type, QUESTIONS.stone_type),
-    fieldConfidence(answers.stone_look, QUESTIONS.stone_look),
-    fieldConfidence(answers.stone_budget, QUESTIONS.stone_budget),
-    fieldConfidence(answers.occasion, QUESTIONS.occasion),
-    fieldConfidence(answers.seal_form, QUESTIONS.seal_form),
+    fieldConfidence(answers.stone_type),
+    fieldConfidence(answers.stone_look),
+    fieldConfidence(answers.stone_budget),
+    fieldConfidence(answers.occasion),
+    fieldConfidence(answers.seal_form),
     // 随形章跳过钮制题：不算低置信，按 0.7 推导计
     isFreeform(answers)
       ? intent.finial_type === "unknown"
         ? 0.7
         : 1.0
-      : fieldConfidence(answers.finial_type, QUESTIONS.finial_type),
-    fieldConfidence(answers.side_inscription, QUESTIONS.side_inscription),
-    fieldConfidence(answers.decoration_level, QUESTIONS.decoration_level),
-    fieldConfidence(answers.text_type, QUESTIONS.text_type),
+      : fieldConfidence(answers.finial_type),
+    fieldConfidence(answers.side_inscription),
+    fieldConfidence(answers.decoration_level),
+    fieldConfidence(answers.text_type),
     // 图案印跳过字数/朱白：按 0.7 推导计
     textTypewritten(answers)
-      ? fieldConfidence(answers.text_count, QUESTIONS.text_count)
+      ? fieldConfidence(answers.text_count)
       : intent.text_count === "unknown"
         ? 0.7
         : 1.0,
     textTypewritten(answers)
-      ? fieldConfidence(answers.seal_style, QUESTIONS.seal_style)
+      ? fieldConfidence(answers.seal_style)
       : intent.seal_style === "unknown"
         ? 0.7
         : 1.0,

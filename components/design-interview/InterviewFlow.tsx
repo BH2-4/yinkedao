@@ -16,10 +16,9 @@ import {
   makeInterviewLabels,
   nextQuestionId,
 } from "@/lib/design-interview/engine";
-import {
-  buildStage0Payload,
-  persistStage0Payload,
-} from "@/lib/design-interview/handoff";
+import { buildStage0Payload, persistStage0Payload } from "@/lib/design-interview/handoff";
+import { STAGE0_NOTES_STORAGE_KEY } from "@/lib/constants/storage";
+import { encodeSealOrder, sealOrderFromIntent } from "@/lib/design/seal-order";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { QuestionCard } from "./QuestionCard";
 import { IntentSummary } from "./IntentSummary";
@@ -44,7 +43,7 @@ type Phase =
  *  - 回退 = 弹出最后一题 + invalidateDependents 清理下游答案
  *  - API 失败时客户端规则合成兜底，访谈永远可以完成
  */
-export function InterviewFlow({ demoMode }: InterviewFlowProps) {
+export function InterviewFlow({ demoMode: _demoMode }: InterviewFlowProps) {
   const router = useRouter();
   const { t } = useI18n();
   const L = useMemo(() => makeInterviewLabels(t), [t]);
@@ -52,6 +51,26 @@ export function InterviewFlow({ demoMode }: InterviewFlowProps) {
   const [askedOrder, setAskedOrder] = useState<InterviewQuestionId[]>([]);
   const [phase, setPhase] = useState<Phase>({ kind: "interview" });
   const [continuing, setContinuing] = useState(false);
+  /** 每维度自由文本补充（「再多说一句」——不进 URL，sessionStorage 补充通道） */
+  const [notes, setNotes] = useState<Record<string, string>>({});
+
+  const handleNote = useCallback((id: InterviewQuestionId, text: string) => {
+    setNotes((prev) => {
+      const next = text ? { ...prev, [id]: text } : { ...prev };
+      if (!text) delete next[id];
+      try {
+        sessionStorage.setItem(STAGE0_NOTES_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // storage 不可用时静默——补充说明仅辅助
+      }
+      return next;
+    });
+  }, []);
+
+  /** 「帮我全决定」（WHEN-THEN 7.2.4）：跳过逐题，直达三提案选择 */
+  const handleDecideAll = useCallback(() => {
+    router.push("/design-brief");
+  }, [router]);
 
   const askedIds = useMemo(() => new Set(askedOrder), [askedOrder]);
 
@@ -133,13 +152,14 @@ export function InterviewFlow({ demoMode }: InterviewFlowProps) {
     setContinuing(false);
   }, []);
 
-  /** Stage 1 handoff：写入 sessionStorage 后进入 /global-design */
+  /** 参数单 handoff：写入 sessionStorage 后带 URL query 进入 /design-brief */
   const handleContinue = useCallback(() => {
     if (phase.kind !== "summary") return;
     setContinuing(true);
     const payload = buildStage0Payload(phase.intent, L);
     persistStage0Payload(payload);
-    router.push("/global-design");
+    const query = encodeSealOrder(sealOrderFromIntent(phase.intent));
+    router.push(query ? `/design-brief?${query}` : "/design-brief");
   }, [phase, router, L]);
 
   const question = currentId ? QUESTIONS[currentId] : null;
@@ -174,6 +194,18 @@ export function InterviewFlow({ demoMode }: InterviewFlowProps) {
             <p className="act-body max-w-xl">
               {t("interview.intro")}
             </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <button
+                type="button"
+                onClick={handleDecideAll}
+                className="inline-flex items-center gap-2 rounded-full border border-[var(--color-line-strong)] px-6 py-2.5 text-[12px] tracking-[0.16em] text-[var(--color-silver-300)] uppercase transition-all duration-300 hover:border-[var(--color-silver-300)] hover:text-[var(--color-ivory)]"
+              >
+                {t("interview.decideAll")}
+              </button>
+              <span className="text-[12px] text-[var(--color-silver-600)]">
+                {t("interview.decideAllHint")}
+              </span>
+            </div>
           </div>
         </header>
 
@@ -199,6 +231,8 @@ export function InterviewFlow({ demoMode }: InterviewFlowProps) {
               question={question}
               step={progressCurrent}
               answers={answers}
+              note={notes[currentId] ?? ""}
+              onNoteChange={(text) => handleNote(currentId, text)}
               onAnswer={handleAnswer}
               onSkip={handleSkip}
               onBack={handleBack}

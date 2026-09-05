@@ -1,53 +1,39 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { ProposalHandoffSchema } from "@/lib/design/schemas";
-import { verifyDesignProposal } from "@/lib/design/verification";
-import { buildImagePrompt } from "@/lib/design/render-prompt";
-import { generateDesignImage } from "@/lib/ai/image-generator";
-import type { RenderApiResponse } from "@/types/design-render";
+import { SealOrderSchema } from "@/lib/design/seal-order";
+import { buildSealImagePrompt } from "@/lib/design/seal-prompt";
+import { generateSealDesignImage } from "@/lib/ai/image-generator";
+import type { SealRenderApiResponse } from "@/types/design-render";
 
 /**
- * POST /api/design-render
+ * POST /api/design-render —— 印章质感层渲染（三站流程第 3 站）。
  *
- * Stage 5 — Design Render. Turns the CONFIRMED Stage 4 proposal into a
- * structured image prompt and renders one concept image. No stage can be
- * skipped: the route only accepts the full Stage 4 hand-off and re-verifies
- * it before rendering.
- *
- * INTEGRITY — the persisted hand-off is only trusted after re-verification:
- *   · the payload must satisfy ProposalHandoffSchema (400 on bad shape);
- *   · the direction ids must be mutually consistent — a hand-off stitched
- *     from different directions is rejected (400);
- *   · verifyDesignProposal re-runs RULE-001…007 against the live knowledge
- *     base (422 on any violation — no image is ever rendered from a
- *     proposal that fails the cultural guardrails);
- *   · the image prompt is assembled ONLY from the proposal's structured
- *     fields; the route itself introduces no cultural content.
- *
- * The image provider is an adapter (lib/ai/image-generator.ts); V1 runs the
- * deterministic mock renderer so the full stage works without any API key.
+ * 输入：五维度参数单（URL 持久化的同一份 SealOrder）+ 变体 seed。
+ * 管线：Zod 校验 → buildSealImagePrompt（纯确定性翻译，NO TEXT RULE
+ * 素坯无字铁律）→ generateSealDesignImage（gpt-image-2 参考图编辑 /
+ * mock 章型 SVG）。印面文字由崇羲字体引擎在质感层之上另行叠加——
+ * 本 API 不接触任何字形（PRD 8.1 质感层/文字层分离）。
  */
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-// 生图（gpt-image-2 含参考图编辑）实测 30-90 秒；Vercel 默认 10s 会超时。
-// 60s 在所有计划（含 Hobby）内均合法。
+// 生图（gpt-image-2 含参考图编辑）实测 30-90 秒；60s 在所有计划内合法。
 export const maxDuration = 60;
 
-const RenderRequestSchema = ProposalHandoffSchema.extend({
-  /** Regeneration seed — different seeds vary the mock's decorative layout. */
+const RenderRequestSchema = z.object({
+  order: SealOrderSchema,
   seed: z.number().int().min(0).max(2 ** 31 - 1).default(1),
 });
 
 type ErrorCode = NonNullable<
-  Extract<RenderApiResponse, { success: false }>["code"]
+  Extract<SealRenderApiResponse, { success: false }>["code"]
 >;
 
 function errorResponse(
   message: string,
   code: ErrorCode,
   status: number,
-): NextResponse<RenderApiResponse> {
+): NextResponse<SealRenderApiResponse> {
   return NextResponse.json({ success: false, error: message, code }, { status });
 }
 
@@ -70,44 +56,15 @@ export async function POST(request: Request) {
     );
   }
 
-  const { designDna, designBrief, selectedDirectionId, proposal, seed } = parsed.data;
-
-  /* Direction consistency — a hand-off stitched from different directions
-     never reaches the renderer. */
-  if (
-    proposal.design_direction.id !== selectedDirectionId ||
-    designBrief.selected_direction.id !== selectedDirectionId
-  ) {
-    return errorResponse(
-      "The hand-off is inconsistent: the proposal, brief and direction id do not match. Re-confirm the direction in Stage 4.",
-      "inconsistent_handoff",
-      400,
-    );
-  }
-
-  /* Cultural guardrails re-run against the live knowledge base. */
-  const verification = verifyDesignProposal(proposal);
-  if (!verification.passed) {
-    return errorResponse(
-      `The confirmed proposal failed the cultural guardrails: ${verification.checks
-        .filter((c) => !c.passed)
-        .map((c) => `${c.rule_id}: ${c.message}`)
-        .join(" | ")}`,
-      "guardrail_violation",
-      422,
-    );
-  }
+  const { order, seed } = parsed.data;
 
   try {
-    const { prompt } = buildImagePrompt({
-      handoff: { designDna, designBrief, selectedDirectionId, proposal },
-      seed,
-    });
+    const prompt = buildSealImagePrompt(order);
+    const image = await generateSealDesignImage({ prompt, seed });
 
-    const image = await generateDesignImage({ prompt, seed });
-
-    const body: RenderApiResponse = {
+    const body: SealRenderApiResponse = {
       success: true,
+      order,
       image_prompt: prompt,
       image: {
         data_url: image.dataUrl,
@@ -115,17 +72,19 @@ export async function POST(request: Request) {
         provider: image.provider,
         model: image.model,
         generated_at: image.generatedAt,
+        seed,
       },
-      verification,
     };
     return NextResponse.json(body, { status: 200 });
   } catch (err) {
-    return errorResponse(
-      err instanceof Error ? err.message : "Design render generation failed.",
-      err instanceof Error && /render/i.test(err.message)
-        ? "render_failed"
-        : "unknown",
-      500,
-    );
+    const message = err instanceof Error ? err.message : "Seal render failed.";
+    const code: ErrorCode = /timeout/i.test(message)
+      ? "timeout"
+      : /rate limit/i.test(message)
+        ? "rate_limited"
+        : /render/i.test(message)
+          ? "render_failed"
+          : "unknown";
+    return errorResponse(message, code, 500);
   }
 }

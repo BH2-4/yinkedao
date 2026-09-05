@@ -6,24 +6,14 @@
   "common": {
     "actions": {
       "enterStudio": "进入设计工作室",
-      "understandMyStory": "理解我的故事",
       "continue": "继续",
       "startOver": "重新开始",
       "backToStudio": "返回工作室",
-      "backToCulturalMatch": "返回文化匹配",
-      "continueToCulturalMatch": "进入文化匹配",
-      "continueToDesignTranslation": "进入设计翻译",
-      "continueToAiSilverDesign": "进入 AI 篆刻设计",
       "useThisDirection": "选用此方向",
       "selectedForTranslation": "已选用于设计翻译",
       "collapseDetails": "收起",
-      "viewDesignStory": "查看设计故事",
-      "readDesignLog": "阅读完整设计日志",
-      "viewFullDna": "查看完整设计基因",
       "tryExample": "试试示例 →",
-      "generateConcepts": "生成印章设计概念",
-      "viewProposal": "查看定制设计提案",
-      "backToDesignTranslation": "返回设计翻译"
+      "backToBrief": "返回参数单"
     },
     "labels": {
       "confidence": "置信度",
@@ -54,12 +44,9 @@
       "aiSuggested": "AI 建议"
     },
     "stages": {
-      "interview": "00 · 记忆访谈",
-      "globalDemand": "01 · 全局需求",
-      "culturalMatch": "02 · 文化匹配",
-      "designTranslation": "03 · 设计翻译",
-      "designProposal": "04 · 定制提案",
-      "designRender": "05 · 设计效果图"
+      "interview": "00 · 五维度访谈",
+      "designBrief": "01 · 参数单确认",
+      "designRender": "02 · 效果图"
     },
     "navAria": "流程阶段",
     "collectionLabel": "成品系列",
@@ -79,24 +66,12 @@
         "desc": "石料、用途、外形、装饰、印面——五个轻问题，理清想要的那方印。"
       },
       "s1": {
-        "name": "偏好整理",
-        "desc": "把你的选择整理成一句偏好画像。"
+        "name": "参数单确认",
+        "desc": "回改任一维度、写下印文——当前链接即是你的参数单，可随时分享。"
       },
       "s2": {
-        "name": "文化匹配",
-        "desc": "在真实记载的篆刻文化中，寻找与你相遇的线索。"
-      },
-      "s3": {
-        "name": "设计转译",
-        "desc": "看偏好如何成为印章设计方向。"
-      },
-      "s4": {
-        "name": "设计提案",
-        "desc": "敲定那方真正属于你的印章。"
-      },
-      "s5": {
         "name": "效果图",
-        "desc": "最终，看见你想象中的那一方印。"
+        "desc": "质感层渲染——素坯无字，印面文字由标准篆字引擎叠加。"
       }
     }
   },
@@ -130,519 +105,6 @@
     "shopCollectionHint": "不想定制？浏览我们的已有作品，直接询盘或购买 →",
     "act3StoryLink": "想转一方印细看？进入 3D 篆章展厅",
     "footer3dStory": "3D 篆章展厅"
-  },
-  "globalDemand": {
-    "studioEyebrow": "全球设计工作室",
-    "engineLabel": "全局需求引擎 · V1",
-    "headerTitle": "你想佩戴什么？",
-    "headerSubtitle": "告诉我们，你想让银饰讲述怎样的故事。",
-    "storyLabel": "你的故事",
-    "storyPlaceholder": "告诉我们你想佩戴什么、为谁而戴，或你希望它讲述怎样的故事……",
-    "storyAria": "描述你想佩戴什么",
-    "storyHint": "AI 会把你的故事转化为一份专属设计简报。",
-    "refineLabel": "细化你的信号",
-    "uploadLabel": "灵感图 · 可选",
-    "uploadDropTitle": "将灵感图拖到这里",
-    "uploadDropHint": "或点击浏览 · PNG · JPG · WEBP · ≤ 5MB",
-    "uploadPreviewNote": "KB · 仅预览 · 绝不上传",
-    "uploadRemoveAria": "移除灵感图",
-    "uploadErrorType": "仅支持 PNG、JPG、WEBP 或 GIF 图片。",
-    "uploadErrorSize": "图片必须小于 5 MB。",
-    "processingLabel": "处理中",
-    "processingStages": {
-      "stage0": "正在理解你的设计故事……",
-      "stage1": "正在识别你的审美",
-      "stage2": "正在读取你的偏好",
-      "stage3": "正在构建你的设计基因"
-    },
-    "clarificationLabel": "正在细化你的信号",
-    "clarificationHint": "选择最接近你意图的选项。稍后你随时可以补充更完整的故事。",
-    "disclaimerDemo": "当前以演示模式运行。响应由本地启发式引擎生成——不会调用任何外部 AI。",
-    "disclaimerLive": "实时分析。你的输入由 Claude 在服务端处理，不作任何存储。",
-    "resultDnaLabel": "你的设计基因",
-    "resultTitle": "一份由你翻译而来的简报。",
-    "aiInterpretationLabel": "AI 解读",
-    "culturalStance": "文化倾向",
-    "signalWear": "佩戴·{value}",
-    "signalVisibility": "文化可见度·{value}",
-    "signalsLabel": "设计信号",
-    "signalsEmpty": "暂未检测到强信号。",
-    "avoidLabel": "避免",
-    "whatComesNextLabel": "接下来",
-    "whatComesNextTitle": "你的设计简报已就绪。",
-    "whatComesNextBody": "接下来，Silver Forged Gui 会把你的偏好与贵州的文化知识库连接——匹配与你意图共鸣的纹样、材料与传承脉络。",
-    "stage2Ready": "阶段 2 · 文化匹配引擎 · 就绪",
-    "errors": {
-      "analysisInterrupted": "分析已被打断",
-      "network": "无法连接分析服务。"
-    }
-  },
-  "culturalMatch": {
-    "studioEyebrow": "文化匹配工作室",
-    "engineLabel": "文化匹配引擎 · V1",
-    "headerTitle": "文化匹配",
-    "headerSubtitle": "把你的设计基因翻译为真实的文化方向——基于官方文化记录，绝不依赖猜测。",
-    "matchingLabel": "匹配中",
-    "matchingStages": {
-      "stage0": "正在读取你的设计基因",
-      "stage1": "正在扫描官方文化记录",
-      "stage2": "正在为文化方向评分",
-      "stage3": "正在校验来源与文化护栏"
-    },
-    "heritageDirectionsLabel": "文化方向",
-    "topOfRanked": "数据库 {pool} 个文化方向 · 基于你的选择推荐 Top {total}",
-    "selectionSource": {
-      "user": "你的选择",
-      "recommended": "推荐第一"
-    },
-    "emptyLabel": "未找到设计基因",
-    "emptyTitle": "首先，告诉我们你想佩戴什么。",
-    "emptyBody": "文化匹配从设计简报出发。请先在全球设计工作室完成阶段 1，再回到这里继续。",
-    "errorInterrupted": "匹配已被打断",
-    "whatComesNextLabel": "接下来",
-    "whatComesNextTitle": "把你的方向翻译为设计。",
-    "whatComesNextBodySelected": "阶段 3 会把“{name}”转化为一份结构化设计简报——形态、材料、纹样与尺度——并将文献事实与 AI 设计解读严格分离。",
-    "whatComesNextBodyNone": "请在上方选择一个文化方向，以进入阶段 3。",
-    "stage3Available": "阶段 3 · 设计翻译 · 现已可用",
-    "guardrailTitle": "文化护栏",
-    "guardrailAllPassed": "全部检查通过",
-    "guardrailFailed": "检查未通过",
-    "guardrailCheckPassed": "已验证",
-    "guardrailCheckFailed": "未通过",
-    "disclosuresLabel": "披露",
-    "card": {
-      "whyLabel": "匹配原因",
-      "scoreLabel": "评分构成",
-      "evidenceLabel": "文化证据",
-      "matchLabel": "匹配度",
-      "matchSourceLabel": "匹配来源",
-      "preferenceLabel": "客户偏好",
-      "visualLinkLabel": "视觉关联",
-      "interpretationBadge": "设计解释 · 非文化事实",
-      "factLabel": "文化证据",
-      "claimLevelLabel": "证据等级",
-      "suggestionLabel": "设计建议",
-      "boundaryLabel": "文化边界",
-      "regionFallback": "贵州苗族银饰相关视觉语言",
-      "whyThisMatch": "为何是这个匹配",
-      "carryForward": "把这份文化带进设计",
-      "archiveImageNote": "档案馆影像 · 真实苗银记录",
-      "fitLabel": "契合",
-      "compatibility": {
-        "exact": "精确对应",
-        "compatible": "可转译对应"
-      }
-    },
-    "why": {
-      "visualAffinity": "「{motif}」的形态语言与你选择的视觉偏好具有较高匹配度——仅为美学关联，非文化寓意。",
-      "subjectNoConflict": "「{motif}」是有官方记录的视觉题材，与你的风格信号无冲突。",
-      "visualOrnate": "「{name}」在资料记录的繁复谱系上与你的风格档案高度吻合（美学推断）。",
-      "visualRegionProfile": "{region}在官方资料中记录为{character}——与你的风格档案经美学启发式匹配。",
-      "visualCraftAesthetic": "「{craft}」的工艺美学（{gloss}）与你的风格信号共鸣——技术美学，非文化主张。",
-      "suggestionMotifLocal": "可将「{motif}」转化为较小尺度的局部纹样，用于日常佩戴。",
-      "suggestionMotifStatement": "「{motif}」适合作为盛装尺度的核心视觉主题。",
-      "suggestionItemForm": "可借鉴「{name}」（{category}类别）的形制语言。",
-      "suggestionRegionForm": "可参考{region}官方记录的{terms}形制。",
-      "suggestionCraft": "表面逻辑建议采用「{craft}」工艺。",
-      "suggestionProjectGrounding": "以{region}国家级非遗项目作为此方向的权威锚点。",
-      "boundaryDocumented": "「{entity}」的寓意仅按官方记录原样转述，不得扩展。",
-      "boundaryVisualOnly": "「{entity}」在当前数据中暂无官方资料支持具体寓意，仅作视觉设计参考——不得自动赋予固定民族寓意。",
-      "boundaryNotApplicable": "「{entity}」以形态语言呈现，不作文化寓意主张。"
-    }
-  },
-  "designTranslation": {
-    "studioEyebrow": "设计翻译工作室",
-    "engineLabel": "设计翻译 · V1",
-    "headerTitle": "设计翻译",
-    "headerSubtitle": "你的全球心愿，经由经过验证的文化传承翻译——成为一份设计简报，其中文献事实、设计解读与 AI 提案永不混淆。",
-    "translatingLabel": "翻译中",
-    "translatingStages": {
-      "stage0": "正在读取你的设计基因",
-      "stage1": "正在锚定文化方向",
-      "stage2": "正在把文化翻译为形态",
-      "stage3": "正在核验文献事实",
-      "stage4": "正在组装设计简报"
-    },
-    "emptyLabel": "未选择文化方向",
-    "emptyTitle": "请先选择一个有依据的方向。",
-    "emptyBody": "设计翻译从文化匹配出发。请完成阶段 2，选择与你的设计基因契合的文化方向，再回到这里继续。",
-    "errorInterrupted": "翻译已被打断",
-    "directionLabel": "文化方向",
-    "directionMetaLabel": "阶段 2 · 文化匹配",
-    "noDirectionTitle": "未选择文化方向。",
-    "noDirectionBody": "此简报在未引用文化传承的情况下翻译。它不作出任何文化主张——其解读层也被禁止编造任何主张。",
-    "specsLabel": "设计翻译",
-    "formLabel": "形态",
-    "materialLabel": "材料",
-    "motifLabel": "纹样",
-    "scaleLabel": "尺寸",
-    "weightLabel": "重量",
-    "complexityLabel": "复杂度",
-    "culturalVisibilityLabel": "文化可见度",
-    "wearabilityLabel": "佩戴性",
-    "specsMotifNote": "纹样主题仅来自知识库——其文献寓意逐字引用，绝不扩展。",
-    "specsMotifNone": "无——以形态主导的设计",
-    "briefLabel": "设计简报",
-    "interpretationLabel": "设计解读",
-    "interpretationNote": "AI 设计解读 · 非文化事实",
-    "discardedNote": "已从你的设计基因中丢弃——没有官方记录支持：{items}。",
-    "constraintsLabel": "文化约束",
-    "avoidLabel": "避免",
-    "generationPromptLabel": "生成提示词",
-    "generationPromptNote": "阶段 4 · 仅派生自此简报",
-    "negativePromptLabel": "负面提示词",
-    "negativePromptNote": "编造文化已被阻止",
-    "readyLabel": "准备创作",
-    "readyTitleGrounded": "一个有依据的设计，已准备好被绘制。",
-    "readyTitlePlain": "一个设计，已准备好被绘制——不涉及任何文化主张。",
-    "readyBody": "设计简报已完成：其上的每一条文化陈述，要么有带来源编号的文献支持，要么明确标注为 AI 设计解读。下一阶段可直接基于这份结构化简报生成图像。",
-    "readyNextTitle": "将在下一阶段开放",
-    "stage4ComingSoon": "阶段 4 · AI 图像生成 · 即将推出"
-  },
-  "designDirections": {
-    "section1Label": "01 · 你的方向",
-    "section1Note": "AI 偏好解读 · 非文化事实",
-    "orientationSummary": "从你的选择来看，你更倾向于一件 {style} 风格的 {product}——我们据此从贵州文化数据库中，为你筛选出最相关的文化线索。",
-    "orientationNoMatch": "你还没有选定具体的文化方向；下面的方向会更侧重形态语言本身。",
-    "orientationSelected": "你在阶段 2 关注的方向：{name}",
-    "orientationPool": "文化数据库经产品与偏好筛选后，本轮为你保留 {count} 条最相关的文化线索",
-    "section2Label": "02 · 为什么是这些方向",
-    "section2Title": "你的偏好，如何一步步变成设计方向。",
-    "layerPreferences": "客户偏好",
-    "layerSignals": "设计推断",
-    "layerCultural": "文化证据",
-    "layerPossibilities": "设计可能性",
-    "layerNote": "三层各自独立：你的偏好来自访谈；设计推断是 AI 对偏好的翻译；文化证据逐字来自经过核验的知识库。",
-    "signal": {
-      "product": "产品形态指向：{product}",
-      "style": "风格信号指向：{style}",
-      "complexity": "复杂度信号：{level}",
-      "visibility": "佩戴可见度：{level}",
-      "scene": "场景信号指向：{scene}"
-    },
-    "possibility": {
-      "quiet": "方向 A · 轻盈克制——以 {entity} 的元素作局部点缀",
-      "balanced": "方向 B · 均衡仪式感——{entity} 的结构与层次适度呈现",
-      "statement": "方向 C · 强存在感——{entity} 的完整视觉系统"
-    },
-    "possibilityNoEntity": "形态语言",
-    "section3Label": "03 · 为你生成的 3 个设计方向",
-    "section3Note": "三个方向在尺度、工艺密度与存在感上刻意拉开差距——差异是结构性的，不只是名字不同。",
-    "directionLetter": "方向 {letter}",
-    "direction": {
-      "name": {
-        "quiet": "轻语",
-        "balanced": "均衡",
-        "statement": "盛饰"
-      },
-      "desc": {
-        "quiet": "一件轻盈、克制、只在局部留一处纹样呼吸感的银饰。",
-        "balanced": "一件有仪式感、结构清晰、复杂度适中的银饰。",
-        "statement": "一件繁复华丽、强视觉存在感、纹样系统完整的银饰。"
-      }
-    },
-    "fields": {
-      "keywords": "设计关键词",
-      "product": "产品形态",
-      "scale": "推荐尺度",
-      "material": "推荐材质",
-      "craft": "推荐工艺",
-      "motif": "纹样 / 视觉语言",
-      "scene": "佩戴场景",
-      "emotion": "情绪表达",
-      "why": "为什么适合你",
-      "source": "文化来源",
-      "evidence": "官方证据",
-      "confidence": "匹配置信度",
-      "risk": "风险提示"
-    },
-    "values": {
-      "scale": {
-        "small": "小 · 贴身低调",
-        "medium": "中 · 日常平衡",
-        "large": "大 · 醒目存在"
-      },
-      "finish": {
-        "high-polish": "925 银 · 高抛光镜面",
-        "satin-matte": "925 银 · 缎面哑光",
-        "textured-relief": "925 银 · 锤錾浮雕肌理"
-      },
-      "materialBase": "925 银",
-      "meaning": {
-        "documented": "官方文献已记录其文化寓意",
-        "not_documented": "有视觉记录，暂无足够官方资料支持具体寓意",
-        "not_applicable": "此方向以形态语言为主，不作文化主张"
-      },
-      "evidenceLevel": {
-        "official": "官方级证据",
-        "museum": "博物馆级证据",
-        "academic": "学术级证据",
-        "interview": "访谈级证据",
-        "inference": "推断级（未经文献证实）"
-      }
-    },
-    "motifPresented": {
-      "documented-meaning": "以官方记录的寓意呈现",
-      "visual-subject": "仅作为视觉语言呈现"
-    },
-    "motifNone": "无纹样引用 · 形态主导",
-    "confidenceValue": "{value}%",
-    "why": {
-      "tier": {
-        "quiet": "轻量档与你的日常佩戴诉求最相称——目前看来压力最小。",
-        "balanced": "均衡档在仪式感与可佩戴性之间取中——可能更符合多数场景。",
-        "statement": "盛饰档保留完整的视觉系统——更适合探索强存在感表达。"
-      },
-      "match": "它与文化方向「{entity}」的匹配度为 {score}/100。",
-      "formLed": "此方向未引用文化实体，以形态语言推进。",
-      "motif": "可引用知识库中记录的「{motif}」元素。",
-      "craft": "表面逻辑建议采用「{craft}」工艺。"
-    },
-    "uncertainty": {
-      "visualOnly": "「{motif}」在当前数据库中有视觉记录，但暂未找到足够官方资料支持其具体文化寓意，因此这里只将其作为视觉设计参考。",
-      "noMotif": "此方向未引用纹样，所有形态推断均不携带文化主张。",
-      "exploration": "方向仅为探索建议——你的直觉比任何评分都重要。"
-    },
-    "constraint": {
-      "documentedMeaning": "「{motif}」的寓意只能按官方记录原样转述，不得扩展。",
-      "visualOnly": "「{motif}」只能作为视觉语言使用，不得赋予寓意。",
-      "region": "工艺与纹样检索限定在 {region} 的官方记录范围内。",
-      "formLed": "不引用任何文化实体，也不作出任何文化主张。"
-    },
-    "actions": {
-      "choose": "我更喜欢这个",
-      "chooseAria": "选择方向 {letter}",
-      "refresh": "再看看其他方向",
-      "notSure": "我还不确定",
-      "notSureHint": "没关系——不确定本身就是一个信号。可以回到阶段 2 调整偏好，或换一批方向再看看。"
-    },
-    "briefBarLabel": "你选择的方向",
-    "backToDirections": "回到方向选择",
-    "reselect": "重新选择"
-  },
-  "designProposal": {
-    "studioEyebrow": "定制设计提案工作室",
-    "engineLabel": "定制设计提案 · V1",
-    "headerTitle": "你的定制设计提案",
-    "headerSubtitle": "设计简报在此成为一份面向你的完整提案——每一条文化陈述都有编号来源，设计解读与 AI 建议永不冒充文化事实。",
-    "assemblingLabel": "组装中",
-    "assemblingStages": {
-      "stage0": "正在读取你确认的设计简报",
-      "stage1": "正在核验文化来源",
-      "stage2": "正在推导形态与构图",
-      "stage3": "正在组装提案文件"
-    },
-    "emptyLabel": "尚无设计简报",
-    "emptyTitle": "请先完成设计翻译。",
-    "emptyBody": "提案从阶段 3 的设计简报生成。请先在阶段 3 选择一个设计方向并生成简报，再回到这里。",
-    "errorInterrupted": "提案生成已被打断",
-    "section1Label": "SECTION 01 · 你的设计",
-    "titleLabel": "设计名称",
-    "tier": {
-      "quiet": "轻语款",
-      "balanced": "均衡款",
-      "statement": "盛饰款"
-    },
-    "title": {
-      "pattern": "{core}{product} · {tier}",
-      "formLed": "{product} · {tier}"
-    },
-    "conceptLabel": "一句话概念",
-    "concept": "一件为{emotions}而设计的{scene}银饰。",
-    "conceptJoin": "与",
-    "conceptNote": "概念句仅由访谈情绪与场景组合而成——不携带任何文化主张。",
-    "confidenceValue": "{value}%",
-    "section2Label": "SECTION 02 · 为什么这样设计",
-    "section2Title": "你的选择，如何一步步变成这份提案。",
-    "section2Note": "以下推导链的每一层都可回溯：客户偏好来自你的访谈；设计推断是 AI 对偏好的翻译；文化证据逐字来自经过核验的知识库。",
-    "intentTitle": "你在阶段 0 的原始偏好",
-    "intent": {
-      "product": "产品",
-      "style": "风格",
-      "emotions": "情绪",
-      "occasion": "场合",
-      "keywords": "关键词",
-      "size": "尺寸",
-      "weight": "重量",
-      "visibility": "可见度"
-    },
-    "reasoning": {
-      "step": {
-        "your_choices": "你的选择",
-        "design_dna": "设计基因",
-        "cultural_direction": "文化方向",
-        "design_language": "设计语言",
-        "final_proposal": "最终提案"
-      }
-    },
-    "section3Label": "SECTION 03 · 形态",
-    "section3Title": "它的形，由你的选择决定。",
-    "form": {
-      "product": "产品形态",
-      "thickness": "体量",
-      "weight": "重量",
-      "position": "佩戴位置",
-      "presence": "视觉存在感"
-    },
-    "thickness": {
-      "slim": "纤薄",
-      "medium": "适中",
-      "substantial": "厚重"
-    },
-    "section4Label": "SECTION 04 · 纹样",
-    "section4Title": "纹样：视觉参考与文化含义，严格分开。",
-    "motif": {
-      "primary": "主纹样",
-      "meaning": "文献寓意",
-      "secondary": "辅助形态语言",
-      "secondaryNone": "无",
-      "none": "无纹样引用 · 形态主导",
-      "documentedNote": "「{motif}」的寓意按官方记录原样呈现，不作扩展。",
-      "visualNote": "「{motif}」仅作为视觉语言使用——知识库未提供足够官方资料支持其寓意，本提案不赋予它任何象征含义。",
-      "noMotifNote": "此设计未引用纹样，所有形态推断均不携带文化主张。"
-    },
-    "composition": {
-      "arrangement": "构图方式",
-      "coverage": "纹样覆盖",
-      "usage": "应用范围",
-      "arrangementValue": {
-        "single-focus": "单一焦点",
-        "balanced-dual": "均衡双元",
-        "layered-system": "层次系统"
-      },
-      "coverageValue": {
-        "local": "局部",
-        "partial": "半幅",
-        "full": "满幅"
-      }
-    },
-    "section5Label": "SECTION 05 · 材质与工艺",
-    "section5Title": "银，与手艺人掌握的工艺。",
-    "material": {
-      "base": "基底材质",
-      "silver": "925 银",
-      "finish": "表面处理",
-      "finishValue": {
-        "high-polish": "高抛光镜面",
-        "satin-matte": "缎面哑光",
-        "textured-relief": "锤錾浮雕肌理"
-      }
-    },
-    "craft": {
-      "primary": "主工艺",
-      "alternatives": "备选工艺",
-      "fineness": "工艺精细度",
-      "handNote": "工艺条目逐字来自知识库的官方记录——名称、来源编号与证据等级都未经过 AI 改写。"
-    },
-    "section6Label": "SECTION 06 · 佩戴体验",
-    "section6Title": "它在你生活中的位置。",
-    "wearability": {
-      "level": "日常佩戴性",
-      "scenes": "推荐场景",
-      "reason": "原因"
-    },
-    "presence": {
-      "title": "视觉存在感",
-      "note": {
-        "subtle": "含蓄——近观可辨，远看是一件干净的现代银饰。",
-        "balanced": "平衡——交谈距离内清晰可辨，日常与礼仪场景都成立。",
-        "strong": "显著——刻意的醒目呈现，适合表达完整视觉系统的场合。"
-      }
-    },
-    "section7Label": "SECTION 07 · 文化来源",
-    "section7Title": "这份提案的每一条文化依据。",
-    "section7Note": "以下事实逐字引用自经过核验的知识库，每一条都可追溯到编号的官方记录。",
-    "legend": {
-      "title": "阅读方式",
-      "official": "官方记录——来自非遗名录、博物馆或学术出版物的可追溯事实。",
-      "inference": "设计推断——AI 对你偏好的翻译，明确标注，绝非文化事实。",
-      "visual": "仅视觉参考——只有视觉形态记录，不携带任何寓意主张。"
-    },
-    "source": {
-      "classification": {
-        "official_record": "官方记录",
-        "visual_reference": "仅视觉参考"
-      },
-      "kind": "类型",
-      "region": "地域",
-      "evidence": "证据等级",
-      "claimLevel": "主张等级",
-      "confidence": "置信度",
-      "facts": "文献事实",
-      "records": "官方记录",
-      "trustNote": "来源已核验——{kind}条目出自贵州官方非遗数据库，完整文献记录备档可查。"
-    },
-    "sources": {
-      "none": "此提案未引用任何文化实体——它是纯形态语言的设计，不作出文化主张。"
-    },
-    "uncertaintiesLabel": "诚实的未知",
-    "guardrailPassed": "文化护栏 · 已通过——RULE-001 至 RULE-007 全部核验，无文化事实被 AI 自动编造。",
-    "actionsLabel": "下一步",
-    "actionsTitle": "确认这份提案，或继续调整。",
-    "actions": {
-      "confirm": "确认这个方向",
-      "confirmHint": "锁定提案，进入最终视觉设计",
-      "adjust": "回到设计翻译调整",
-      "adjustHint": "返回阶段 3 更换方向或修改偏好",
-      "reexplore": "重新探索文化方向",
-      "reexploreHint": "清除当前选择，回到文化匹配",
-      "continueToRender": "生成设计效果图"
-    },
-    "noImageNote": "本阶段不生成图像——先确认方向本身",
-    "confirmedLabel": "已确认",
-    "confirmedTitle": "这个方向已锁定。",
-    "confirmedBody": "你的提案已保存。下一阶段将基于这份确认的提案生成最终视觉设计。",
-    "confirmedBody2": "每一条文化陈述保持其来源与证据等级——从访谈到图像，全程可追溯。",
-    "nextStageComingSoon": "阶段 5 · 视觉设计 · 即将开放"
-  },
-  "proposal": {
-    "reasoning": {
-      "choices": "你给出了 {style} 个风格、{emotion} 个情绪与 {keywords} 个关键词信号——它们构成全部推导的起点。",
-      "dna": "设计基因层：{discarded} 个未经官方记录支持的象征性输入被丢弃——它们永远不会进入文化主张。",
-      "cultural": "文化方向层：与「{entity}」的匹配度为 {score} 分，其证据等级逐字来自知识库。",
-      "culturalFormLed": "文化方向层：未引用文化实体，以纯形态语言推进——不作出任何文化主张。",
-      "language": "设计语言层：以「{motif}」为视觉核心，简化为当代可佩戴的语言。",
-      "languageFormLed": "设计语言层：无纹样引用，由形态语言直接推进。",
-      "final": {
-        "quiet": "最终提案：轻语档——一件轻盈克制、局部点缀的银饰。",
-        "balanced": "最终提案：均衡档——一件仪式感与可佩戴性平衡的银饰。",
-        "statement": "最终提案：盛饰档——一件完整视觉系统、强存在感的银饰。"
-      }
-    },
-    "form": {
-      "position": {
-        "necklace": "贴颈佩戴——链体沿锁骨线自然垂落。",
-        "earrings": "耳垂佩戴——成对或单侧的垂坠形态。",
-        "bracelet": "腕间佩戴——日常活动范围内保持舒适。",
-        "ring": "手指佩戴——戒身平滑内壁适合全天佩戴。",
-        "brooch": "衣物佩戴——别针固定于胸前或领口织物。",
-        "pendant": "贴胸佩戴——吊坠沿锁骨线悬垂。",
-        "cuff": "前臂佩戴——开口镯体滑入腕间。",
-        "anklet": "脚踝佩戴——轻巧链体随步伐微动。",
-        "hairpiece": "发间佩戴——簪体或梳齿固定于发髻。",
-        "default": "按产品形态贴身佩戴，保持日常活动自由。"
-      }
-    },
-    "composition": {
-      "scope": {
-        "quiet": "「{motif}」浓缩为一处局部焦点——留白即克制的表达。",
-        "balanced": "「{motif}」以均衡的密度分布于主面——可辨识而不喧宾夺主。",
-        "statement": "「{motif}」展开为完整的层次系统——构成整件作品的视觉主体。",
-        "form-led": "构图由形态比例直接决定，不依赖纹样密度。"
-      }
-    },
-    "wearability": {
-      "reason": {
-        "everyday": "日常场景：轻量与耐用优先——可全天佩戴而不觉负担。",
-        "date": "约会场景：近观细节成立——一次对话距离内可被读懂。",
-        "festival": "节日场景：仪式感成立——存在感与场合相称。",
-        "wedding": "婚礼场景：礼仪性成立——在正式着装中保持庄重。",
-        "gift": "送礼场景：寓意清晰且可讲述——附文化来源卡更佳。",
-        "formal": "正式场合：与正装兼容——克制的存在感不喧宾夺主。",
-        "travel": "旅行场景：牢固扣合与低维护——适合随身携带。",
-        "default": "此场景下的适配度来自形态与重量推断。"
-      }
-    }
   },
   "interview": {
     "stageLabel": "Stage 0 · Guided Interview",
@@ -891,7 +353,10 @@
       "budget": "预算",
       "form": "形制",
       "decoration": "装饰",
-      "face": "印面"
+      "face": "印面",
+      "stoneLook": "观感",
+      "finial": "钮制",
+      "decorationLevel": "纹饰"
     },
     "values": {
       "unknown": "未指定",
@@ -968,7 +433,11 @@
       "inscription": "装饰上偏好{inscription}与{decoration}",
       "face": "印面意向{textType}、{count}字、{style}",
       "fallback": "希望通过五维度访谈明确自己的印章设计偏好"
-    }
+    },
+    "decideAll": "帮我全决定",
+    "decideAllHint": "跳过逐题，直接从三套完整方案中选",
+    "noteLabel": "还想多说一句？（可选）",
+    "notePlaceholder": "这个维度上你的具体想法……"
   },
   "errors": {
     "somethingWentWrong": "出错了",
@@ -1007,18 +476,6 @@
       "strong": "显著",
       "unknown": "未指定"
     },
-    "product": {
-      "necklace": "项链",
-      "earrings": "耳饰",
-      "bracelet": "手链",
-      "ring": "戒指",
-      "brooch": "胸针",
-      "pendant": "吊坠",
-      "cuff": "开口手镯",
-      "anklet": "脚链",
-      "hairpiece": "发饰",
-      "unknown": "未指定"
-    },
     "occasion": {
       "everyday": "日常",
       "date": "约会",
@@ -1028,119 +485,6 @@
       "formal": "正式场合",
       "travel": "旅行",
       "unknown": "未指定"
-    },
-    "style": {
-      "minimal": "极简",
-      "modern": "现代",
-      "bohemian": "波西米亚",
-      "luxury": "奢华",
-      "vintage": "复古",
-      "street": "街头",
-      "nature-inspired": "自然灵感",
-      "organic": "有机",
-      "elegant": "优雅",
-      "delicate": "精致",
-      "bold": "大胆",
-      "statement": "夸张",
-      "romantic": "浪漫",
-      "classic": "经典",
-      "sculptural": "雕塑感",
-      "textured": "肌理",
-      "fluid": "流线",
-      "dainty": "纤巧",
-      "timeless": "恒久",
-      "refined": "精炼",
-      "ornate": "华丽",
-      "traditional": "传统"
-    },
-    "emotion": {
-      "love": "爱",
-      "freedom": "自由",
-      "protection": "守护",
-      "new-beginning": "新的开始",
-      "connection": "联结",
-      "transformation": "蜕变",
-      "calm": "平静",
-      "joy": "喜悦",
-      "hope": "希望",
-      "strength": "力量",
-      "rebirth": "重生",
-      "serenity": "宁静",
-      "energy": "活力",
-      "nostalgia": "怀旧"
-    },
-    "market": {
-      "united states": "美国",
-      "china": "中国",
-      "japan": "日本",
-      "france": "法国",
-      "germany": "德国",
-      "united kingdom": "英国",
-      "england": "英国",
-      "singapore": "新加坡",
-      "europe": "欧洲",
-      "south korea": "韩国",
-      "korea": "韩国",
-      "canada": "加拿大",
-      "australia": "澳大利亚",
-      "italy": "意大利",
-      "spain": "西班牙",
-      "netherlands": "荷兰",
-      "unknown": "未指定"
-    },
-    "form": {
-      "a focal pendant suspended on a fine-gauge silver chain": "细银链上悬垂的焦点吊坠",
-      "fluid drape that layers with daily wear": "流畅垂坠，适合日常叠戴",
-      "paired drop forms with balanced visual weight": "成对垂坠形态，视觉重量均衡",
-      "secure everyday fastening": "牢固的日常扣合",
-      "a slim silver band with one focal surface": "纤窄银环，单一焦点表面",
-      "smooth interior for all-day comfort": "内壁平滑，全天舒适",
-      "an open cuff silhouette with clean terminals": "开口手镯轮廓，端部干净利落",
-      "sculptural yet wearable volume": "兼具雕塑感与可佩戴性的体量",
-      "a compact band form with one focal plane": "紧凑戒身，单一焦点平面",
-      "low-profile setting for daily wear": "低镶设计，适合日常佩戴",
-      "a compact pendant form on an adjustable silver cord": "可调银绳上的紧凑吊坠形态",
-      "one clear focal element": "一个清晰的视觉焦点",
-      "a compact brooch form with a secure clasp": "紧凑胸针形态，配牢固别针",
-      "a single readable motif plane": "单一可读的纹样平面",
-      "a refined silver hairpin or comb form": "精致银发簪或发梳形态",
-      "minimal structural decoration": "极简的结构装饰",
-      "a fine silver chain with a small focal charm": "纤细银链，小巧焦点吊饰",
-      "light, secure closure": "轻巧牢固的闭合",
-      "a refined silver form with one clear focal element": "精致银饰形态，一个清晰的视觉焦点"
-    },
-    "material": {
-      "silver": "银"
-    },
-    "finish": {
-      "high-polish smooth planes": "高抛光平滑面",
-      "satin matte with polished edges": "缎面哑光配抛光边缘",
-      "textured relief with polished highlights": "肌理浮雕配抛光高光"
-    },
-    "size": {
-      "Small — compact scale suited to layering": "小巧——紧凑尺度，适合叠戴",
-      "Medium — balanced everyday scale": "中等——均衡的日常尺度",
-      "Large — statement scale": "宏大——宣言式尺度"
-    },
-    "weight": {
-      "Light — minimal silver mass for all-day wear": "轻盈——极低银量，适合全天佩戴",
-      "Medium — substantial but balanced": "中等——有分量但均衡",
-      "Heavy — deliberate, weight-forward presence": "厚重——刻意强调的重量感"
-    },
-    "wearability": {
-      "High — engineered for continuous daily wear": "高——为连续日常佩戴而设计",
-      "Medium — comfortable for extended wear": "中——长时间佩戴舒适",
-      "Low — occasional or ceremonial wear": "低——适合偶尔或礼仪性佩戴"
-    },
-    "complexity": {
-      "Low — restrained ornament, one focal element": "低——克制的装饰，单一视觉焦点",
-      "Medium — balanced detail density": "中——均衡的细节密度",
-      "High — layered, richly worked surfaces": "高——层次丰富、工艺繁复的表面"
-    },
-    "culturalVisibility": {
-      "Subtle — cultural presence readable at close range": "含蓄——近观可辨的文化存在感",
-      "Balanced — clearly readable at conversational distance": "平衡——交谈距离内清晰可辨",
-      "Strong — deliberately prominent": "显著——刻意的醒目呈现"
     },
     "evidenceLevel": {
       "official": "官方",
@@ -1161,25 +505,6 @@
       "not_documented": "暂无经过文献/来源支持的象征意义，因此系统不会推断其象征含义。",
       "not_applicable": "不适用寓意主张（非纹样类实体）"
     },
-    "matchType": {
-      "motif": "纹样",
-      "heritage_item": "非遗项目",
-      "regional_style": "地域风格",
-      "craft": "工艺",
-      "project": "官方项目"
-    },
-    "scoreDimension": {
-      "visual_style_fit": "视觉 / 风格",
-      "product_fit": "产品",
-      "wearability_fit": "佩戴",
-      "regional_fit": "地域",
-      "keyword_fit": "关键词",
-      "evidence_confidence": "证据"
-    },
-    "presentedAs": {
-      "documented-meaning": "文献寓意",
-      "visual-subject": "视觉主题"
-    },
     "ruleType": {
       "source_required": "来源必需",
       "regional_attribution": "地域归属",
@@ -1188,37 +513,17 @@
       "design_transformation": "设计转化",
       "no_unsupported_claim": "禁止无依据主张",
       "claim_level_integrity": "证据等级完整性"
-    },
-    "thickness": {
-      "slim": "纤薄",
-      "medium": "适中",
-      "substantial": "厚重"
-    },
-    "renderFinish": {
-      "high-polish": "高抛光镜面",
-      "satin-matte": "缎面哑光",
-      "textured-relief": "锤錾浮雕肌理"
-    },
-    "arrangement": {
-      "single-focus": "单一焦点",
-      "balanced-dual": "均衡双元",
-      "layered-system": "层次系统"
-    },
-    "coverage": {
-      "local": "局部",
-      "partial": "半幅",
-      "full": "满幅"
     }
   },
   "designRender": {
     "studioEyebrow": "设计效果图工作室",
     "engineLabel": "设计效果图 · V1",
-    "backToProposal": "返回设计方案",
+    "backToProposal": "返回参数单",
     "headerTitle": "让你的设计被看见。",
     "headerSubtitle": "根据你的设计参数单生成一张印章概念效果图——每一处视觉都可追溯到已确认的设计。",
     "emptyLabel": "尚未确认设计方案",
-    "emptyTitle": "请先在阶段 4 确认设计方案。",
-    "emptyBody": "效果图只能基于已确认的定制设计提案生成。请返回阶段 4，选择「确认这个方向」后再回到这里。",
+    "emptyTitle": "请先确认你的参数单。",
+    "emptyBody": "效果图基于确认的参数单生成。请先完成五维度访谈（或「帮我全决定」），再回到这里。",
     "emptyCta": "前往设计方案",
     "generatingLabel": "生成中",
     "generatingTitle": "正在根据你的设计方案生成效果图……",
@@ -1278,6 +583,40 @@
     "confirmedTitle": "喜欢这个设计，我们记下了。",
     "confirmedBody": "已保存这份设计方案与效果图。接下来可用于定制询价、对接匠人，或保存分享。",
     "confirmedBody2": "所有文化依据的来源编号与证据等级完整保留——从访谈到图像，全程可追溯。",
-    "customizationComingSoon": "定制沟通 · 即将开放"
+    "customizationComingSoon": "定制沟通 · 即将开放",
+    "introBody": "视觉参数完全来自你确认的参数单——这一步只生成无文字的章体质感层，印面文字随后由标准篆字引擎叠加。",
+    "generateCta": "生成效果图",
+    "differenceNote": "效果图为 AI 示意；天然石料每块纹理独一无二，匠人手工刀痕亦有差异——这正是手工篆刻的价值。"
+  },
+  "designBrief": {
+    "stageLabel": "Stage 1 · Design Brief",
+    "pageEyebrow": "01 · 参数单确认",
+    "title1": "五维度都在这了。",
+    "title2": "回改任何一项，或直接确认。",
+    "headerSubtitle": "你的选择整理成了一份结构化参数单。点任一取值即可回改——当前链接就是这份参数单，刷新不丢，随时分享。",
+    "briefTitle": "你的印章参数单。",
+    "briefNote": "取值仅描述设计偏好；石料具体参数以实物为准，篆字由标准字体库渲染——全程不编造。",
+    "decideTitle": "帮我全决定——三套方案",
+    "decideIntro": "不确定从哪开始？三套气质互补的完整方案，选一套再微调。",
+    "decideNote": "选择后仍可在下方逐项回改——「全决定」只是起点，不是终点。",
+    "presets": {
+      "classic-baiwen": {
+        "name": "古朴白文方章",
+        "desc": "青田素钮方章，四字白文姓名印——自用书画的沉稳之选。"
+      },
+      "gentle-zhuwen": {
+        "name": "温润朱文细章",
+        "desc": "寿山纹饰顶长方章，局部薄意山水，朱文纪念文——人生节点的温柔纪念。"
+      },
+      "beast-finial-gift": {
+        "name": "瑞兽钮礼品章",
+        "desc": "昌化鸡血兽钮方章，二字白文——赠礼有分量，拿得出手。"
+      }
+    },
+    "sealTextLabel": "印文（想刻的字）",
+    "sealTextPlaceholder": "如：林小满 / 西湖丙午 / 一苇堂……",
+    "sealTextNote": "篆字由标准小篆字体库确定性渲染——缺字会如实告知并建议替代字，绝不造字。",
+    "confirmCta": "确认参数单，看效果图",
+    "shareNote": "当前链接即参数单——发给别人打开，看到的是同一方印。"
   }
 }

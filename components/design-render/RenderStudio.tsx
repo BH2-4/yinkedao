@@ -1,548 +1,191 @@
-﻿"use client";
+"use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  AlertCircle,
-  ArrowLeft,
-  ArrowRight,
-  Heart,
-  RotateCcw,
-  Sparkles,
-} from "lucide-react";
-import { SectionLabel } from "@/components/shared/SectionLabel";
+import { ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useI18n } from "@/components/i18n/I18nProvider";
-import {
-  STAGE4_PROPOSAL_STORAGE_KEY,
-  STAGE5_RENDER_STORAGE_KEY,
-} from "@/lib/constants/storage";
-import {
-  ProposalHandoffSchema,
-  type ProposalHandoff,
-} from "@/lib/design/schemas";
-import type { ImagePrompt } from "@/lib/design/render-prompt";
-import type { RenderApiResponse } from "@/types/design-render";
-import { PARTICLE_MODE_EVENT } from "@/components/visual/ParticleField";
-import { MotionReveal } from "@/components/visual/MotionReveal";
-import {
-  RenderCulture,
-  RenderImage,
-  RenderInterpretation,
-  RenderWhy,
-} from "./RenderSections";
-
-/* -------------------------------------------------------------------------- */
-/*  Local state machine                                                        */
-/* -------------------------------------------------------------------------- */
+import { decodeSealOrder, encodeSealOrder } from "@/lib/design/seal-order";
+import type { SealOrder } from "@/lib/design/seal-order";
+import type { SealRenderApiResponse } from "@/types/design-render";
 
 /**
- * Stage 5 phases — exactly the four states the spec asks for
- * (idle → generating → success → error) plus:
- *   · `empty`     — no Stage 4 hand-off in sessionStorage (fail-closed);
- *   · `confirmed` — the customer clicked「我喜欢这个设计」and the render was
- *                   frozen for the downstream customization / independent
- *                   site funnel.
- * "idle" is only a boot state — after a successful mount with a valid hand-off
- * we transition straight to "generating". Regeneration cycles success → generating → success.
- */
-type SuccessBody = Extract<RenderApiResponse, { success: true }>;
-
-type Phase =
-  | { kind: "empty" }
-  | { kind: "generating"; handoff: ProposalHandoff; seed: number }
-  | {
-    kind: "success";
-    handoff: ProposalHandoff;
-    seed: number;
-    render: SuccessBody;
-    confirmed: boolean;
-  }
-  | { kind: "error"; handoff: ProposalHandoff; seed: number; message: string; code?: string };
-
-const GENERATING_STAGE_KEYS = [
-  "designRender.generatingStages.stage0",
-  "designRender.generatingStages.stage1",
-  "designRender.generatingStages.stage2",
-  "designRender.generatingStages.stage3",
-] as const;
-
-/* -------------------------------------------------------------------------- */
-/*  Studio component                                                           */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Stage 5 orchestrator.
+ * 效果图工作室（三站流程第 3 站 · 印章质感层）。
  *
- * Reads the Stage 4 hand-off (proposal + brief + DNA + selected direction id)
- * from sessionStorage, calls POST /api/design-render (which re-verifies the
- * proposal against RULE-001…007 and only then renders through the image
- * provider adapter), and renders the returned concept image alongside the
- * structured prompt.
- *
- * Cultural safety is enforced entirely upstream: the client NEVER assembles
- * the prompt itself, NEVER edits it, and NEVER lets the user rewrite it.
- * 「重新生成」only varies the seed — the DesignProposal and every cultural
- * boundary stay identical.
+ * 数据来源：URL query（参数单持久化——刷新可恢复、链接可分享）。
+ * 渲染：POST /api/design-render → 质感层图（mock SVG 章型 / gpt-image-2）。
+ * 「重新生成」＝ 换 seed（换参考图组合产生变体）。
+ * 印面文字由字体引擎另行叠加——本页展示的是无文字素坯质感层。
  */
 export function RenderStudio() {
-  const { t, tApiError } = useI18n();
-  const router = useRouter();
-  const [phase, setPhase] = useState<Phase>({ kind: "empty" });
-  const [generatingStage, setGeneratingStage] = useState(0);
+  const { t } = useI18n();
+  const searchParams = useSearchParams();
+  const order: SealOrder | null = useMemo(
+    () => decodeSealOrder(searchParams.toString()),
+    [searchParams],
+  );
 
-  /* Idle rotation for the generating animation — visual only, never a real
-     progress %. Reset when we leave the generating phase. */
-  useEffect(() => {
-    if (phase.kind !== "generating") {
-      setGeneratingStage(0);
-      return;
-    }
-    const timer = window.setInterval(() => {
-      setGeneratingStage((s) => (s + 1) % GENERATING_STAGE_KEYS.length);
-    }, 900);
-    return () => window.clearInterval(timer);
-  }, [phase.kind]);
+  const [phase, setPhase] = useState<"idle" | "generating" | "done" | "error">(
+    "idle",
+  );
+  const [result, setResult] = useState<
+    Extract<SealRenderApiResponse, { success: true }> | null
+  >(null);
+  const [seed, setSeed] = useState(1);
 
-  /* Stage 6 · Round 2+4 — broadcast the current phase to the global
-     particle layer via a one-way CustomEvent. Zero business coupling:
-     the visual layer subscribes; if it isn't mounted, nothing changes.
-     Confirmed success → "confirmed" (locked/held), plain success is idle,
-     error dispatches the "error" mode for a subtle nervous jitter. */
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    let particleMode: "idle" | "generating" | "error" | "confirmed" = "idle";
-    if (phase.kind === "generating") particleMode = "generating";
-    else if (phase.kind === "error") particleMode = "error";
-    else if (phase.kind === "success" && phase.confirmed) particleMode = "confirmed";
-    window.dispatchEvent(
-      new CustomEvent(PARTICLE_MODE_EVENT, { detail: { mode: particleMode } }),
-    );
-  }, [phase]);
-
-  /* On unmount, restore the ambient idle so the next route boots clean. */
-  useEffect(() => {
-    return () => {
-      if (typeof window === "undefined") return;
-      window.dispatchEvent(
-        new CustomEvent(PARTICLE_MODE_EVENT, { detail: { mode: "idle" } }),
-      );
-    };
-  }, []);
-
-  /* --------------------------------------------------------------------- */
-  /*  API call — the ONLY place the /api/design-render endpoint is invoked  */
-  /* --------------------------------------------------------------------- */
-
-  const runRender = useCallback(
-    async (handoff: ProposalHandoff, seed: number) => {
-      setPhase({ kind: "generating", handoff, seed });
+  const generate = useCallback(
+    async (nextSeed: number) => {
+      if (!order) return;
+      setPhase("generating");
       try {
         const res = await fetch("/api/design-render", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ ...handoff, seed }),
+          body: JSON.stringify({ order, seed: nextSeed }),
         });
-        const body = (await res.json()) as RenderApiResponse;
-        if (!body.success) {
-          setPhase({
-            kind: "error",
-            handoff,
-            seed,
-            message: body.error,
-            code: body.code,
-          });
-          return;
-        }
-        setPhase({ kind: "success", handoff, seed, render: body, confirmed: false });
-      } catch (err) {
-        setPhase({
-          kind: "error",
-          handoff,
-          seed,
-          message: err instanceof Error ? err.message : t("errors.networkError"),
-          code: "network",
-        });
+        const body = (await res.json()) as SealRenderApiResponse;
+        if (!body.success) throw new Error(body.error);
+        setResult(body);
+        setSeed(nextSeed);
+        setPhase("done");
+      } catch {
+        setPhase("error");
       }
     },
-    [t],
+    [order],
   );
 
-  /* --------------------------------------------------------------------- */
-  /*  Mount — read Stage 4 hand-off + honor a previously confirmed render   */
-  /* --------------------------------------------------------------------- */
-
-  useEffect(() => {
-    /* Never trust the hand-off structurally. The API re-verifies against the
-       live knowledge base; we only use the schema here to reject junk before
-       spending an API round-trip. */
-    let confirmedRaw: unknown = null;
-    let handoffRaw: unknown = null;
-    try {
-      const rc = sessionStorage.getItem(STAGE5_RENDER_STORAGE_KEY);
-      confirmedRaw = rc ? JSON.parse(rc) : null;
-      const rh = sessionStorage.getItem(STAGE4_PROPOSAL_STORAGE_KEY);
-      handoffRaw = rh ? JSON.parse(rh) : null;
-    } catch {
-      confirmedRaw = null;
-      handoffRaw = null;
-    }
-
-    const handoffParsed = ProposalHandoffSchema.safeParse(handoffRaw);
-    if (!handoffParsed.success) {
-      setPhase({ kind: "empty" });
-      return;
-    }
-    const handoff = handoffParsed.data;
-
-    /* If the customer already confirmed a render this session AND its
-       proposal id matches the current hand-off's proposal id, resume it. */
-    if (
-      confirmedRaw !== null &&
-      typeof confirmedRaw === "object" &&
-      "render" in confirmedRaw &&
-      "seed" in confirmedRaw
-    ) {
-      const container = confirmedRaw as {
-        render?: SuccessBody;
-        seed?: number;
-        confirmed?: boolean;
-      };
-      if (
-        container.render?.success === true &&
-        container.render.image_prompt.proposal_id === handoff.proposal.id &&
-        typeof container.seed === "number"
-      ) {
-        setPhase({
-          kind: "success",
-          handoff,
-          seed: container.seed,
-          render: container.render,
-          confirmed: container.confirmed === true,
-        });
-        return;
-      }
-    }
-
-    void runRender(handoff, 1);
-  }, [runRender]);
-
-  /* --------------------------------------------------------------------- */
-  /*  Action handlers                                                        */
-  /* --------------------------------------------------------------------- */
-
-  /** Regenerate — same proposal, same brief, same DNA, new seed only. */
-  const handleRegenerate = useCallback(() => {
-    if (phase.kind === "success" || phase.kind === "error") {
-      void runRender(phase.handoff, phase.seed + 1);
-    }
-  }, [phase, runRender]);
-
-  const handleBackToProposal = useCallback(() => {
-    /* Never clear Stage 4 hand-off — the proposal must survive re-entry. */
-    router.push("/design-proposal");
-  }, [router]);
-
-  const handleConfirm = useCallback(() => {
-    if (phase.kind !== "success") return;
-    /* Stage 5 → 定制 hand-off: everything downstream needs to quote the piece
-       later without re-running the pipeline. Store proposal + brief + DNA
-       + selected direction + rendered image + prompt + seed. */
-    try {
-      sessionStorage.setItem(
-        STAGE5_RENDER_STORAGE_KEY,
-        JSON.stringify({
-          designDna: phase.handoff.designDna,
-          designBrief: phase.handoff.designBrief,
-          selectedDirectionId: phase.handoff.selectedDirectionId,
-          proposal: phase.handoff.proposal,
-          seed: phase.seed,
-          design_confirmed: true,
-          render: phase.render,
-        }),
-      );
-    } catch {
-      /* Storage unavailable — the in-memory confirm still registers */
-    }
-    setPhase({ ...phase, confirmed: true });
-  }, [phase]);
-
-  /* --------------------------------------------------------------------- */
-  /*  Empty state — Stage 4 not completed                                    */
-  /* --------------------------------------------------------------------- */
-
-  if (phase.kind === "empty") {
+  /* 空态：URL 无有效参数单 → 回参数单确认页 */
+  if (!order) {
     return (
-      <div className="animate-fade-in flex flex-1 flex-col items-start justify-center gap-8 py-16">
-        <SectionLabel>{t("designRender.emptyLabel")}</SectionLabel>
-        <h2 className="font-sans max-w-2xl text-[28px] leading-[1.1] tracking-[-0.01em] text-[var(--color-ivory)] sm:text-[32px]">
-          {t("designRender.emptyTitle")}
-        </h2>
-        <p className="max-w-md text-[14px] leading-relaxed text-[var(--color-silver-400)]">
-          {t("designRender.emptyBody")}
-        </p>
-        <Link
-          href="/design-proposal"
-          className="group inline-flex items-center gap-3 rounded-full border border-[var(--color-line-strong)] bg-[linear-gradient(180deg,var(--color-silver-100),var(--color-silver-300))] px-7 py-3.5 text-[12px] font-medium tracking-[0.14em] text-[var(--color-bg)] uppercase transition-all duration-300 hover:brightness-105 active:scale-[0.97]"
-        >
+      <section className="animate-fade-in flex flex-col items-start gap-6 border-t border-[var(--color-line)] pt-16">
+        <span className="stage-index">{t("designRender.emptyLabel")}</span>
+        <h2 className="act-title max-w-xl">{t("designRender.emptyTitle")}</h2>
+        <p className="act-body max-w-lg">{t("designRender.emptyBody")}</p>
+        <Link href="/design-brief" className="btn-pill btn-pill-primary">
           {t("designRender.emptyCta")}
-          <ArrowRight
-            className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5"
-            strokeWidth={1.5}
-          />
+          <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
         </Link>
-      </div>
-    );
-  }
-
-  /* --------------------------------------------------------------------- */
-  /*  Generating state — no fake progress %, just rotating status lines     */
-  /* --------------------------------------------------------------------- */
-
-  if (phase.kind === "generating") {
-    return (
-      <div className="animate-fade-in relative flex min-h-[60vh] flex-col justify-center gap-12 py-16">
-        {/* 黑暗中的银饰轮廓 —— 设计正在成型：blur 20px → 0，缓 2.8s */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 flex items-center justify-center"
-        >
-          <div
-            className="atelier-develop relative h-[54vmin] w-[54vmin] opacity-[0.12]"
-            style={{
-              maskImage:
-                "radial-gradient(closest-side, black 58%, transparent 98%)",
-              WebkitMaskImage:
-                "radial-gradient(closest-side, black 58%, transparent 98%)",
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element — ambient decorative layer */}
-            <img
-              src="/atelier/hero-silver.jpg"
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          </div>
-        </div>
-
-        <div className="relative z-10 flex flex-col gap-10">
-          <SectionLabel>{t("designRender.generatingLabel")}</SectionLabel>
-          <h2 className="act-title max-w-2xl">
-            {t("designRender.generatingTitle")}
-          </h2>
-          <p className="act-body max-w-xl">
-            {t("designRender.generatingBody")}
-          </p>
-          <ol className="flex max-w-2xl flex-col">
-            {GENERATING_STAGE_KEYS.map((key, i) => (
-              <li
-                key={key}
-                className={`exhibit-row flex items-center gap-5 ${i <= generatingStage
-                  ? ""
-                  : "opacity-40"
-                  } transition-opacity duration-700`}
-              >
-                <span className="exhibit-label w-8 shrink-0">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span
-                  className={`font-sans text-[18px] leading-[1.3] tracking-[-0.005em] sm:text-[18px] ${i <= generatingStage
-                    ? "text-[var(--color-ivory)]"
-                    : "text-[var(--color-silver-500)]"
-                    }`}
-                >
-                  {t(key)}
-                </span>
-                {i === generatingStage && (
-                  <span className="ml-auto h-px w-24 shimmer" aria-hidden />
-                )}
-              </li>
-            ))}
-          </ol>
-          <p className="text-[12px] leading-relaxed text-[var(--color-silver-600)]">
-            {t("designRender.generatingNote")}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  /* --------------------------------------------------------------------- */
-  /*  Error state — user can retry or go back                                */
-  /* --------------------------------------------------------------------- */
-
-  if (phase.kind === "error") {
-    return (
-      <div className="animate-fade-in flex flex-col gap-8 py-16">
-        <div
-          role="alert"
-          className="flex items-start gap-3 rounded-[var(--radius-md)] border border-red-500/30 bg-red-500/[0.06] p-5 text-[13px] text-red-200/90"
-        >
-          <AlertCircle
-            className="mt-0.5 h-4 w-4 shrink-0 text-red-300/80"
-            strokeWidth={1.5}
-          />
-          <div className="flex-1">
-            <div className="mb-1 text-[12px] tracking-[0.14em] text-red-300/70 uppercase">
-              {t("designRender.errorInterrupted")}
-            </div>
-            <div>{t("designRender.errorBody")}</div>
-            <div className="mt-2 text-[12px] leading-relaxed text-red-200/60">
-              {tApiError(phase.code, phase.message)}
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <button
-            type="button"
-            onClick={handleRegenerate}
-            className="group inline-flex items-center gap-3 rounded-full border border-[var(--color-line-strong)] bg-[rgba(231,226,211,0.06)] px-6 py-3 text-[12px] font-medium tracking-[0.14em] text-[var(--color-ivory)] uppercase transition-colors hover:border-[var(--color-accent)]"
-          >
-            <RotateCcw className="h-4 w-4" strokeWidth={1.5} />
-            {t("designRender.actions.retry")}
-          </button>
-          <button
-            type="button"
-            onClick={handleBackToProposal}
-            className="inline-flex items-center gap-2 text-[12px] tracking-[0.14em] text-[var(--color-silver-400)] uppercase transition-colors hover:text-[var(--color-ivory)]"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
-            {t("designRender.actions.back")}
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  /* --------------------------------------------------------------------- */
-  /*  Success state — the concept render + three-layer information + CTA    */
-  /* --------------------------------------------------------------------- */
-
-  const { render, handoff, confirmed } = phase;
-  const prompt: ImagePrompt = render.image_prompt;
-
-  return (
-    <div className="animate-fade-in flex flex-col gap-24 pb-32">
-      <MotionReveal>
-        <RenderImage imageUrl={render.image.data_url} prompt={prompt} model={render.image.model} />
-      </MotionReveal>
-      <MotionReveal delay={140}>
-        <RenderWhy prompt={prompt} />
-      </MotionReveal>
-      <MotionReveal delay={200}>
-        <RenderCulture proposal={handoff.proposal} />
-      </MotionReveal>
-      <MotionReveal delay={240}>
-        <RenderInterpretation proposal={handoff.proposal} />
-      </MotionReveal>
-      <MotionReveal delay={280}>
-        <RenderActions
-          confirmed={confirmed}
-          onRegenerate={handleRegenerate}
-          onBack={handleBackToProposal}
-          onConfirm={handleConfirm}
-        />
-      </MotionReveal>
-    </div>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/*  RenderActions — the closing panel                                          */
-/* -------------------------------------------------------------------------- */
-
-interface RenderActionsProps {
-  confirmed: boolean;
-  onRegenerate: () => void;
-  onBack: () => void;
-  onConfirm: () => void;
-}
-
-function RenderActions({ confirmed, onRegenerate, onBack, onConfirm }: RenderActionsProps) {
-  const { t } = useI18n();
-  const router = useRouter();
-
-  if (confirmed) {
-    return (
-      <section className="flex flex-col gap-8 border-t border-[var(--color-line-strong)] pt-12">
-        <SectionLabel>{t("designRender.confirmedLabel")}</SectionLabel>
-        <div className="flex flex-col gap-4">
-          <h3 className="font-sans text-[24px] leading-[1.15] tracking-[-0.01em] text-[var(--color-ivory)] sm:text-[28px]">
-            {t("designRender.confirmedTitle")}
-          </h3>
-          <p className="max-w-2xl text-[14px] leading-relaxed text-[var(--color-silver-300)]">
-            {t("designRender.confirmedBody")}
-          </p>
-          <p className="text-[12px] leading-relaxed text-[var(--color-silver-500)]">
-            {t("designRender.confirmedBody2")}
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <button
-            type="button"
-            onClick={() => router.push("/")}
-            className="inline-flex items-center gap-2 text-[12px] tracking-[0.14em] text-[var(--color-silver-400)] uppercase transition-colors hover:text-[var(--color-ivory)]"
-          >
-            <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.5} />
-            {t("common.actions.startOver")}
-          </button>
-          <span className="text-[11px] tracking-[0.22em] text-[var(--color-silver-600)] uppercase">
-            {t("designRender.customizationComingSoon")}
-          </span>
-        </div>
       </section>
     );
   }
 
+  const orderQuery = encodeSealOrder(order);
+
   return (
-    <section className="flex flex-col gap-8 border-t border-[var(--color-line-strong)] pt-12">
-      <SectionLabel>{t("designRender.actionsLabel")}</SectionLabel>
-      <div className="flex flex-col gap-4">
-        <h3 className="font-sans text-[24px] leading-[1.15] tracking-[-0.01em] text-[var(--color-ivory)] sm:text-[28px]">
-          {t("designRender.actionsTitle")}
-        </h3>
-        <p className="max-w-xl text-[13px] leading-relaxed text-[var(--color-silver-500)]">
-          {t("designRender.actions.loveHint")}
-        </p>
+    <section className="animate-fade-in flex flex-col gap-12">
+      {/* 参数单摘要条（可追溯：每个视觉参数来自这里） */}
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-[var(--color-line)] py-4 font-mono text-[12px] tracking-[0.12em] text-[var(--color-silver-400)] uppercase">
+        <span>FORM · {t(`interview.values.sealForm.${order.seal_form}`)}</span>
+        <span>FINIAL · {t(`interview.values.finialType.${order.finial_type}`)}</span>
+        <span>STONE · {t(`interview.values.stone.${order.stone_type}`)}</span>
+        <span>DECOR · {t(`interview.values.decorationLevel.${order.decoration_level}`)}</span>
       </div>
-      <div className="flex flex-col gap-6">
-        <button
-          type="button"
-          onClick={onConfirm}
-          data-variant="solid"
-          className="journey-cta"
-        >
-          <Heart className="h-4 w-4" strokeWidth={1.5} aria-hidden />
-          {t("designRender.actions.love")}
-        </button>
-        <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+
+      {/* 生成区 */}
+      {phase === "idle" && (
+        <div className="flex flex-col items-start gap-6">
+          <p className="act-body max-w-xl">{t("designRender.introBody")}</p>
           <button
             type="button"
-            onClick={onRegenerate}
-            className="group inline-flex items-center gap-2 text-[12px] tracking-[0.12em] text-[var(--color-silver-400)] uppercase transition-colors hover:text-[var(--color-silver-100)]"
+            onClick={() => generate(seed)}
+            className="btn-pill btn-pill-primary"
           >
-            <Sparkles className="h-3.5 w-3.5" strokeWidth={1.5} />
-            {t("designRender.actions.regenerate")}
-            <span className="text-[var(--color-silver-600)]">
-              {t("designRender.actions.regenerateHint")}
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={onBack}
-            className="group inline-flex items-center gap-2 text-[12px] tracking-[0.12em] text-[var(--color-silver-400)] uppercase transition-colors hover:text-[var(--color-silver-100)]"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />
-            {t("designRender.actions.back")}
-            <span className="text-[var(--color-silver-600)]">
-              {t("designRender.actions.backHint")}
-            </span>
+            {t("designRender.generateCta")}
+            <ArrowRight className="h-4 w-4" strokeWidth={1.5} />
           </button>
         </div>
-      </div>
-      <p className="text-[11px] tracking-[0.22em] text-[var(--color-silver-600)] uppercase">
-        {t("designRender.regenerateNote")}
-      </p>
+      )}
+
+      {phase === "generating" && (
+        <div className="flex flex-col items-center justify-center gap-6 py-24">
+          <div
+            className="h-7 w-7 animate-spin rounded-full border border-[rgba(255,255,255,0.14)] border-t-[var(--color-silver-300)]"
+            role="status"
+            aria-label={t("designRender.generatingTitle")}
+          />
+          <p className="font-sans text-[15px] tracking-[0.06em] text-[var(--color-silver-400)]">
+            {t("designRender.generatingStages.stage3")}
+          </p>
+          <p className="max-w-md text-[12px] leading-relaxed text-[var(--color-silver-600)]">
+            {t("designRender.generatingNote")}
+          </p>
+        </div>
+      )}
+
+      {phase === "error" && (
+        <div className="flex flex-col items-start gap-5 border-t border-[var(--color-line)] pt-10">
+          <h3 className="act-title text-[22px]">{t("designRender.errorInterrupted")}</h3>
+          <p className="act-body max-w-lg">{t("designRender.errorBody")}</p>
+          <button
+            type="button"
+            onClick={() => generate(seed)}
+            className="btn-pill btn-pill-secondary"
+          >
+            {t("designRender.actions.retry")}
+          </button>
+        </div>
+      )}
+
+      {phase === "done" && result && (
+        <div className="flex flex-col gap-10">
+          <figure className="flex flex-col gap-4">
+            <div className="relative mx-auto aspect-square w-full max-w-[640px] overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-line)]">
+              {/* dataUrl 自包含 SVG/PNG，Next/Image 无收益 */}
+              <img
+                src={result.image.data_url}
+                alt={t("designRender.imageAlt")}
+                className="h-full w-full object-contain"
+              />
+            </div>
+            <figcaption className="flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] tracking-[0.14em] text-[var(--color-silver-500)] uppercase">
+              <span>{t("designRender.providerNote", {
+                provider: result.image.provider,
+                model: result.image.model,
+              })}</span>
+              <span>SEED · {result.image.seed}</span>
+            </figcaption>
+          </figure>
+
+          {/* AI 声明（反冒充红线） */}
+          <div className="flex flex-col gap-2 border-l-2 border-[var(--color-line-strong)] pl-5">
+            <span className="font-mono text-[11px] tracking-[0.18em] text-[var(--color-silver-500)] uppercase">
+              {t("designRender.aiNoticeLabel")}
+            </span>
+            <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--color-silver-300)]">
+              {t("designRender.aiNoticeBody")}
+            </p>
+            <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--color-silver-400)]">
+              {t("designRender.aiNoticeBody2")}
+            </p>
+            <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--color-silver-400)]">
+              {t("designRender.differenceNote")}
+            </p>
+          </div>
+
+          {/* 行动区 */}
+          <div className="flex flex-wrap items-center gap-4 border-t border-[var(--color-line)] pt-8">
+            <button
+              type="button"
+              onClick={() => generate(seed + 1)}
+              className="btn-pill btn-pill-secondary"
+            >
+              <RefreshCw className="h-4 w-4" strokeWidth={1.5} />
+              {t("designRender.actions.regenerate")}
+              <span className="ml-1 font-mono text-[10px] text-[var(--color-silver-500)]">
+                {t("designRender.regenerateNote")}
+              </span>
+            </button>
+            <Link
+              href={`/design-brief?${orderQuery}`}
+              className="btn-pill btn-pill-secondary"
+            >
+              <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
+              {t("designRender.actions.back")}
+            </Link>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

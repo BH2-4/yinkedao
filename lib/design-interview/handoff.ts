@@ -76,22 +76,3 @@ export function readStage0Payload(): Stage0IntentPayload | null {
     return null;
   }
 }
-
-/* ─── 过渡兼容：global-demand 线（结构改造批移除） ─────────────── */
-
-/**
- * 旧 Stage 1 预填读取口（首饰域 chips 已随五维度枚举退役）。
- * 五维度访谈不再产出芯片预填，仅保留 message 通道；消费方
- * （components/global-demand/StudioForm.tsx）随结构改造批移除。
- */
-export function readStage1Prefill(): {
-  message: string;
-  styles: never[];
-  emotions: never[];
-  productType?: undefined;
-  occasion?: undefined;
-  culturalVisibility?: undefined;
-} | null {
-  const payload = readStage0Payload();
-  return payload ? { message: payload.message, styles: [], emotions: [] } : null;
-}
