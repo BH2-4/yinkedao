@@ -7,7 +7,11 @@
  * no hydration mismatch, no reload required when switching.
  */
 
-export const LOCALES = ["zh-CN", "en", "ja", "fr"] as const;
+/**
+ * 语言注册表（N5 决策：MVP 中文优先，单语种）。
+ * 基建保留——未来需要多语言时在 messages/ 补语种文件并扩充 LOCALES。
+ */
+export const LOCALES = ["zh-CN"] as const;
 
 export type Locale = (typeof LOCALES)[number];
 
@@ -15,20 +19,14 @@ export const DEFAULT_LOCALE: Locale = "zh-CN";
 
 export const LOCALE_COOKIE = "sf_locale";
 
-/** Display labels used by the language switcher — no flag emojis. */
+/** Display labels — no flag emojis. */
 export const LOCALE_LABELS: Record<Locale, string> = {
   "zh-CN": "中文",
-  en: "EN",
-  ja: "日本語",
-  fr: "FR",
 };
 
 /** RFC 5646 language tags for <html lang>. */
 export const LOCALE_HTML_TAGS: Record<Locale, string> = {
   "zh-CN": "zh-CN",
-  en: "en",
-  ja: "ja",
-  fr: "fr",
 };
 
 export function isLocale(value: unknown): value is Locale {
@@ -38,14 +36,12 @@ export function isLocale(value: unknown): value is Locale {
 }
 
 /**
- * Map an `Accept-Language` entry ("fr-CA", "en-US;q=0.8", "zh-Hant") to a
- * supported locale. Returns null when nothing matches.
+ * Map an `Accept-Language` entry to a supported locale（单语种：中文系
+ * 一律命中，其余回退默认）。Returns null when nothing matches.
  */
 export function localeFromAcceptLanguageEntry(entry: string): Locale | null {
   const tag = entry.split(";")[0]?.trim().toLowerCase();
   if (!tag) return null;
   if (tag.startsWith("zh")) return "zh-CN";
-  const primary = tag.split("-")[0];
-  if (primary === "en" || primary === "ja" || primary === "fr") return primary;
   return null;
 }

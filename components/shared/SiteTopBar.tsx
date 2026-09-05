@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { BrandMark } from "@/components/shared/BrandMark";
-import { LanguageSwitcher } from "@/components/i18n/LanguageSwitcher";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { COLLECTION_URL } from "@/lib/collection-url";
 import {
@@ -108,7 +107,6 @@ export function SiteTopBar() {
               strokeWidth={1.5}
             />
           </a>
-          <LanguageSwitcher />
         </div>
       </div>
     </div>

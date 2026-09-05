@@ -1,22 +1,15 @@
 import zhCN from "../../messages/zh-CN.json";
-import en from "../../messages/en.json";
-import ja from "../../messages/ja.json";
-import fr from "../../messages/fr.json";
 import { DEFAULT_LOCALE, type Locale } from "./config";
 
 /**
- * Translation dictionaries. All four locales are statically imported so the
- * client bundle can switch languages instantly (no network round-trip, no
- * reload). JSON is the single source of truth — never inline copy in TSX.
+ * Translation dictionaries（N5：单语种 zh-CN）。
+ * JSON is the single source of truth — never inline copy in TSX.
  */
 
 export type Dictionary = typeof zhCN;
 
 export const DICTIONARIES: Record<Locale, Dictionary> = {
   "zh-CN": zhCN as Dictionary,
-  en: en as Dictionary,
-  ja: ja as Dictionary,
-  fr: fr as Dictionary,
 };
 
 export function getDictionary(locale: Locale): Dictionary {

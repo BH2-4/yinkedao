@@ -75,27 +75,27 @@
     "enter": "进入",
     "stations": {
       "s0": {
-        "name": "记忆访谈",
-        "desc": "几个轻问题，帮我们看清你的审美与生活。"
+        "name": "五维度访谈",
+        "desc": "石料、用途、外形、装饰、印面——五个轻问题，理清想要的那方印。"
       },
       "s1": {
-        "name": "你的故事",
-        "desc": "告诉我们，你想让这方印章替你记住什么。"
+        "name": "偏好整理",
+        "desc": "把你的选择整理成一句偏好画像。"
       },
       "s2": {
-        "name": "文化记忆",
+        "name": "文化匹配",
         "desc": "在真实记载的篆刻文化中，寻找与你相遇的线索。"
       },
       "s3": {
         "name": "设计转译",
-        "desc": "看记忆如何成为设计语言。"
+        "desc": "看偏好如何成为印章设计方向。"
       },
       "s4": {
-        "name": "定制提案",
+        "name": "设计提案",
         "desc": "敲定那方真正属于你的印章。"
       },
       "s5": {
-        "name": "看见印章",
+        "name": "效果图",
         "desc": "最终，看见你想象中的那一方印。"
       }
     }
@@ -646,10 +646,10 @@
   },
   "interview": {
     "stageLabel": "Stage 0 · Guided Interview",
-    "pageEyebrow": "00 · 引导式设计访谈",
-    "title1": "在谈论银饰之前，",
-    "title2": "先聊聊你自己。",
-    "intro": "几个轻问题，帮我们看清你的审美与生活。不需要任何银饰知识——凭直觉作答就好，不确定的随时跳过。",
+    "pageEyebrow": "00 · 五维度设计访谈",
+    "title1": "在谈论印章之前，",
+    "title2": "先聊聊这方印为什么而刻。",
+    "intro": "五个维度的轻问题——石料、用途、外形、装饰、印面。不需要任何篆刻知识——凭直觉作答就好，不确定的随时跳过。",
     "synthesizing": "正在整理你的设计偏好…",
     "questionLabel": "问题 {step}",
     "selectedCount": "已选 {count} / {max}",
@@ -657,7 +657,7 @@
     "back": "上一题",
     "skipHint": "不确定？可以先跳过",
     "skip": "跳过",
-    "summaryTitle": "你的设计偏好画像。",
+    "summaryTitle": "你的印章设计偏好。",
     "userContextLabel": "偏好画像",
     "sourceAi": "AI 润色",
     "sourceRule": "规则合成",
@@ -665,285 +665,309 @@
     "confidenceLabel": "访谈置信度",
     "continuing": "正在进入工作室…",
     "continueToStage1": "进入设计工作室",
-    "summaryNote": "这份画像只描述你的偏好，不含任何文化结论。纹样与传承的匹配将在下一阶段由溯源知识库完成。",
+    "summaryNote": "这份画像只描述你的偏好，不含任何文化结论。印式与纹样的匹配将由溯源知识库完成，篆字由标准字体库渲染——全程不编造。",
     "restart": "重新访谈",
     "questions": {
-      "occasion": {
-        "title": "这件银饰，主要在什么时刻陪伴你？",
-        "subtitle": "选一个最常出现的场景就好。",
+      "stone_type": {
+        "title": "先说说石头：哪种石料合眼缘？",
+        "subtitle": "都是常见的刻章石；没头绪就选「帮我推荐」。",
         "options": {
-          "everyday": {
-            "label": "日常通勤"
+          "qingtian": {
+            "label": "青田石",
+            "hint": "爽脆好刻，文人印石的常青款"
           },
-          "date": {
-            "label": "约会与出行"
+          "shoushan": {
+            "label": "寿山石",
+            "hint": "温润细腻，田黄、芙蓉都出自这里"
           },
-          "festival": {
-            "label": "节日与聚会"
+          "changhua": {
+            "label": "昌化石",
+            "hint": "鸡血石的故乡，色彩浓烈"
+          },
+          "balin": {
+            "label": "巴林石",
+            "hint": "通透灵动，赤峰出品"
+          },
+          "laoshit": {
+            "label": "老挝石",
+            "hint": "新兴主力，性价比友好"
+          },
+          "unsure": {
+            "label": "帮我推荐",
+            "hint": "没关系，我们会按你的预算与观感帮你选"
+          }
+        }
+      },
+      "stone_look": {
+        "title": "喜欢石头呈现哪种质感？",
+        "subtitle": "只凭观感选，不用懂行话。",
+        "options": {
+          "waxy": {
+            "label": "温润如蜡 · 内敛含光"
+          },
+          "vitreous": {
+            "label": "清透如冻 · 通亮有光"
+          },
+          "pearly": {
+            "label": "细腻珍珠光 · 柔和哑致"
+          },
+          "figured": {
+            "label": "纹彩丰富 · 一石多色"
+          }
+        }
+      },
+      "stone_budget": {
+        "title": "这方印的预算大概在哪个档位？",
+        "subtitle": "只定方向，不锁定价格——具体以实物为准。",
+        "options": {
+          "entry": {
+            "label": "轻松入门 · 日常把玩练习"
+          },
+          "daily": {
+            "label": "日常珍藏 · 品质与价格均衡"
+          },
+          "keepsake": {
+            "label": "重要纪念 · 值得传下去的料"
+          },
+          "open": {
+            "label": "预算开放 · 先看设计再谈"
+          }
+        }
+      },
+      "occasion": {
+        "title": "这方印，为什么而刻？",
+        "subtitle": "选一个最贴近的用途。",
+        "options": {
+          "commemorate-travel": {
+            "label": "纪念一段旅程"
+          },
+          "milestone": {
+            "label": "人生节点",
+            "hint": "毕业、婚庆、生子、乔居……"
           },
           "gift": {
             "label": "送给特别的人"
           },
-          "formal": {
-            "label": "正式场合"
-          },
-          "travel": {
-            "label": "旅行与度假"
+          "self-use": {
+            "label": "自用书画",
+            "hint": "落款钤盖、斋号闲章"
           }
         }
       },
-      "product_type": {
-        "title": "想做哪一类银饰？",
-        "subtitle": "凭直觉选；真的没头绪就选「还没想好」。",
+      "seal_form": {
+        "title": "想要什么样的章形？",
+        "subtitle": "凭直觉选；随形章会跳过钮制题。",
         "options": {
-          "necklace": {
-            "label": "项链 / 吊坠"
+          "square": {
+            "label": "方章 · 端正经典"
           },
-          "earrings": {
-            "label": "耳饰"
+          "rectangle": {
+            "label": "长方章 · 修长秀气"
           },
-          "bracelet": {
-            "label": "手镯 / 手链"
-          },
-          "ring": {
-            "label": "戒指"
-          },
-          "brooch": {
-            "label": "胸针"
+          "freeform": {
+            "label": "随形章 · 依石就势"
           },
           "unsure": {
-            "label": "还没想好",
-            "hint": "没关系，我们会换一类问题帮你探索"
+            "label": "帮我定",
+            "hint": "我们按用途帮你推荐形制"
           }
         }
       },
-      "form_preference": {
-        "title": "什么样的形态让你心动？",
-        "subtitle": "不看品类，只凭形状直觉。",
+      "finial_type": {
+        "title": "印章顶部想要什么样的钮？",
+        "subtitle": "素钮最百搭，兽钮龙钮更有看头。",
         "options": {
-          "geometric": {
-            "label": "几何 · 利落线条"
+          "plain": {
+            "label": "素钮 · 无雕素顶"
           },
-          "organic": {
-            "label": "有机 · 自然生长"
+          "beast": {
+            "label": "兽钮 · 狮兽镇顶"
           },
-          "fluid": {
-            "label": "流动 · 柔和曲线"
+          "dragon": {
+            "label": "龙钮 · 盘龙于上"
           },
-          "symmetric": {
-            "label": "对称 · 稳定秩序"
+          "decorated-top": {
+            "label": "纹饰顶 · 薄意浅刻"
           },
-          "sculptural": {
-            "label": "雕塑 · 有体量感"
+          "unsure": {
+            "label": "帮我定",
+            "hint": "按章形与装饰风格推荐"
           }
         }
       },
-      "style": {
-        "title": "更接近哪种审美？",
-        "subtitle": "最多选 2 个。",
+      "side_inscription": {
+        "title": "侧面要刻边款吗？",
+        "subtitle": "边款是刻在印章侧面的题记——日期、地点、一句想说的话。",
         "options": {
-          "minimal": {
-            "label": "极简"
+          "none": {
+            "label": "不刻边款 · 印面即全部"
           },
-          "modern": {
-            "label": "现代"
+          "short": {
+            "label": "短款 · 日期与地点"
           },
-          "nature": {
-            "label": "自然"
-          },
-          "vintage": {
-            "label": "复古"
-          },
-          "bold": {
-            "label": "大胆"
-          },
-          "luxury": {
-            "label": "奢华"
+          "long": {
+            "label": "长款 · 记事抒怀"
           }
         }
       },
-      "emotional_direction": {
-        "title": "戴上它时，你希望感受什么？",
-        "subtitle": "最多选 2 种。",
+      "decoration_level": {
+        "title": "除了刻字，章身要多少装饰？",
+        "subtitle": "素面最经典，薄意雕刻更有画意。",
         "options": {
-          "calm": {
-            "label": "平静"
+          "plain": {
+            "label": "素面 · 不加纹饰"
           },
-          "freedom": {
-            "label": "自由"
+          "partial-relief": {
+            "label": "局部薄意 · 一面山水一面素"
           },
-          "strength": {
-            "label": "力量"
-          },
-          "tenderness": {
-            "label": "温柔"
-          },
-          "mystery": {
-            "label": "神秘"
-          },
-          "new-beginning": {
-            "label": "新的开始"
+          "full-carving": {
+            "label": "满雕纹样 · 通体有画"
           }
         }
       },
-      "visual_presence": {
-        "title": "希望它有多显眼？",
-        "subtitle": "在人群中被注意到的程度。",
+      "text_type": {
+        "title": "印面想刻什么？",
+        "subtitle": "意向就好，具体文字稍后可以改。",
         "options": {
-          "subtle": {
-            "label": "低调 · 只有懂的人懂"
+          "name": {
+            "label": "姓名印"
           },
-          "balanced": {
-            "label": "平衡 · 恰到好处的存在"
+          "commemorative": {
+            "label": "纪念文",
+            "hint": "日期、短语、一句话"
           },
-          "strong": {
-            "label": "醒目 · 让人一眼记住"
+          "studio": {
+            "label": "斋号闲章",
+            "hint": "书斋名、心爱句"
+          },
+          "pictorial": {
+            "label": "图案印",
+            "hint": "生肖、景物等图形印"
+          },
+          "unsure": {
+            "label": "帮我建议",
+            "hint": "按用途给出印文方向建议"
           }
         }
       },
-      "scale": {
-        "title": "喜欢多大的体量？",
+      "text_count": {
+        "title": "大概刻几个字？",
+        "subtitle": "字数决定章法排布——四字是最经典的格局。",
         "options": {
-          "small": {
-            "label": "小巧精致"
+          "one": {
+            "label": "一字 · 单字成印"
           },
-          "medium": {
-            "label": "中等均衡"
+          "two": {
+            "label": "二字"
           },
-          "large": {
-            "label": "大气醒目"
+          "four": {
+            "label": "四字 · 经典正格"
+          },
+          "flexible": {
+            "label": "字数灵活 · 听章法安排"
           }
         }
       },
-      "weight": {
-        "title": "在意佩戴的分量吗？",
+      "seal_style": {
+        "title": "朱文还是白文？",
+        "subtitle": "朱文＝刻出红字白底；白文＝刻出红底白字。白文饱满、朱文清雅。",
         "options": {
-          "light": {
-            "label": "轻盈无感"
+          "zhuwen": {
+            "label": "朱文 · 阳刻红字"
           },
-          "medium": {
-            "label": "有分量但不累"
+          "baiwen": {
+            "label": "白文 · 阴刻白字"
           },
-          "heavy": {
-            "label": "厚重踏实"
-          }
-        }
-      },
-      "material_preference": {
-        "title": "喜欢银的哪种质感？",
-        "subtitle": "只关乎触感与光泽，不用懂工艺。",
-        "options": {
-          "polished": {
-            "label": "高抛光 · 明亮镜面"
-          },
-          "matte": {
-            "label": "哑光 · 内敛细腻"
-          },
-          "oxidized": {
-            "label": "做旧 · 深邃层次"
-          },
-          "mixed": {
-            "label": "混合对比"
+          "recommend": {
+            "label": "听推荐",
+            "hint": "姓名印偏白文，斋号引首偏朱文——经验倾向"
           }
         }
       }
     },
     "fields": {
-      "occasion": "场景",
-      "product": "品类",
-      "style": "审美",
-      "emotion": "情绪",
-      "presence": "存在感",
-      "scale": "体量",
-      "weight": "分量",
-      "wearability": "佩戴性",
-      "material": "质感",
-      "form": "形态"
+      "occasion": "用途",
+      "stone": "石料",
+      "budget": "预算",
+      "form": "形制",
+      "decoration": "装饰",
+      "face": "印面"
     },
     "values": {
       "unknown": "未指定",
       "occasion": {
-        "everyday": "日常",
-        "date": "约会",
-        "festival": "节日",
-        "gift": "送礼",
-        "formal": "正式",
-        "travel": "旅行"
+        "commemorate-travel": "纪念旅程",
+        "milestone": "人生节点",
+        "gift": "赠礼",
+        "self-use": "自用书画"
       },
-      "product": {
-        "necklace": "项链",
-        "earrings": "耳饰",
-        "bracelet": "手镯",
-        "ring": "戒指",
-        "brooch": "胸针",
-        "pendant": "吊坠",
-        "cuff": "手环",
-        "anklet": "脚链",
-        "hairpiece": "发饰"
+      "stone": {
+        "qingtian": "青田石",
+        "shoushan": "寿山石",
+        "changhua": "昌化石",
+        "balin": "巴林石",
+        "laoshit": "老挝石"
       },
-      "style": {
-        "minimal": "极简",
-        "modern": "现代",
-        "nature": "自然",
-        "vintage": "复古",
-        "bold": "大胆",
-        "luxury": "奢华"
+      "stoneLook": {
+        "waxy": "温润如蜡",
+        "vitreous": "清透如冻",
+        "pearly": "珍珠光泽",
+        "figured": "纹彩丰富"
       },
-      "emotion": {
-        "calm": "平静",
-        "freedom": "自由",
-        "strength": "力量",
-        "tenderness": "温柔",
-        "mystery": "神秘",
-        "new-beginning": "新的开始"
+      "stoneBudget": {
+        "entry": "轻松入门",
+        "daily": "日常珍藏",
+        "keepsake": "重要纪念",
+        "open": "预算开放"
       },
-      "visibility": {
-        "subtle": "低调",
-        "balanced": "平衡",
-        "strong": "醒目"
+      "sealForm": {
+        "square": "方章",
+        "rectangle": "长方章",
+        "freeform": "随形章"
       },
-      "size": {
-        "small": "小巧",
-        "medium": "中等",
-        "large": "大气"
+      "finialType": {
+        "plain": "素钮",
+        "beast": "兽钮",
+        "dragon": "龙钮",
+        "decorated-top": "纹饰顶"
       },
-      "weight": {
-        "light": "轻盈",
-        "medium": "中等",
-        "heavy": "厚重"
+      "sideInscription": {
+        "none": "无边款",
+        "short": "短款",
+        "long": "长款"
       },
-      "wearability": {
-        "high": "高",
-        "medium": "中",
-        "low": "低"
+      "decorationLevel": {
+        "plain": "素面",
+        "partial-relief": "局部薄意",
+        "full-carving": "满雕纹样"
       },
-      "material": {
-        "polished": "高抛光",
-        "matte": "哑光",
-        "oxidized": "氧化做旧",
-        "mixed": "混合"
+      "textType": {
+        "name": "姓名印",
+        "commemorative": "纪念文",
+        "studio": "斋号闲章",
+        "pictorial": "图案印"
       },
-      "form": {
-        "geometric": "几何",
-        "organic": "有机",
-        "fluid": "流动",
-        "symmetric": "对称",
-        "sculptural": "雕塑"
+      "textCount": {
+        "one": "一",
+        "two": "二",
+        "four": "四",
+        "flexible": "灵活"
+      },
+      "sealStyle": {
+        "zhuwen": "朱文",
+        "baiwen": "白文",
+        "recommend": "听推荐"
       }
     },
     "ruleContext": {
       "separator": "、",
-      "productUnknown": "尚未确定品类，希望探索最适合自己的银饰形态",
-      "productKnown": "主要在{occasion}等场景佩戴，希望定制一件{product}",
-      "style": "审美上偏向{styles}",
-      "emotion": "希望饰品传递{emotions}的感受",
-      "visibility": "视觉上偏好{visibility}的存在感",
-      "scaleWeight": "体量上倾向{scale}尺度与{weight}分量",
-      "scaleOnly": "体量上倾向{scale}尺度",
-      "form": "形态上被{forms}的语言吸引",
-      "material": "质感上偏好{materials}的银面处理",
-      "wearabilityHigh": "日常佩戴舒适度优先",
-      "fallback": "希望通过简短访谈明确自己的银饰偏好"
+      "occasion": "这方印用于{occasion}",
+      "stone": "石料偏好{stone}一系、观感{look}",
+      "budget": "预算倾向{budget}",
+      "form": "章形倾向{form}配{finial}",
+      "inscription": "装饰上偏好{inscription}与{decoration}",
+      "face": "印面意向{textType}、{count}字、{style}",
+      "fallback": "希望通过五维度访谈明确自己的印章设计偏好"
     }
   },
   "errors": {
@@ -1191,7 +1215,7 @@
     "engineLabel": "设计效果图 · V1",
     "backToProposal": "返回设计方案",
     "headerTitle": "让你的设计被看见。",
-    "headerSubtitle": "根据你的设计方案生成一张银饰概念效果图——每一处视觉都可追溯到已确认的设计。",
+    "headerSubtitle": "根据你的设计参数单生成一张印章概念效果图——每一处视觉都可追溯到已确认的设计。",
     "emptyLabel": "尚未确认设计方案",
     "emptyTitle": "请先在阶段 4 确认设计方案。",
     "emptyBody": "效果图只能基于已确认的定制设计提案生成。请返回阶段 4，选择「确认这个方向」后再回到这里。",
@@ -1209,23 +1233,23 @@
     "errorInterrupted": "效果图生成被打断",
     "errorBody": "暂时无法生成效果图，请稍后重试。设计方案本身没有丢失。",
     "renderLabel": "AI 设计效果图",
-    "imageAlt": "基于确认设计方案生成的银饰概念效果图",
+    "imageAlt": "基于确认设计参数单生成的印章概念效果图",
     "aiNoticeLabel": "AI 生成说明",
     "aiNoticeBody": "本图为根据当前已确认设计方案生成的概念效果图，用于辅助设计沟通。",
-    "aiNoticeBody2": "它不代表真实传统纹样或非遗实物，也不是对任何具体历史银饰的复刻。",
+    "aiNoticeBody2": "它不代表真实传世印章或非遗实物，也不是对任何具体藏印的复刻。",
     "aiNoticeBody3": "「重新生成」只改变视觉呈现，不改变设计方案本身；如需修改设计，请返回上一阶段。",
     "providerNote": "视觉调性 · {provider} · 模型 · {model}",
     "whyLabel": "为什么这样生成",
     "whyTitle": "这张图，从你的方案一步步推出来。",
     "whyNote": "以下每一个视觉参数都直接来自已确认的设计提案——AI 无权更改客户需求，也无权添加未经来源支持的文化元素。",
     "field": {
-      "subject": "主体品类",
+      "subject": "章体形制",
       "scale": "体量",
       "finish": "表面处理",
       "craft": "工艺",
       "motif": "纹样",
       "composition": "构图",
-      "scene": "佩戴场景",
+      "scene": "使用场景",
       "vision": "视觉参数"
     },
     "promptTextLabel": "结构化提示",
@@ -1252,7 +1276,7 @@
     "regenerateNote": "重新生成不会改变已确认的设计方案——只更新视觉表现",
     "confirmedLabel": "已确认",
     "confirmedTitle": "喜欢这个设计，我们记下了。",
-    "confirmedBody": "已保存这份设计方案与效果图。接下来可用于定制询价、联系设计师，或跳转到独立站完成购买。",
+    "confirmedBody": "已保存这份设计方案与效果图。接下来可用于定制询价、对接匠人，或保存分享。",
     "confirmedBody2": "所有文化依据的来源编号与证据等级完整保留——从访谈到图像，全程可追溯。",
     "customizationComingSoon": "定制沟通 · 即将开放"
   }

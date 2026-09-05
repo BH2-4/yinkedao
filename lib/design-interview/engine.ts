@@ -1,28 +1,30 @@
 import {
-  type EmotionToken,
-  type FormToken,
+  type DecorationLevel,
+  type FinialType,
   type InterviewAnswers,
   type InterviewQuestionId,
-  type MaterialToken,
   type Occasion,
-  type ProductType,
-  type SizeLevel,
-  type StyleToken,
+  type SealForm,
+  type SealStyle,
+  type StoneBudget,
+  type StoneLook,
+  type StoneType,
+  type TextCount,
+  type TextType,
   type UserDesignIntent,
-  type VisibilityLevel,
-  type WearabilityLevel,
-  type WeightLevel,
 } from "./intent-types";
 
 /**
- * Stage 0 访谈引擎：题库结构 + 自适应状态机 + 规则合成。
+ * Stage 0 五维度访谈引擎：题库结构 + 自适应状态机 + 规则合成（篆刻域）。
  *
- * 设计原则（源自 Research-Triage 引导式访谈的产品思路，业务模型重写）：
+ * 五维度序列（PRD F1）：石料 → 用途 → 外形 → 装饰 → 印面。
+ * 设计原则（继承银中贵访谈机制，业务域重写）：
  *  - 每次只问一个核心问题，视觉化卡片、短选项，零专业知识门槛。
  *  - 下一题由已答内容动态决定（确定性规则分支，而非自由文本问卷）。
  *  - 任意题目可跳过；跳过 → 字段 unknown，置信度下降。
- *  - 全程不出现任何文化符号 / 民族分类 / 地区名称。
- *  - 约 5–8 题完成：品类已知 7–8 题，品类待探索 7 题（体量题自适应省略）。
+ *  - 约 7–11 题完成（图案印跳过字数/朱白两题，随形章跳过钮制题）。
+ *  - 术语跟白话（PRD 7.2 人设）：朱白、冻地等词必附一句白话。
+ *  - 选项值对齐 02/06 石料体系与 05 章法枚举，不出现价格数字。
  *
  * 文案与结构分离：本文件只含题目结构（id / 模式 / 选项 id），
  * 展示文案全部来自 messages/*.json 的 interview 段（i18n 单一事实源）。
@@ -45,92 +47,124 @@ export type InterviewQuestion = {
 };
 
 export const QUESTIONS: Record<InterviewQuestionId, InterviewQuestion> = {
+  /* ── 维度一 · 石料 ── */
+  stone_type: {
+    id: "stone_type",
+    mode: "single",
+    hasExploreOption: true,
+    options: [
+      { id: "qingtian" },
+      { id: "shoushan" },
+      { id: "changhua" },
+      { id: "balin" },
+      { id: "laoshit" },
+      { id: "unsure" },
+    ],
+  },
+  stone_look: {
+    id: "stone_look",
+    mode: "single",
+    options: [
+      { id: "waxy" },
+      { id: "vitreous" },
+      { id: "pearly" },
+      { id: "figured" },
+    ],
+  },
+  stone_budget: {
+    id: "stone_budget",
+    mode: "single",
+    options: [
+      { id: "entry" },
+      { id: "daily" },
+      { id: "keepsake" },
+      { id: "open" },
+    ],
+  },
+  /* ── 维度二 · 用途 ── */
   occasion: {
     id: "occasion",
     mode: "single",
     options: [
-      { id: "everyday" },
-      { id: "date" },
-      { id: "festival" },
+      { id: "commemorate-travel" },
+      { id: "milestone" },
       { id: "gift" },
-      { id: "formal" },
-      { id: "travel" },
+      { id: "self-use" },
     ],
   },
-  product_type: {
-    id: "product_type",
+  /* ── 维度三 · 外形 ── */
+  seal_form: {
+    id: "seal_form",
     mode: "single",
     hasExploreOption: true,
     options: [
-      { id: "necklace" },
-      { id: "earrings" },
-      { id: "bracelet" },
-      { id: "ring" },
-      { id: "brooch" },
+      { id: "square" },
+      { id: "rectangle" },
+      { id: "freeform" },
       { id: "unsure" },
     ],
   },
-  form_preference: {
-    id: "form_preference",
+  finial_type: {
+    id: "finial_type",
     mode: "single",
     hasExploreOption: true,
     options: [
-      { id: "geometric" },
-      { id: "organic" },
-      { id: "fluid" },
-      { id: "symmetric" },
-      { id: "sculptural" },
+      { id: "plain" },
+      { id: "beast" },
+      { id: "dragon" },
+      { id: "decorated-top" },
+      { id: "unsure" },
     ],
   },
-  style: {
-    id: "style",
-    mode: "multiple",
-    maxSelect: 2,
+  /* ── 维度四 · 装饰 ── */
+  side_inscription: {
+    id: "side_inscription",
+    mode: "single",
     options: [
-      { id: "minimal" },
-      { id: "modern" },
-      { id: "nature" },
-      { id: "vintage" },
-      { id: "bold" },
-      { id: "luxury" },
+      { id: "none" },
+      { id: "short" },
+      { id: "long" },
     ],
   },
-  emotional_direction: {
-    id: "emotional_direction",
-    mode: "multiple",
-    maxSelect: 2,
+  decoration_level: {
+    id: "decoration_level",
+    mode: "single",
     options: [
-      { id: "calm" },
-      { id: "freedom" },
-      { id: "strength" },
-      { id: "tenderness" },
-      { id: "mystery" },
-      { id: "new-beginning" },
+      { id: "plain" },
+      { id: "partial-relief" },
+      { id: "full-carving" },
     ],
   },
-  visual_presence: {
-    id: "visual_presence",
+  /* ── 维度五 · 印面 ── */
+  text_type: {
+    id: "text_type",
     mode: "single",
-    options: [{ id: "subtle" }, { id: "balanced" }, { id: "strong" }],
+    hasExploreOption: true,
+    options: [
+      { id: "name" },
+      { id: "commemorative" },
+      { id: "studio" },
+      { id: "pictorial" },
+      { id: "unsure" },
+    ],
   },
-  scale: {
-    id: "scale",
-    mode: "single",
-    options: [{ id: "small" }, { id: "medium" }, { id: "large" }],
-  },
-  weight: {
-    id: "weight",
-    mode: "single",
-    options: [{ id: "light" }, { id: "medium" }, { id: "heavy" }],
-  },
-  material_preference: {
-    id: "material_preference",
+  text_count: {
+    id: "text_count",
     mode: "single",
     options: [
-      { id: "polished" },
-      { id: "matte" },
-      { id: "oxidized" },
-      { id: "mixed" },
+      { id: "one" },
+      { id: "two" },
+      { id: "four" },
+      { id: "flexible" },
+    ],
+  },
+  seal_style: {
+    id: "seal_style",
+    mode: "single",
+    options: [
+      { id: "zhuwen" },
+      { id: "baiwen" },
+      { id: "recommend" },
     ],
   },
 };
@@ -143,35 +177,48 @@ type FlowStep = {
   when: (answers: InterviewAnswers) => boolean;
 };
 
-/** 产品品类是否已确定（非 unsure / 非跳过） */
-function productKnown(answers: InterviewAnswers): boolean {
-  const picked = answers.product_type?.[0];
-  return !!picked && picked !== "unsure";
+/** 印文意向是否已定且非图案印（图案印无字数与朱白概念） */
+function textTypewritten(answers: InterviewAnswers): boolean {
+  const picked = answers.text_type?.[0];
+  return !!picked && picked !== "unsure" && picked !== "pictorial";
+}
+
+/** 形制是否为随形章（随形章以薄意/素面为主，跳过钮制题） */
+function isFreeform(answers: InterviewAnswers): boolean {
+  return answers.seal_form?.[0] === "freeform";
 }
 
 const FLOW: FlowStep[] = [
+  /* 维度一 · 石料 */
+  { id: "stone_type", when: () => true },
+  { id: "stone_look", when: () => true },
+  { id: "stone_budget", when: () => true },
+  /* 维度二 · 用途 */
   { id: "occasion", when: () => true },
-  { id: "product_type", when: () => true },
-  // 品类待探索 → 追问形态语言，并跳过体量题（抽象品类的体量认知负担过高）
-  { id: "form_preference", when: (a) => !productKnown(a) },
-  { id: "style", when: () => true },
-  { id: "emotional_direction", when: () => true },
-  { id: "visual_presence", when: () => true },
-  { id: "scale", when: (a) => productKnown(a) },
-  // 小体量 + 低调 → 分量可可靠推断为轻，省去一题
-  {
-    id: "weight",
-    when: (a) => productKnown(a) && a.scale?.[0] !== "small",
-  },
-  { id: "material_preference", when: () => true },
+  /* 维度三 · 外形 */
+  { id: "seal_form", when: () => true },
+  // 随形章 → 跳过钮制（随形以薄意/素面为主，钮制认知负担过高）
+  { id: "finial_type", when: (a) => !isFreeform(a) },
+  /* 维度四 · 装饰 */
+  { id: "side_inscription", when: () => true },
+  { id: "decoration_level", when: () => true },
+  /* 维度五 · 印面 */
+  { id: "text_type", when: () => true },
+  // 图案印（或待探索）→ 跳过字数与朱白
+  { id: "text_count", when: (a) => textTypewritten(a) },
+  { id: "seal_style", when: (a) => textTypewritten(a) },
 ];
 
 /** 条件依赖图：改动某题答案后需要作废的下游题目 */
 const DEPENDENTS: Partial<
   Record<InterviewQuestionId, InterviewQuestionId[]>
 > = {
-  product_type: ["form_preference", "scale", "weight"],
-  scale: ["weight"],
+  // 用途变 → 印文方向重问（纪念→纪念文，自用→姓名/斋号）
+  occasion: ["text_type"],
+  // 形制变 → 钮制作废（随形 ↔ 规整形互切）
+  seal_form: ["finial_type"],
+  // 印文意向变 → 字数与朱白作废
+  text_type: ["text_count", "seal_style"],
 };
 
 /**
@@ -198,8 +245,7 @@ export function getFlowQuestionIds(
 
 /**
  * 回答（或修改）某题后作废受影响的下游答案。
- * 例：把品类从「还没想好」改成「项链」→ 清空 form_preference /
- * scale / weight，流程自动重新收敛。
+ * 例：把形制从「方章」改成「随形」→ 清空 finial_type，流程自动重新收敛。
  */
 export function invalidateDependents(
   answers: InterviewAnswers,
@@ -246,25 +292,8 @@ export function makeInterviewLabels(t: TranslateFn): InterviewLabels {
 
 function pick<T extends string>(answer: string[] | null | undefined): T | null {
   const first = answer?.[0];
-  return first ? (first as T) : null;
-}
-
-function pickMany<T extends string>(
-  answer: string[] | null | undefined,
-): T[] {
-  return (answer ?? []) as T[];
-}
-
-/** 由场景 + 存在感推导佩戴舒适度（Stage 1 wearability 对齐） */
-export function inferWearability(
-  occasion: Occasion,
-  visualPresence: VisibilityLevel,
-): WearabilityLevel {
-  if (occasion === "unknown") return "unknown";
-  if (occasion === "everyday") return "high";
-  if (occasion === "festival" && visualPresence === "strong") return "low";
-  if (occasion === "formal" && visualPresence === "strong") return "low";
-  return "medium";
+  if (!first || first === "unsure") return null; // 探索选项 → unknown（低置信由 fieldConfidence 计）
+  return first as T;
 }
 
 function joinLabels(
@@ -283,74 +312,52 @@ export function buildRuleUserContext(
   const sep = L.t("interview.ruleContext.separator");
   const parts: string[] = [];
 
-  if (intent.product_type === "unknown") {
-    parts.push(L.t("interview.ruleContext.productUnknown"));
-  } else {
+  if (intent.occasion !== "unknown") {
     parts.push(
-      L.t("interview.ruleContext.productKnown", {
+      L.t("interview.ruleContext.occasion", {
         occasion: L.v("occasion", intent.occasion),
-        product: L.v("product", intent.product_type),
       }),
     );
   }
-  if (intent.style.length > 0) {
+  if (intent.stone_type !== "unknown") {
     parts.push(
-      L.t("interview.ruleContext.style", {
-        styles: joinLabels(intent.style, (s) => L.v("style", s), sep),
+      L.t("interview.ruleContext.stone", {
+        stone: L.v("stone", intent.stone_type),
+        look: L.v("stoneLook", intent.stone_look),
       }),
     );
   }
-  if (intent.emotional_direction.length > 0) {
+  if (intent.stone_budget !== "unknown") {
     parts.push(
-      L.t("interview.ruleContext.emotion", {
-        emotions: joinLabels(
-          intent.emotional_direction,
-          (e) => L.v("emotion", e),
-          sep,
-        ),
+      L.t("interview.ruleContext.budget", {
+        budget: L.v("stoneBudget", intent.stone_budget),
       }),
     );
   }
-  if (intent.visual_presence !== "unknown") {
-    parts.push(
-      L.t("interview.ruleContext.visibility", {
-        visibility: L.v("visibility", intent.visual_presence),
-      }),
-    );
-  }
-  if (intent.scale !== "unknown" && intent.weight !== "unknown") {
-    parts.push(
-      L.t("interview.ruleContext.scaleWeight", {
-        scale: L.v("size", intent.scale),
-        weight: L.v("weight", intent.weight),
-      }),
-    );
-  } else if (intent.scale !== "unknown") {
-    parts.push(
-      L.t("interview.ruleContext.scaleOnly", {
-        scale: L.v("size", intent.scale),
-      }),
-    );
-  } else if (intent.form_preference.length > 0) {
+  if (intent.seal_form !== "unknown") {
     parts.push(
       L.t("interview.ruleContext.form", {
-        forms: joinLabels(intent.form_preference, (f) => L.v("form", f), sep),
+        form: L.v("sealForm", intent.seal_form),
+        finial: L.v("finialType", intent.finial_type),
       }),
     );
   }
-  if (intent.material_preference.length > 0) {
+  if (intent.side_inscription !== "unknown") {
     parts.push(
-      L.t("interview.ruleContext.material", {
-        materials: joinLabels(
-          intent.material_preference,
-          (m) => L.v("material", m),
-          sep,
-        ),
+      L.t("interview.ruleContext.inscription", {
+        inscription: L.v("sideInscription", intent.side_inscription),
+        decoration: L.v("decorationLevel", intent.decoration_level),
       }),
     );
   }
-  if (intent.wearability === "high") {
-    parts.push(L.t("interview.ruleContext.wearabilityHigh"));
+  if (intent.text_type !== "unknown") {
+    parts.push(
+      L.t("interview.ruleContext.face", {
+        textType: L.v("textType", intent.text_type),
+        count: L.v("textCount", intent.text_count),
+        style: L.v("sealStyle", intent.seal_style),
+      }),
+    );
   }
   if (parts.length === 0) return L.t("interview.ruleContext.fallback");
   return `${parts.join(sep)}。`;
@@ -358,8 +365,7 @@ export function buildRuleUserContext(
 
 /**
  * 字段级置信度：
- *  - 明确单选 1.0 / 多选 0.9 / 探索选项 0.35
- *  - 推导字段 0.7（wearability、weight 由 scale 推导）
+ *  - 明确单选 1.0 / 探索选项 0.35
  *  - 跳过或未问 0.25
  */
 function fieldConfidence(
@@ -369,7 +375,41 @@ function fieldConfidence(
   if (answer === null) return 0.25; // 明确跳过
   if (!answer || answer.length === 0) return 0.25; // 未问 / 未答
   if (answer[0] === "unsure") return 0.35;
-  return question.mode === "multiple" ? 0.9 : 1.0;
+  return 1.0;
+}
+
+/** 五维度全部字段的置信度合成（未问题目按 0.25 计） */
+function confidencesOf(
+  answers: InterviewAnswers,
+  intent: Omit<UserDesignIntent, "user_context" | "confidence">,
+): number[] {
+  return [
+    fieldConfidence(answers.stone_type, QUESTIONS.stone_type),
+    fieldConfidence(answers.stone_look, QUESTIONS.stone_look),
+    fieldConfidence(answers.stone_budget, QUESTIONS.stone_budget),
+    fieldConfidence(answers.occasion, QUESTIONS.occasion),
+    fieldConfidence(answers.seal_form, QUESTIONS.seal_form),
+    // 随形章跳过钮制题：不算低置信，按 0.7 推导计
+    isFreeform(answers)
+      ? intent.finial_type === "unknown"
+        ? 0.7
+        : 1.0
+      : fieldConfidence(answers.finial_type, QUESTIONS.finial_type),
+    fieldConfidence(answers.side_inscription, QUESTIONS.side_inscription),
+    fieldConfidence(answers.decoration_level, QUESTIONS.decoration_level),
+    fieldConfidence(answers.text_type, QUESTIONS.text_type),
+    // 图案印跳过字数/朱白：按 0.7 推导计
+    textTypewritten(answers)
+      ? fieldConfidence(answers.text_count, QUESTIONS.text_count)
+      : intent.text_count === "unknown"
+        ? 0.7
+        : 1.0,
+    textTypewritten(answers)
+      ? fieldConfidence(answers.seal_style, QUESTIONS.seal_style)
+      : intent.seal_style === "unknown"
+        ? 0.7
+        : 1.0,
+  ];
 }
 
 /**
@@ -380,81 +420,29 @@ export function buildUserDesignIntent(
   answers: InterviewAnswers,
   L: InterviewLabels,
 ): UserDesignIntent {
-  const occasion = pick<Occasion>(answers.occasion) ?? "unknown";
-  const productPick = pick(answers.product_type);
-  const product_type: ProductType =
-    !productPick || productPick === "unsure"
-      ? "unknown"
-      : (productPick as ProductType);
-  const style = pickMany<StyleToken>(answers.style);
-  const emotional_direction = pickMany<EmotionToken>(
-    answers.emotional_direction,
-  );
-  const visual_presence =
-    pick<VisibilityLevel>(answers.visual_presence) ?? "unknown";
-
-  const wearability = inferWearability(occasion, visual_presence);
-
-  const scale = pick<SizeLevel>(answers.scale) ?? "unknown";
-  // 自适应推导：小体量 → 轻；品类未知 / 未问体量 → unknown
-  const weight: WeightLevel =
-    pick<WeightLevel>(answers.weight) ??
-    (scale === "small" ? "light" : "unknown");
-
-  const material_preference = pickMany<MaterialToken>(
-    answers.material_preference,
-  );
-  const form_preference = pickMany<FormToken>(answers.form_preference);
-
   const base = {
-    occasion,
-    product_type,
-    style,
-    emotional_direction,
-    visual_presence,
-    wearability,
-    scale,
-    weight,
-    material_preference,
-    form_preference,
+    occasion: pick<Occasion>(answers.occasion) ?? "unknown",
+    stone_type: pick<StoneType>(answers.stone_type) ?? "unknown",
+    stone_look: pick<StoneLook>(answers.stone_look) ?? "unknown",
+    stone_budget: pick<StoneBudget>(answers.stone_budget) ?? "unknown",
+    seal_form: pick<SealForm>(answers.seal_form) ?? "unknown",
+    finial_type: pick<FinialType>(answers.finial_type) ?? "unknown",
+    side_inscription:
+      pick<import("./intent-types").SideInscription>(
+        answers.side_inscription,
+      ) ?? "unknown",
+    decoration_level:
+      pick<DecorationLevel>(answers.decoration_level) ?? "unknown",
+    text_type: pick<TextType>(answers.text_type) ?? "unknown",
+    text_count: pick<TextCount>(answers.text_count) ?? "unknown",
+    seal_style: pick<SealStyle>(answers.seal_style) ?? "unknown",
   };
 
-  // 置信度：字段级加权（wearability / 推导 weight 按推导值 0.7 计）
-  const confidences: number[] = [
-    fieldConfidence(answers.occasion, QUESTIONS.occasion),
-    fieldConfidence(answers.product_type, QUESTIONS.product_type),
-    fieldConfidence(answers.style, QUESTIONS.style),
-    fieldConfidence(
-      answers.emotional_direction,
-      QUESTIONS.emotional_direction,
-    ),
-    fieldConfidence(answers.visual_presence, QUESTIONS.visual_presence),
-    fieldConfidence(
-      answers.material_preference,
-      QUESTIONS.material_preference,
-    ),
-  ];
-  confidences.push(
-    scale === "unknown" ? 0.25 : fieldConfidence(answers.scale, QUESTIONS.scale),
-  );
-  confidences.push(
-    answers.weight
-      ? fieldConfidence(answers.weight, QUESTIONS.weight)
-      : weight === "light"
-        ? 0.7
-        : 0.25,
-  );
-  confidences.push(wearability === "unknown" ? 0.25 : 0.7);
-  if (form_preference.length > 0 || answers.form_preference !== undefined) {
-    confidences.push(
-      fieldConfidence(answers.form_preference, QUESTIONS.form_preference),
-    );
-  }
-
+  const confidences = confidencesOf(answers, base);
   const confidence =
     Math.round(
       (confidences.reduce((sum, c) => sum + c, 0) / confidences.length) *
-      100,
+        100,
     ) / 100;
 
   return {
@@ -464,26 +452,25 @@ export function buildUserDesignIntent(
   };
 }
 
-/* ─── AI user_context 合成提示词（严格文化护栏） ─────────────── */
+/* ─── AI user_context 合成提示词（篆刻域禁虚构护栏） ──────────── */
 
-export const INTENT_SYNTHESIS_SYSTEM_PROMPT = `你是 Silver Forged Gui 银饰定制平台 Stage 0「引导式设计访谈」的意图合成器。
+export const INTENT_SYNTHESIS_SYSTEM_PROMPT = `你是「印可道」篆刻定制平台 Stage 0「五维度设计访谈」的意图合成器。
 
-你会收到一位普通消费者的访谈答案（JSON，字段为品类/场景/风格/情绪/存在感/体量/质感等偏好选择），以及指定的输出语言。
+你会收到一位普通消费者的访谈答案（JSON，字段为石料/用途/外形/装饰/印面五维度的偏好选择），以及指定的输出语言。
 
-你的唯一任务：将答案合成为一句自然、克制、有编辑感的句子（user_context），描述这位用户的设计偏好画像。
+你的唯一任务：将答案合成为一句自然、克制、有文化质感的句子（user_context），描述这位用户的印章设计偏好画像。
 
 严格规则：
-1. 只描述用户偏好本身（场合、品类、风格、情绪、存在感、体量、质感），不得出现任何文化符号、民族名称、地区名称、纹样名称。
-2. 禁止提及：龙、蝴蝶、苗、图腾、贵州、台江、剑河、雷山、银角、银冠、牛角、纹样等任何文化相关词。
-3. 禁止解释任何符号的象征意义或文化含义。
-4. 禁止编造答案中没有的偏好。
-5. 使用指定的输出语言，长度约 40–120 字（或等效），一至两句，以句号结尾。
-6. 只输出 JSON 对象：{"user_context": "..."}，不要输出任何其他文本。`;
+1. 只描述用户偏好本身（石种观感、用途、形制、钮制、边款、印文意向），像一位懂石料的篆刻工作室店员，不掉书袋。
+2. 禁止编造石料参数：不得出现任何硬度、密度、折射率数字，不得虚构产地排名或「最适合XX」的因果断言。
+3. 禁止谈论篆字字形：不得描述字会长什么样、笔画画风（字形由字体引擎渲染，访谈层不涉及）。
+4. 禁止任何象征意义与文化典故断言（如「龙钮寓意权威」）——未经溯源的文化内容一律不写。
+5. 禁止出现价格数字或报价暗示。
+6. 禁止编造答案中没有的偏好。
+7. 使用指定的输出语言，长度约 40–120 字（或等效），一至两句，以句号结尾。
+8. 只输出 JSON 对象：{"user_context": "..."}，不要输出任何其他文本。`;
 
 /** locale → AI 输出语言名（注入用户消息） */
 export const OUTPUT_LANGUAGE_NAMES: Record<string, string> = {
   "zh-CN": "简体中文",
-  en: "English",
-  ja: "日本語",
-  fr: "Français",
 };

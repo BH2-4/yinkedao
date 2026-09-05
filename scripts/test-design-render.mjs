@@ -318,8 +318,8 @@ async function scenario6RegenerateIsPromptOnly() {
 }
 
 async function scenario7I18nParity() {
-  console.log("\n[7] i18n parity — all four locales carry the designRender namespace");
-  const locales = ["zh-CN", "en", "ja", "fr"];
+  console.log("\n[7] i18n parity — zh-CN (single locale, N5) carry the designRender namespace");
+  const locales = ["zh-CN"];
   const dicts = locales.map((l) => ({
     l,
     d: JSON.parse(readFileSync(resolve(MESSAGES, `${l}.json`), "utf-8")),

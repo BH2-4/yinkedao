@@ -34,11 +34,6 @@ export function IntentSummary({
     return token === "unknown" ? t("interview.values.unknown") : label;
   };
 
-  const joinOrDash = (category: string, tokens: string[]): string => {
-    if (tokens.length === 0) return "—";
-    return tokens.map((token) => value(category, token)).join(" · ");
-  };
-
   const orDash = (category: string, token: string): string =>
     token === "unknown" ? "—" : value(category, token);
 
@@ -89,49 +84,49 @@ export function IntentSummary({
           dim={intent.occasion === "unknown"}
         />
         <Fact
-          label={t("interview.fields.product")}
-          display={orDash("product", intent.product_type)}
-          dim={intent.product_type === "unknown"}
+          label={t("interview.fields.stone")}
+          display={
+            intent.stone_type === "unknown"
+              ? "—"
+              : `${value("stone", intent.stone_type)} · ${value("stoneLook", intent.stone_look)}`
+          }
+          dim={intent.stone_type === "unknown"}
         />
         <Fact
-          label={t("interview.fields.style")}
-          display={joinOrDash("style", intent.style)}
-          dim={intent.style.length === 0}
-        />
-        <Fact
-          label={t("interview.fields.emotion")}
-          display={joinOrDash("emotion", intent.emotional_direction)}
-          dim={intent.emotional_direction.length === 0}
-        />
-        <Fact
-          label={t("interview.fields.presence")}
-          display={orDash("visibility", intent.visual_presence)}
-          dim={intent.visual_presence === "unknown"}
-        />
-        <Fact
-          label={t("interview.fields.scale")}
-          display={orDash("size", intent.scale)}
-          dim={intent.scale === "unknown"}
-        />
-        <Fact
-          label={t("interview.fields.weight")}
-          display={orDash("weight", intent.weight)}
-          dim={intent.weight === "unknown"}
-        />
-        <Fact
-          label={t("interview.fields.wearability")}
-          display={orDash("wearability", intent.wearability)}
-          dim={intent.wearability === "unknown"}
-        />
-        <Fact
-          label={t("interview.fields.material")}
-          display={joinOrDash("material", intent.material_preference)}
-          dim={intent.material_preference.length === 0}
+          label={t("interview.fields.budget")}
+          display={orDash("stoneBudget", intent.stone_budget)}
+          dim={intent.stone_budget === "unknown"}
         />
         <Fact
           label={t("interview.fields.form")}
-          display={joinOrDash("form", intent.form_preference)}
-          dim={intent.form_preference.length === 0}
+          display={
+            intent.seal_form === "unknown"
+              ? "—"
+              : `${value("sealForm", intent.seal_form)}${intent.finial_type !== "unknown" ? ` · ${value("finialType", intent.finial_type)}` : ""}`
+          }
+          dim={intent.seal_form === "unknown"}
+        />
+        <Fact
+          label={t("interview.fields.decoration")}
+          display={
+            intent.side_inscription === "unknown" &&
+            intent.decoration_level === "unknown"
+              ? "—"
+              : `${value("sideInscription", intent.side_inscription)} · ${value("decorationLevel", intent.decoration_level)}`
+          }
+          dim={
+            intent.side_inscription === "unknown" &&
+            intent.decoration_level === "unknown"
+          }
+        />
+        <Fact
+          label={t("interview.fields.face")}
+          display={
+            intent.text_type === "unknown"
+              ? "—"
+              : `${value("textType", intent.text_type)}${intent.text_count !== "unknown" ? ` · ${value("textCount", intent.text_count)}字向` : ""}${intent.seal_style !== "unknown" ? ` · ${value("sealStyle", intent.seal_style)}` : ""}`
+          }
+          dim={intent.text_type === "unknown"}
         />
       </div>
 

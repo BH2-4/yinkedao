@@ -1,125 +1,32 @@
-import { z } from "zod";
 import {
-  type ProductType,
   type UserDesignIntent,
   containsCulturalClaims,
 } from "./intent-types";
 import { type InterviewLabels, buildRuleUserContext } from "./engine";
 import { STAGE0_INTENT_STORAGE_KEY } from "@/lib/constants/storage";
-import {
-  CULTURAL_VISIBILITY_OPTIONS,
-  EMOTION_OPTIONS,
-  OCCASION_OPTIONS,
-  PRODUCT_OPTIONS,
-  STYLE_OPTIONS,
-  type CulturalVisibilityOption,
-  type EmotionOption,
-  type OccasionOption,
-  type ProductOption,
-  type StyleOption,
-} from "@/lib/constants/preferences";
 
 /**
- * Stage 0 → Stage 1 (Global Demand Engine) handoff。
+ * Stage 0 → 后续阶段 handoff（篆刻域过渡版）。
  *
- * Stage 0 输出的 UserDesignIntent 被映射成 Stage 1 的输入信号：
- *   message（story 预填）+ productType / styles / occasion / emotions /
- *   culturalVisibility（结构化偏好芯片预填）。
+ * 五维度 UserDesignIntent 的传递通道：sessionStorage（读取时即消费，
+ * 保证预填只发生一次）。URL 持久化（参数单序列化）在结构改造批接入，
+ * sessionStorage 保留作补充。
  *
- * 传递通道：sessionStorage（Stage 0 与 Stage 1 同域部署，读取时即消费，
- * 保证预填只发生一次）。
- *
- * 文化护栏：intent.user_context 若命中文化断言，回退到规则模板，
- * 保证进入 Stage 1 的文本永远不包含未经溯源的文化内容。
+ * 护栏：intent.user_context 若命中虚构断言（编造石料参数/篆字形/
+ * 象征意义/价格），回退到规则模板，保证进入下游的文本永远不含
+ * 未经溯源的内容。
  */
-
-/** Stage 1 StudioForm 的预填子集（值对齐 GlobalDemandInput / 偏好芯片枚举） */
-export type Stage1Prefill = {
-  message: string;
-  productType?: ProductOption;
-  styles: StyleOption[];
-  occasion?: OccasionOption;
-  emotions: EmotionOption[];
-  culturalVisibility?: CulturalVisibilityOption;
-};
 
 export type Stage0IntentPayload = {
   intent: UserDesignIntent;
-  prefill: Stage1Prefill;
+  /** 下游预填消息（= user_context，经护栏清洗） */
+  message: string;
   createdAt: string;
 };
 
-/* ─── intent token → Stage 1 芯片值（仅映射两端枚举交集） ─────── */
-
-const PRODUCT_CHIP: Partial<Record<ProductType, ProductOption>> = {
-  necklace: "Necklace",
-  earrings: "Earrings",
-  bracelet: "Bracelet",
-  ring: "Ring",
-  brooch: "Brooch",
-};
-
-const OCCASION_CHIP: Partial<
-  Record<UserDesignIntent["occasion"], OccasionOption>
-> = {
-  everyday: "Everyday",
-  date: "Date",
-  festival: "Festival",
-  gift: "Gift",
-};
-
-const STYLE_CHIP: Partial<
-  Record<UserDesignIntent["style"][number], StyleOption>
-> = {
-  minimal: "Minimal",
-  modern: "Modern",
-  vintage: "Vintage",
-  luxury: "Luxury",
-};
-
-const EMOTION_CHIP: Partial<
-  Record<UserDesignIntent["emotional_direction"][number], EmotionOption>
-> = {
-  freedom: "Freedom",
-  "new-beginning": "New Beginning",
-};
-
-const VISIBILITY_CHIP: Partial<
-  Record<UserDesignIntent["visual_presence"], CulturalVisibilityOption>
-> = {
-  subtle: "Subtle",
-  balanced: "Balanced",
-  strong: "Strong",
-};
-
-function mapPrefill(intent: UserDesignIntent): Stage1Prefill {
-  const productKnown = intent.product_type !== "unknown";
-  const occasionKnown = intent.occasion !== "unknown";
-
-  return {
-    message: intent.user_context,
-    productType: productKnown
-      ? (PRODUCT_CHIP[intent.product_type] ?? undefined)
-      : undefined,
-    styles: intent.style
-      .map((token) => STYLE_CHIP[token])
-      .filter((chip): chip is StyleOption => chip !== undefined),
-    occasion: occasionKnown
-      ? (OCCASION_CHIP[intent.occasion] ?? undefined)
-      : undefined,
-    emotions: intent.emotional_direction
-      .map((token) => EMOTION_CHIP[token])
-      .filter((chip): chip is EmotionOption => chip !== undefined),
-    culturalVisibility:
-      intent.visual_presence !== "unknown"
-        ? (VISIBILITY_CHIP[intent.visual_presence] ?? undefined)
-        : undefined,
-  };
-}
-
 /**
- * 生成进入 Stage 1 的 payload（含护栏清洗）。
- * user_context 命中文化断言 → 回退规则模板（经 L 本地化），仅描述用户偏好。
+ * 生成进入下游的 payload（含护栏清洗）。
+ * user_context 命中虚构断言 → 回退规则模板（经 L 本地化），仅描述用户偏好。
  */
 export function buildStage0Payload(
   intent: UserDesignIntent,
@@ -133,7 +40,7 @@ export function buildStage0Payload(
 
   return {
     intent: safeIntent,
-    prefill: mapPrefill(safeIntent),
+    message: safeIntent.user_context,
     createdAt: new Date().toISOString(),
   };
 }
@@ -150,43 +57,41 @@ export function persistStage0Payload(payload: Stage0IntentPayload): void {
   }
 }
 
-const Stage1PrefillSchema = z.object({
-  message: z.string().max(2000).default(""),
-  productType: z.enum(PRODUCT_OPTIONS).optional(),
-  styles: z.array(z.enum(STYLE_OPTIONS)).max(6).optional(),
-  occasion: z.enum(OCCASION_OPTIONS).optional(),
-  emotions: z.array(z.enum(EMOTION_OPTIONS)).max(6).optional(),
-  culturalVisibility: z.enum(CULTURAL_VISIBILITY_OPTIONS).optional(),
-});
-
-const Stage0PayloadSchema = z.object({
-  prefill: Stage1PrefillSchema,
-});
-
-/**
- * 读取（并消费）Stage 0 预填数据。供 Stage 1 StudioForm 挂载时调用：
- *  - payload 缺失 / 损坏 → null（Stage 1 保持空表单）
- *  - 读取成功后立即移除 storage 键，保证预填一次性生效
- */
-export function readStage1Prefill(): Stage1Prefill | null {
+/** 读取（并消费）Stage 0 payload；缺失 / 损坏返回 null。 */
+export function readStage0Payload(): Stage0IntentPayload | null {
   try {
     const raw = sessionStorage.getItem(STAGE0_INTENT_STORAGE_KEY);
     if (!raw) return null;
     sessionStorage.removeItem(STAGE0_INTENT_STORAGE_KEY);
-
-    const parsed = Stage0PayloadSchema.safeParse(JSON.parse(raw));
-    if (!parsed.success) return null;
-
-    const p = parsed.data.prefill;
-    return {
-      message: p.message,
-      productType: p.productType,
-      styles: p.styles ?? [],
-      occasion: p.occasion,
-      emotions: p.emotions ?? [],
-      culturalVisibility: p.culturalVisibility,
-    };
+    const parsed = JSON.parse(raw);
+    if (
+      typeof parsed !== "object" ||
+      parsed === null ||
+      typeof parsed.message !== "string"
+    ) {
+      return null;
+    }
+    return parsed as Stage0IntentPayload;
   } catch {
     return null;
   }
+}
+
+/* ─── 过渡兼容：global-demand 线（结构改造批移除） ─────────────── */
+
+/**
+ * 旧 Stage 1 预填读取口（首饰域 chips 已随五维度枚举退役）。
+ * 五维度访谈不再产出芯片预填，仅保留 message 通道；消费方
+ * （components/global-demand/StudioForm.tsx）随结构改造批移除。
+ */
+export function readStage1Prefill(): {
+  message: string;
+  styles: never[];
+  emotions: never[];
+  productType?: undefined;
+  occasion?: undefined;
+  culturalVisibility?: undefined;
+} | null {
+  const payload = readStage0Payload();
+  return payload ? { message: payload.message, styles: [], emotions: [] } : null;
 }
