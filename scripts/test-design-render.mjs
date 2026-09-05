@@ -13,7 +13,7 @@
  * Usage: node scripts/test-design-render.mjs
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
@@ -161,6 +161,38 @@ async function scenario6Validation() {
   assert(bad2.status === 400, "missing order rejected (400)");
 }
 
+function scenario8ReferenceLibrary() {
+  console.log("\n[8] 参考图库（public/seal-references）");
+  const root = resolve(__dirname, "..", "public", "seal-references");
+  const count = (dir) => {
+    const p = resolve(root, dir);
+    if (!existsSync(p)) return -1;
+    return readdirSync(p).filter((f) => /\.(jpe?g|png|webp)$/i.test(f)).length;
+  };
+  /* 生图选取映射的六个目录（SEAL_REFERENCE_CATEGORIES + craftsmanship） */
+  for (const dir of [
+    "forms/square-plain",
+    "forms/square-beast",
+    "forms/rectangle-chang",
+    "forms/freeform",
+    "craftsmanship/bask-relief",
+    "craftsmanship/side-inscription",
+  ]) {
+    assert(count(dir) >= 1, `${dir} has reference images`);
+  }
+  /* D 桶基准（印面）：白文/朱文/朱白相间 */
+  assert(count("seal-faces/baiwen") >= 10, `seal-faces/baiwen ≥ 10 (got ${count("seal-faces/baiwen")})`);
+  assert(count("seal-faces/zhuwen") >= 10, `seal-faces/zhuwen ≥ 10 (got ${count("seal-faces/zhuwen")})`);
+  assert(count("seal-faces/zhubai-mixed") >= 3, `seal-faces/zhubai-mixed ≥ 3 (got ${count("seal-faces/zhubai-mixed")})`);
+  /* 水印图不入库（篆刻小站 2 张） */
+  const all = readdirSync(resolve(root, "seal-faces", "baiwen"))
+    .concat(readdirSync(resolve(root, "forms", "square-beast")));
+  assert(
+    !all.some((f) => f.includes("三视图") || f.includes("侧面朱刻")),
+    "watermarked 名家印作 excluded",
+  );
+}
+
 function scenario7I18nParity() {
   console.log("\n[7] i18n parity — zh-CN 三站键完整");
   const dict = JSON.parse(readFileSync(resolve(MESSAGES, "zh-CN.json"), "utf-8"));
@@ -218,6 +250,7 @@ async function main() {
   await scenario5SeedVariants(first);
   await scenario6Validation();
   scenario7I18nParity();
+  scenario8ReferenceLibrary();
 
   console.log(`\n${passed} passed, ${failed} failed`);
   process.exit(failed > 0 ? 1 : 0);

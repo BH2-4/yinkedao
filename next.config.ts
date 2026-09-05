@@ -4,10 +4,16 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   agentRules: false,
   // Vercel serverless 适配：生图 API 在运行时用 fs 读取 public/ 里的
-  // 真实苗银参考图（动态 readdir，tracing 无法静态分析），
+  // 真实印章参考图（动态 readdir，tracing 无法静态分析），
   // 必须显式包含进 /api/design-render 的函数 bundle。
+  // seal-references 为印章质感层参考库（forms/craftsmanship）；
+  // collection 目录待 F 批线上验证后移除（暂并存）。
   outputFileTracingIncludes: {
-    "/api/design-render": ["./public/collection/assets/images/**/*"],
+    "/api/design-render": [
+      "./public/seal-references/forms/**/*",
+      "./public/seal-references/craftsmanship/**/*",
+      "./public/collection/assets/images/**/*",
+    ],
   },
   // 成品独立站托管在 public/collection/（纯静态多页站）。
   // 独立站内部全部使用相对路径，浏览器需要以 /collection/ 为基准
