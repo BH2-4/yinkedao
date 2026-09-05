@@ -475,3 +475,278 @@ function renderMockSvg({ prompt, seed }: DesignImageRequest): string {
 
   return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
 }
+
+/* -------------------------------------------------------------------------- */
+/*  SEAL PIPELINE — 印章质感层（质感层/文字层分离架构，PRD 8.1）              */
+/*                                                                             */
+/*  与上方首饰管线的区别：印章的印面文字是产品核心，生图只负责「无文字       */
+/*  章体质感层」——石材质感、形制轮廓、钮制、装饰氛围。印文与边款文字       */
+/*  由崇羲字体引擎在质感层之上确定性叠加（lib/design/seal-prompt.ts 的       */
+/*  NO TEXT RULE 是第一道闸，本渲染器不绘制任何文字）。                       */
+/* -------------------------------------------------------------------------- */
+
+import type { SealImagePrompt } from "@/lib/design/seal-prompt";
+
+export interface SealImageRequest {
+  prompt: SealImagePrompt;
+  /** Regeneration seed — varies reference picks per click. */
+  seed: number;
+}
+
+const SEAL_REFERENCE_DIR = path.join(process.cwd(), "public", "seal-references");
+
+/**
+ * 形制 → 参考图目录（forms/ 章型钮制 + craftsmanship/ 工艺特写必附）。
+ * materials/<石种> 目录属 M1 石料照片库（待采购拍摄）；缺失时降级到
+ * forms+craftsmanship，再缺失走纯文本生成（同模型）。
+ */
+const SEAL_REFERENCE_CATEGORIES: Record<string, string[]> = {
+  square: ["forms/square-plain", "forms/square-beast", "craftsmanship/side-inscription"],
+  rectangle: ["forms/rectangle-chang", "craftsmanship/bask-relief"],
+  freeform: ["forms/freeform", "craftsmanship/bask-relief"],
+  unknown: ["forms/square-plain", "craftsmanship/side-inscription"],
+};
+
+async function pickSealReferences(
+  sealForm: string,
+  seed: number,
+): Promise<string[]> {
+  const categories =
+    SEAL_REFERENCE_CATEGORIES[sealForm] ?? SEAL_REFERENCE_CATEGORIES.unknown;
+
+  const candidates: string[] = [];
+  for (const category of categories) {
+    const dir = path.join(SEAL_REFERENCE_DIR, category);
+    let files: string[] = [];
+    try {
+      files = (await fs.readdir(dir)).filter((f) => /\.(jpe?g|png|webp)$/i.test(f));
+    } catch {
+      continue; // 目录未建（D 批前）静默降级
+    }
+    candidates.push(...files.map((f) => path.join(dir, f)));
+  }
+  if (candidates.length === 0) return [];
+
+  const count = Math.min(3, candidates.length);
+  const start = seed % candidates.length;
+  const picked: string[] = [];
+  for (let i = 0; i < count; i++) {
+    picked.push(candidates[(start + i * 3) % candidates.length]);
+  }
+  return picked;
+}
+
+/** 印章质感层生成入口（gpt-image-2 参考图编辑 / mock 章型 SVG）。 */
+export async function generateSealDesignImage(
+  request: SealImageRequest,
+): Promise<DesignImageResult> {
+  const configured = process.env.IMAGE_PROVIDER?.toLowerCase();
+  if (configured === "openai-gpt-image" && process.env.OPENAI_API_KEY) {
+    return generateSealViaGptImage(request);
+  }
+  return {
+    dataUrl: renderSealMockSvg(request),
+    mime: "image/svg+xml",
+    provider: "mock",
+    model: "mock-seal-renderer-v1",
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+async function generateSealViaGptImage(
+  request: SealImageRequest,
+): Promise<DesignImageResult> {
+  const { prompt } = request;
+
+  const referenceIntro = [
+    "The attached reference photos show real, documented Chinese seal stones and their carving craft.",
+    "Inherit their material quality, lapidary form language and hand-carved texture — but do NOT replicate or copy any reference piece.",
+    "Design an ORIGINAL seal stone:",
+  ].join(" ");
+
+  const fullPrompt = `${referenceIntro} ${prompt.prompt} Do not add these elements: ${prompt.negative_prompt}.`;
+
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+    baseURL: process.env.OPENAI_BASE_URL || undefined,
+    timeout: 180_000,
+  });
+
+  const referencePaths = await pickSealReferences(
+    prompt.form.seal_form,
+    request.seed,
+  );
+
+  if (referencePaths.length === 0) {
+    const response = await openai.images.generate({
+      model: "gpt-image-2",
+      prompt: fullPrompt,
+      n: 1,
+      size: "1024x1024",
+    });
+    const b64 = response.data?.[0]?.b64_json;
+    if (!b64) throw new Error("gpt-image-2 returned no image data.");
+    return {
+      dataUrl: `data:image/png;base64,${b64}`,
+      mime: "image/png",
+      provider: "openai-gpt-image",
+      model: "gpt-image-2",
+      generatedAt: new Date().toISOString(),
+    };
+  }
+
+  const files = await Promise.all(
+    referencePaths.map(async (p) =>
+      toFile(await fs.readFile(p), path.basename(p)),
+    ),
+  );
+
+  const response = await openai.images.edit({
+    model: "gpt-image-2",
+    image: files,
+    prompt: fullPrompt,
+    n: 1,
+    size: "1024x1024",
+  });
+
+  const b64 = response.data?.[0]?.b64_json;
+  if (!b64) throw new Error("gpt-image-2 returned no image data for the seal render.");
+  return {
+    dataUrl: `data:image/png;base64,${b64}`,
+    mime: "image/png",
+    provider: "openai-gpt-image",
+    model: "gpt-image-2",
+    generatedAt: new Date().toISOString(),
+  };
+}
+
+/* ─── 印章 mock 渲染器：章型轮廓 + 石色渐变 + 素坯无字 ─────────────── */
+
+/** 石种 → 石色渐变三停（06 调研石色语言） */
+const SEAL_STONE_STOPS: Record<string, [string, string, string]> = {
+  qingtian: ["#e9f0e6", "#b9cbb6", "#8ea48b"],
+  shoushan: ["#f6efe2", "#e2d4bd", "#c0ae92"],
+  changhua: ["#f4e5da", "#dcab97", "#b0604a"],
+  balin: ["#f1ede3", "#d3dad4", "#a6b0a8"],
+  laoshit: ["#f5e6c6", "#dfb883", "#bb8f50"],
+  unknown: ["#eee9df", "#cfc7b8", "#a89e8c"],
+};
+
+function renderSealMockSvg({ prompt, seed }: SealImageRequest): string {
+  const rng = mulberry32(seed);
+  const { form, stone, decoration } = prompt;
+
+  const W = 1024;
+  const H = 1024;
+  const cx = W / 2;
+
+  const [stopA, stopB, stopC] =
+    SEAL_STONE_STOPS[stone.stone_type] ?? SEAL_STONE_STOPS.unknown;
+
+  /* 章型几何（按形制画轮廓，钮制画顶部） */
+  const bw = 300; // 章体宽
+  const bh = 560; // 章体高
+  const bx = cx - bw / 2;
+  const by = (H - bh) / 2 + 40;
+
+  const piece: string[] = [];
+  const r = 26;
+
+  if (form.seal_form === "rectangle") {
+    const w = bw * 0.68;
+    const h = bh * 1.05;
+    const x = cx - w / 2;
+    const y = (H - h) / 2 + 30;
+    piece.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r * 0.8}" fill="url(#stone)"/>`);
+    piece.push(`<rect x="${x + w * 0.12}" y="${y + h * 0.08}" width="${w * 0.28}" height="${h * 0.5}" rx="14" fill="rgba(255,255,255,0.35)"/>`);
+  } else if (form.seal_form === "freeform") {
+    const x = cx - bw * 0.55;
+    const y = (H - bh) / 2 + 40;
+    const w = bw * 1.1;
+    const h = bh;
+    piece.push(
+      `<path d="M ${x + 50} ${y} Q ${x + w - 20} ${y - 26} ${x + w} ${y + 90} Q ${x + w + 18} ${y + h * 0.5} ${x + w - 40} ${y + h - 60} Q ${x + w * 0.55} ${y + h + 26} ${x + 24} ${y + h - 24} Q ${x - 30} ${y + h * 0.55} ${x + 50} ${y} Z" fill="url(#stone)"/>`,
+    );
+    piece.push(
+      `<path d="M ${x + 70} ${y + 60} Q ${x + w * 0.42} ${y + 20} ${x + w * 0.66} ${y + 90}" stroke="rgba(255,255,255,0.4)" stroke-width="10" fill="none" stroke-linecap="round"/>`,
+    );
+  } else {
+    /* square（默认方章） */
+    piece.push(`<rect x="${bx}" y="${by}" width="${bw}" height="${bh}" rx="${r}" fill="url(#stone)"/>`);
+    piece.push(`<rect x="${bx + bw * 0.14}" y="${by + bh * 0.06}" width="${bw * 0.26}" height="${bh * 0.42}" rx="16" fill="rgba(255,255,255,0.38)"/>`);
+  }
+
+  /* 钮制（顶部） */
+  const topY = form.seal_form === "rectangle" ? (H - bh * 1.05) / 2 + 30 : by;
+  const topCx = cx;
+  if (form.finial_type === "beast" || form.finial_type === "dragon") {
+    piece.push(`<ellipse cx="${topCx}" cy="${topY - 46}" rx="92" ry="58" fill="url(#stone)"/>`);
+    piece.push(`<ellipse cx="${topCx - 26}" cy="${topY - 66}" rx="16" ry="10" fill="rgba(60,58,52,0.45)"/>`);
+    piece.push(`<path d="M ${topCx - 60} ${topY - 30} q 24 -26 60 -20 q 36 -6 60 20" stroke="rgba(255,255,255,0.45)" stroke-width="8" fill="none" stroke-linecap="round"/>`);
+  } else if (form.finial_type === "decorated-top") {
+    for (let i = 0; i < 4; i++) {
+      const fx = topCx - 60 + i * 40;
+      piece.push(`<path d="M ${fx} ${topY - 18} q 20 -22 40 0" stroke="rgba(255,255,255,0.4)" stroke-width="7" fill="none" stroke-linecap="round"/>`);
+    }
+  }
+
+  /* 装饰（纹样程度） */
+  const faceRight =
+    form.seal_form === "rectangle" ? cx + (bw * 0.68) / 2 : form.seal_form === "freeform" ? cx + bw * 0.42 : bx + bw;
+  if (decoration.decoration_level === "partial-relief" || decoration.decoration_level === "full-carving") {
+    const bands = decoration.decoration_level === "full-carving" ? 5 : 2;
+    for (let i = 0; i < bands; i++) {
+      const ry = by + 110 + i * 90 + rng() * 24;
+      const rw = 70 + rng() * 40;
+      piece.push(
+        `<path d="M ${faceRight - 10} ${ry} q ${rw * 0.5} -${28 + rng() * 18} ${rw} 0 q ${rw * 0.4} ${16 + rng() * 14} ${rw * 0.8} -6" stroke="rgba(120,110,95,0.4)" stroke-width="6" fill="none" stroke-linecap="round"/>`,
+      );
+    }
+  }
+
+  /* 边款位置示意（细刻痕带，无文字） */
+  if (decoration.side_inscription !== "none" && decoration.side_inscription !== "unknown") {
+    const ix = bx + bw * 0.16;
+    for (let i = 0; i < 5; i++) {
+      const iy = by + bh * 0.32 + i * 34;
+      piece.push(`<line x1="${ix}" y1="${iy}" x2="${ix}" y2="${iy + 20}" stroke="rgba(90,82,70,0.35)" stroke-width="4" stroke-linecap="round"/>`);
+    }
+  }
+
+  /* 印面留白占位（文字层后叠加的位置示意） */
+  const faceY = form.seal_form === "rectangle" ? (H - bh * 1.05) / 2 + 30 + bh * 1.05 : by + bh;
+  piece.push(
+    `<ellipse cx="${cx}" cy="${faceY + 26}" rx="${bw * 0.52}" ry="14" fill="rgba(60,58,52,0.14)"/>`,
+  );
+
+  const info = [
+    `FORM ${escapeXml(form.seal_form.toUpperCase())}`,
+    `FINIAL ${escapeXml(form.finial_type.toUpperCase())}`,
+    `STONE ${escapeXml(stone.stone_type.toUpperCase())} · ${escapeXml(stone.stone_look.toUpperCase())}`,
+    `DECOR ${escapeXml(decoration.decoration_level.toUpperCase())}`,
+  ].join("  ·  ");
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="40%" r="82%">
+      <stop offset="0%" stop-color="#17181b"/>
+      <stop offset="100%" stop-color="#08090b"/>
+    </radialGradient>
+    <linearGradient id="stone" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="${stopA}"/>
+      <stop offset="55%" stop-color="${stopB}"/>
+      <stop offset="100%" stop-color="${stopC}"/>
+    </linearGradient>
+  </defs>
+  <rect width="${W}" height="${H}" fill="url(#bg)"/>
+  ${piece.join("\n  ")}
+  <g font-family="ui-monospace, monospace" text-anchor="middle">
+    <text x="${cx}" y="${H - 116}" font-size="18" letter-spacing="6" fill="#d8d3c6">AI 效果示意 · 素坯质感层</text>
+    <text x="${cx}" y="${H - 86}" font-size="13" letter-spacing="2" fill="#8a8f98">印面文字由标准篆字引擎另行叠加 · 本层无任何文字</text>
+    <text x="${cx}" y="${H - 60}" font-size="11" letter-spacing="1.5" fill="#6b7280">${info}</text>
+    <text x="${cx}" y="${H - 36}" font-size="11" letter-spacing="2" fill="#9aa0a8">非实物 · 不代表任何真实藏品</text>
+  </g>
+</svg>`;
+
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}

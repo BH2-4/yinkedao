@@ -22,8 +22,23 @@ const SIZE = z.enum(["small", "medium", "large", "unknown"]);
 const WEIGHT = z.enum(["light", "medium", "heavy", "unknown"]);
 const VISIBILITY = z.enum(["subtle", "balanced", "strong", "unknown"]);
 
-/** Suggested product types. Free-form to allow future silver categories. */
+/**
+ * Product type tokens. 首饰域 token 保留（旧链路数据兼容）；
+ * 篆刻域 token（章型 × 石种）为印可道主路径——product_type 在印章
+ * 流程中承载「章型」语义（square/rectangle/freeform）或石种线索。
+ */
 const PRODUCT_TYPES = [
+  /* 篆刻域 · 章型 */
+  "square",
+  "rectangle",
+  "freeform",
+  /* 篆刻域 · 石种线索 */
+  "qingtian",
+  "shoushan",
+  "changhua",
+  "balin",
+  "laoshit",
+  /* 首饰域（旧链路兼容） */
   "necklace",
   "earrings",
   "bracelet",
