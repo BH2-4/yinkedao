@@ -12,16 +12,16 @@ interface HeroTypographyProps {
 /**
  * HERO WALL TYPOGRAPHY · 巨大背景字
  *
- * "SILVER FUTURE" 不再是首屏唯一主角，而是展览墙上的巨型墙面字：
+ * "YIN KEDAO" 不再是首屏唯一主角，而是展览墙上的巨型墙面字：
  * 低透明度、轻微 blur、左缘渐隐入黑暗、右缘略微出血到视口外。
- * 银饰挂在它前面（z-10 > z-0），部分文字被银饰自然遮挡。
+ * 印章挂在它前面（z-10 > z-0），部分文字被印章自然遮挡。
  *
  * 纯视觉层：aria-hidden，不承载任何业务文案。
  */
 export function HeroTypography({ y, opacity, pointerX }: HeroTypographyProps) {
   const reduce = useReducedMotion();
 
-  /* 远景视差 —— 与银饰反向的极小位移，制造前后景深。 */
+  /* 远景视差 —— 与印章反向的极小位移，制造前后景深。 */
   const driftX = useSpring(useTransform(pointerX, [-1, 1], [4, -4]), {
     stiffness: 36,
     damping: 26,
@@ -46,7 +46,7 @@ export function HeroTypography({ y, opacity, pointerX }: HeroTypographyProps) {
             animate={reduce ? undefined : { opacity: 1 }}
             transition={{ duration: 1.6, delay: 1.5, ease: "easeOut" }}
           >
-            SILVER
+            YIN
           </motion.span>
           <motion.span
             className="hero-wall-type"
@@ -54,7 +54,7 @@ export function HeroTypography({ y, opacity, pointerX }: HeroTypographyProps) {
             animate={reduce ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 1.6, delay: 1.7, ease: "easeOut" }}
           >
-            FUTURE
+            KEDAO
           </motion.span>
         </div>
       </motion.div>

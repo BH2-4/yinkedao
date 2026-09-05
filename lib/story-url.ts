@@ -1,13 +1,13 @@
 /**
- * 3D 数字展厅链接 —— 品牌叙事二级入口（引擎 → 3D 叙事 → 成品站闭环）。
+ * 3D 篆章展厅外链 —— 品牌叙事二级入口（外链独立 3D 站架构，
+ * 与银中贵 3D 数字展厅同构：印章 3D 展示放独立站，本站只留入口）。
  *
- * 使用位置：首页 Act 3 幕内深链、页脚常驻链接（collection 静态站的
- * heritage 页另有一处静态入口）。UTM 参数由各使用处按入口拼接，
- * 因此这里只暴露不含查询参数的基础 URL。
+ * 使用位置：首页 Act 3 幕内深链、页脚常驻链接。UTM 参数由各使用
+ * 处按入口拼接，这里只暴露不含查询参数的基础 URL。
  *
- * 地址通过环境变量配置，便于随时更换域名而无需改代码：
- *   NEXT_PUBLIC_3D_STORY_URL=https://3d.randomplayx.com
- * 未设置时使用线上默认地址（3D 站已稳定上线且同属品牌域）。
+ * 地址通过环境变量配置：
+ *   NEXT_PUBLIC_3D_SEAL_URL=https://<独立3D站域名>
+ * 未设置（空值）时入口按钮整体隐藏——独立站上线前不展示死链接。
+ * 三个 glb 模型（篆章1/2/3）属独立 3D 站资产，不进本库。
  */
-export const STORY_3D_URL =
-  process.env.NEXT_PUBLIC_3D_STORY_URL ?? "https://3d.randomplayx.com";
+export const SEAL_3D_URL = process.env.NEXT_PUBLIC_3D_SEAL_URL ?? "";

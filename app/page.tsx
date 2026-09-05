@@ -9,27 +9,27 @@ import { useI18n } from "@/components/i18n/I18nProvider";
 import { HeroIntroScene } from "@/components/home/HeroIntroScene";
 import { JourneySection } from "@/components/journey/JourneySection";
 import { COLLECTION_URL } from "@/lib/collection-url";
-import { STORY_3D_URL } from "@/lib/story-url";
+import { SEAL_3D_URL } from "@/lib/story-url";
 
 /**
- * HOME — SILVER FUTURE · DIGITAL SILVER ATELIER
+ * HOME — 印可道 · AI 篆刻定制工作室
  *
  * 五幕滚动叙事：滚动不是"向下移动页面"，而是"控制设计过程"。
  *
- *   ACT 1  HERO FIRST VIEW       数字银饰展厅首屏（HeroIntroScene）：
- *                                 左侧克制叙事 + 右侧银饰主体 + 巨大
- *                                 墙面字沉入黑暗，滚动 = 走近银饰
- *   ACT 2  FROM HERITAGE        银饰靠近——scale 随滚动增长
- *   ACT 3  MATERIAL & CRAFT     银的局部放大（花丝/錾刻质感）
+ *   ACT 1  HERO FIRST VIEW       数字印章展厅首屏（HeroIntroScene）：
+ *                                 左侧克制叙事 + 右侧印章主体 + 巨大
+ *                                 墙面字沉入黑暗，滚动 = 走近印章
+ *   ACT 2  FROM HERITAGE        印章靠近——scale 随滚动增长
+ *   ACT 3  MATERIAL & CRAFT     石材与刻工的局部放大
  *   ACT 4  CULTURE              文化来源（档案馆意象）
- *   ACT 5  YOUR MEMORY          纯黑，记忆成为形——进入 Stage 0
+ *   ACT 5  YOUR MEMORY          纯黑，记忆成印——进入 Stage 0
  *
  * 每幕一个视觉主角（ONE HERO OBJECT），由 useScroll 驱动缓动
  * transform；所有动效 slow / precise / cinematic。移动端与
  * prefers-reduced-motion 自动退化为静态排版（MotionReveal 兜底）。
  *
- * 图片资产为博物馆展陈语境的贵州苗银摄影级呈现——只作为氛围与
- * 品牌视觉，不代表任何具体文化结论。
+ * 图片资产为博物馆展陈语境的真实印章棚拍——只作为氛围与品牌
+ * 视觉，不代表任何具体文化结论。
  */
 
 export default function Home() {
@@ -50,7 +50,7 @@ export default function Home() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  ACT 2 — FROM HERITAGE, TO POSSIBILITY · 银饰靠近                            */
+/*  ACT 2 — FROM HERITAGE, TO POSSIBILITY · 印章靠近                            */
 /* -------------------------------------------------------------------------- */
 
 function ActTwo() {
@@ -69,7 +69,7 @@ function ActTwo() {
   return (
     <section ref={ref} className="relative h-[170vh]">
       <div className="sticky top-0 flex h-dvh items-center overflow-hidden">
-        {/* 银饰持续放大 —— 已进入局部 */}
+        {/* 印章持续放大 —— 已进入局部 */}
         <motion.div
           data-motion-scroll=""
           style={{ scale: imgScale, x: imgX }}
@@ -85,7 +85,7 @@ function ActTwo() {
             }}
           >
             <Image
-              src="/atelier/hero-silver.jpg"
+              src="/atelier/hero-seal.jpg"
               alt=""
               aria-hidden
               fill
@@ -112,7 +112,7 @@ function ActTwo() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  ACT 3 — MATERIAL & CRAFT · 银的局部（花丝 / 錾刻 / 锻打）                   */
+/*  ACT 3 — MATERIAL & CRAFT · 石材与刻工的局部                                 */
 /* -------------------------------------------------------------------------- */
 
 function ActThree() {
@@ -142,7 +142,7 @@ function ActThree() {
             }}
           >
             <Image
-              src="/atelier/detail-silver.jpg"
+              src="/atelier/detail-seal.jpg"
               alt=""
               aria-hidden
               fill
@@ -163,16 +163,18 @@ function ActThree() {
             <span className="act-label">{t("home.act3Label")}</span>
             <h2 className="act-title mt-5">{t("home.act3Title")}</h2>
             <p className="act-body mt-6 max-w-md">{t("home.act3Body")}</p>
-            {/* 3D 数字展厅 —— 工艺好奇时刻的深潜入口（新标签，不打断叙事） */}
-            <a
-              href={`${STORY_3D_URL}?utm_source=engine&utm_medium=act3-link&utm_campaign=3d-story`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-7 inline-flex items-center gap-1.5 text-[12px] tracking-[0.16em] uppercase underline decoration-[var(--color-line-strong)] underline-offset-8 transition-colors duration-300 hover:text-[var(--color-silver-300)]"
-            >
-              {t("home.act3StoryLink")}
-              <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.5} />
-            </a>
+            {/* 3D 篆章展厅 —— 外链独立 3D 站；未配置地址时入口整体隐藏 */}
+            {SEAL_3D_URL && (
+              <a
+                href={`${SEAL_3D_URL}?utm_source=engine&utm_medium=act3-link&utm_campaign=3d-seal`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-7 inline-flex items-center gap-1.5 text-[12px] tracking-[0.16em] uppercase underline decoration-[var(--color-line-strong)] underline-offset-8 transition-colors duration-300 hover:text-[var(--color-silver-300)]"
+              >
+                {t("home.act3StoryLink")}
+                <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.5} />
+              </a>
+            )}
           </div>
         </motion.div>
       </div>
@@ -199,7 +201,7 @@ function ActFour() {
   return (
     <section ref={ref} className="relative h-[170vh]">
       <div className="sticky top-0 h-dvh overflow-hidden">
-        {/* 文化银冠 —— 侧向缓移（视差） */}
+        {/* 文化意象 —— 侧向缓移（视差） */}
         <motion.div data-motion-scroll="" style={{ x: imgX, opacity: imgOpacity }} className="absolute inset-0">
           <div
             className="absolute inset-0"
@@ -211,7 +213,7 @@ function ActFour() {
             }}
           >
             <Image
-              src="/atelier/culture-silver.jpg"
+              src="/atelier/culture-seal.jpg"
               alt=""
               aria-hidden
               fill
@@ -303,14 +305,16 @@ function AtelierFooter() {
     <footer className="border-t border-[var(--color-line)]">
       <div className="mx-auto flex max-w-[1400px] flex-col gap-3 px-8 py-10 text-[12px] tracking-[0.08em] text-[var(--color-silver-600)] sm:flex-row sm:items-center sm:justify-between sm:px-12 lg:px-16">
         <span>{t("home.footer1")}</span>
-        <a
-          href={`${STORY_3D_URL}?utm_source=engine&utm_medium=footer&utm_campaign=3d-story`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="transition-colors duration-300 hover:text-[var(--color-silver-300)]"
-        >
-          {t("home.footer3dStory")}
-        </a>
+        {SEAL_3D_URL && (
+          <a
+            href={`${SEAL_3D_URL}?utm_source=engine&utm_medium=footer&utm_campaign=3d-seal`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-colors duration-300 hover:text-[var(--color-silver-300)]"
+          >
+            {t("home.footer3dStory")}
+          </a>
+        )}
         <span>{t("home.footer2")}</span>
       </div>
     </footer>

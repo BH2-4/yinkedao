@@ -17,10 +17,10 @@ interface HeroArtifactProps {
 }
 
 /**
- * HERO ARTIFACT · 首屏银饰主体
+ * HERO ARTIFACT · 首屏印章主体
  *
- * 一件被放在黑色博物馆展柜里的真实作品：
- *   - 完整形态、真实比例（原图 1440×2560，aspect 9/16）
+ * 一件被放在黑色博物馆展柜里的真实印章（黑底棚拍）：
+ *   - 完整形态、真实比例（原图 3119×3200）
  *   - 径向 mask 让边缘融入黑暗，保留呼吸空间
  *   - 极微弱的环境光（无光圈、无描边、无 glow）
  *   - 入场：从极暗状态缓慢显现（0.8s 起，1.7s 长）
@@ -101,7 +101,7 @@ export function HeroArtifact({
               }}
             >
               <Image
-                src="/atelier/hero-silver.jpg"
+                src="/atelier/hero-seal.jpg"
                 alt={alt}
                 fill
                 priority

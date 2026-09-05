@@ -1,8 +1,8 @@
 {
-  "name": "silver-future",
+  "name": "yinkedao-seal",
   "version": "0.1.0",
   "private": true,
-  "description": "Silver Forged Gui — AI-driven global co-creation platform for Guizhou silver jewelry. Global Demand Engine V1.",
+  "description": "印可道 — AI 篆刻定制设计工作室。五维度引导、参数化选择与实时视觉生成，让你亲自设计一枚有纪念意义的印章。",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -1,7 +1,7 @@
 {
   "meta": {
-    "title": "银中贵 — 全球设计工作室",
-    "description": "AI 驱动的贵州银饰全球共创设计平台。告诉我们，你想让银饰讲述怎样的故事。"
+    "title": "印可道 — AI 篆刻定制设计工作室",
+    "description": "面向篆刻定制的 AI 设计 Agent。五维度引导、参数化选择与实时视觉生成——让你亲自设计一枚有纪念意义的印章。"
   },
   "common": {
     "actions": {
@@ -13,7 +13,7 @@
       "backToCulturalMatch": "返回文化匹配",
       "continueToCulturalMatch": "进入文化匹配",
       "continueToDesignTranslation": "进入设计翻译",
-      "continueToAiSilverDesign": "进入 AI 银饰设计",
+      "continueToAiSilverDesign": "进入 AI 篆刻设计",
       "useThisDirection": "选用此方向",
       "selectedForTranslation": "已选用于设计翻译",
       "collapseDetails": "收起",
@@ -21,7 +21,7 @@
       "readDesignLog": "阅读完整设计日志",
       "viewFullDna": "查看完整设计基因",
       "tryExample": "试试示例 →",
-      "generateConcepts": "生成银饰设计概念",
+      "generateConcepts": "生成印章设计概念",
       "viewProposal": "查看定制设计提案",
       "backToDesignTranslation": "返回设计翻译"
     },
@@ -69,8 +69,8 @@
   "journey": {
     "railAria": "设计旅程导航",
     "eyebrow": "THE JOURNEY",
-    "title": "从记忆，到银。",
-    "subtitle": "一次连续的定制旅程——你的故事，经文化、设计与锻造，成为一件可佩戴的银。",
+    "title": "从记忆，到印。",
+    "subtitle": "一次连续的定制旅程——你的故事，经文化、设计与刀石，成为一方可以握在手中的印。",
     "prologueLabel": "序 · 可选",
     "enter": "进入",
     "stations": {
@@ -80,11 +80,11 @@
       },
       "s1": {
         "name": "你的故事",
-        "desc": "告诉我们，你想让银饰替你记住什么。"
+        "desc": "告诉我们，你想让这方印章替你记住什么。"
       },
       "s2": {
         "name": "文化记忆",
-        "desc": "在贵州真实的文化中，寻找与你相遇的线索。"
+        "desc": "在真实记载的篆刻文化中，寻找与你相遇的线索。"
       },
       "s3": {
         "name": "设计转译",
@@ -92,44 +92,44 @@
       },
       "s4": {
         "name": "定制提案",
-        "desc": "塑造那件真正属于你的银饰。"
+        "desc": "敲定那方真正属于你的印章。"
       },
       "s5": {
-        "name": "看见银饰",
-        "desc": "最终，看见你想象中的那件银。"
+        "name": "看见印章",
+        "desc": "最终，看见你想象中的那一方印。"
       }
     }
   },
   "home": {
-    "coCreationNote": "全球共创 · V1",
-    "chapterLabel": "银的新篇章",
-    "title1": "让贵州银艺走向世界。",
-    "title2": "让世界遇见属于自己的银饰。",
-    "intro": "银中贵（Silver Future）是一个由 AI 驱动的贵州银饰共创平台。全球审美与苗族文化传承相遇——由智能设计重新演绎。",
-    "engineNote": "全局需求引擎 · V1",
-    "footer1": "贵州 · 苗银 · 重塑",
-    "footer2": "© 2026 银中贵 — 原型",
+    "coCreationNote": "AI 篆刻定制 · V1",
+    "chapterLabel": "金石新篇",
+    "title1": "刻一方印，记一件事。",
+    "title2": "把纪念，落在石头上。",
+    "intro": "印可道是一个 AI 篆刻定制工作室。石料、用途、外形、装饰、印面——五个维度逐一引导，像一位懂石料的店员陪你聊天，把你的纪念时刻，设计成一枚可以握在手里的印章。",
+    "engineNote": "五维度引导 · V1",
+    "footer1": "石料 · 刀法 · 纪念",
+    "footer2": "© 2026 印可道 — 原型",
     "exploreProcess": "探索流程",
     "scrollHint": "向下探索",
-    "processTitle": "五段流程",
-    "processSub": "从你的故事，到一枚可佩戴的银。",
+    "processTitle": "五维度设计",
+    "processSub": "从你的故事，到一方可握的印。",
     "stageEnter": "进入",
     "act2Label": "第一章 · 传承",
     "act2Title": "从传承，到可能。",
-    "act2Body": "贵州苗银，数百年的锻制技艺。我们不让它停留在博物馆的玻璃柜里——而是让它进入一场当代设计的对话。",
+    "act2Body": "篆刻，两千年的刀石对话。我们不让它停在印谱与博物馆的玻璃柜里——而是让它进入你的下一次纪念。",
     "act3Label": "第二章 · 材质",
-    "act3Title": "银，是有记忆的金属。",
-    "act3Body": "花丝、錾刻、锻打——每一道工艺都在银的表面留下痕迹。靠近一些，看材质本身如何成为设计语言。",
+    "act3Title": "石头是有脾气的。",
+    "act3Body": "青田的爽脆、寿山的温润、田黄的细密肌理——每一种石头都有自己的脾气。凑近一些，看刀与石相遇处，材质如何成为设计语言。",
     "act4Label": "第三章 · 文化",
     "act4Title": "文化不是装饰。",
-    "act4Body": "每一个纹样都有出处，每一个工艺都有传承人。我们的文化数据库拒绝虚构——只有被记录、被验证的元素，才能进入你的设计。",
+    "act4Body": "每一个印式都有出处，每一种纹样都有记载。我们的文化元素库拒绝虚构——只有被记录、被验证的元素，才能进入你的设计。",
     "act5Label": "第四章 · 记忆",
-    "act5Title": "你的记忆，成为形。",
-    "act5Body": "一段旅程、一个名字、一次告别。把它交给工坊——让 AI 与文化一起，把它锻成一件可以佩戴的银。",
+    "act5Title": "你的记忆，成印。",
+    "act5Body": "一段旅程、一个名字、一次告别。把它交给工作室——让 AI 与匠人一起，把它刻进一方石头里。",
     "shopCollection": "直接选购成品",
-    "shopCollectionHint": "不想定制？浏览我们的已有银饰，直接询盘或购买 →",
-    "act3StoryLink": "想亲手转动一件银饰？进入数字展厅",
-    "footer3dStory": "3D 数字展厅"
+    "shopCollectionHint": "不想定制？浏览我们的已有作品，直接询盘或购买 →",
+    "act3StoryLink": "想转一方印细看？进入 3D 篆章展厅",
+    "footer3dStory": "3D 篆章展厅"
   },
   "globalDemand": {
     "studioEyebrow": "全球设计工作室",

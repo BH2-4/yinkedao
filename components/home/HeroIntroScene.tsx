@@ -16,18 +16,18 @@ import { HeroArtifact } from "./HeroArtifact";
 import { HeroTypography } from "./HeroTypography";
 
 /**
- * HERO FIRST VIEW · 数字银饰展厅首屏
+ * HERO FIRST VIEW · 数字印章展厅首屏
  *
  * 构图（museum exhibition opening，非 marketing hero）：
  *   左侧   克制叙事 —— label + 陈述 + 一行说明 + 单一入口
- *   右侧   银饰主体 —— 真实比例、黑暗中被发现（视觉高度 ~40–56%）
- *   背景   巨大 SILVER FUTURE 墙面字 —— 低透明度、被银饰部分遮挡
+ *   右侧   印章主体 —— 真实比例、黑暗中被发现（视觉高度 ~40–56%）
+ *   背景   巨大 YIN KEDAO 墙面字 —— 低透明度、被印章部分遮挡
  *   底部   极简探索提示 —— 细线缓慢呼吸
  *
  * 入场（slow / quiet / cinematic）：
- *   0–0.8s 黑暗 → 0.8–2.5s 银饰显现 → 1.5–3.3s 墙面字 → 1.9–3.3s 叙事 → 2.9s 提示
+ *   0–0.8s 黑暗 → 0.8–2.5s 印章显现 → 1.5–3.3s 墙面字 → 1.9–3.3s 叙事 → 2.9s 提示
  *
- * 滚动 = CAMERA MOVE（非页面切换）：银饰向前靠近（scale/x/亮度），
+ * 滚动 = CAMERA MOVE（非页面切换）：印章向前靠近（scale/x/亮度），
  * 墙面字退向黑暗，左侧叙事先退场 —— 之后进入既有 ACT 2–5（未改动）。
  * 鼠标视差仅 1–3px，且仅在 pointer:fine 且未开启"减少动态"时启用。
  */
@@ -41,7 +41,7 @@ export function HeroIntroScene() {
     offset: ["start start", "end start"],
   });
 
-  /* CAMERA MOVE —— 用户走近银饰 */
+  /* CAMERA MOVE —— 用户走近印章 */
   const pieceScale = useTransform(scrollYProgress, [0, 1], [1, 1.25]);
   const pieceX = useTransform(scrollYProgress, [0, 1], ["0vw", "-8vw"]);
   const veilOpacity = useTransform(scrollYProgress, [0, 0.85], [0.32, 0]);
@@ -85,7 +85,7 @@ export function HeroIntroScene() {
         {/* 背景层 —— 巨大墙面字 */}
         <HeroTypography y={wallY} opacity={wallOpacity} pointerX={pointerX} />
 
-        {/* 主体层 —— 银饰 */}
+        {/* 主体层 —— 印章 */}
         <HeroArtifact
           scale={pieceScale}
           x={pieceX}
