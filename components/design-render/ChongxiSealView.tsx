@@ -56,12 +56,9 @@ export function ChongxiSealView({ text, isWhite, texture, freedom, seed }: Chong
   const valid = chars.length >= 1 && chars.length <= 4;
 
   useEffect(() => {
-    /* 无效输入：清空视图（提示文案由 SealFaceProof 统一展示） */
-    if (!valid) {
-      abortRef.current?.abort();
-      setState(IDLE);
-      return;
-    }
+    /* 无效输入：不发请求（视图由 render 层按 valid 派生清空，提示文案
+       由 SealFaceProof 统一展示） */
+    if (!valid) return;
 
     /* 防抖 300ms：自由度滑杆/连续输入只发末次请求；竞态由 abort 截断 */
     const timer = setTimeout(async () => {
@@ -119,7 +116,10 @@ export function ChongxiSealView({ text, isWhite, texture, freedom, seed }: Chong
         aria-label={t("designRender.sealFaceLabel")}
         aria-busy={state.loading}
       >
-        {state.dataUrl ? (
+        {valid && state.dataUrl ? (
+          /* dataUrl SVG 用原生 <img>：next/image 对自包含 dataUrl 无优化
+             收益（无外部尺寸/无网络请求），dataUrl 场景需配 loader。 */
+          // eslint-disable-next-line @next/next/no-img-element
           <img src={state.dataUrl} alt={t("designRender.sealFaceLabel")} draggable={false} />
         ) : (
           <div className="seal-proof-chongxi-empty" aria-hidden="true" />
