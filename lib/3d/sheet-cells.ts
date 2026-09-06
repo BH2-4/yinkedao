@@ -70,6 +70,12 @@ export function extractSheetPhoto(sheetDataUrl: string): Buffer {
     .replace(/&apos;/g, "'");
   const photoBase64 = /^data:image\/(png|jpeg|jpg);base64,(.+)$/i.exec(photoHref);
   if (!photoBase64) {
+    /* 演示模式（无生图 key）的照片是占位 SVG——给出人话而非技术错误 */
+    if (/^data:image\/svg\+xml/i.test(photoHref)) {
+      throw new SheetParseError(
+        "当前效果图来自演示模式的占位渲染，不是真实六宫格照片——3D 效果图需在配置生图 API 的环境使用",
+      );
+    }
     throw new SheetParseError("内嵌照片不是 PNG/JPEG dataUrl，无法进入裁切");
   }
   return Buffer.from(photoBase64[2], "base64");

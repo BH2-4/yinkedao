@@ -108,11 +108,16 @@ export function Seal3DStudio() {
 
   return (
     <section className="animate-fade-in flex flex-col gap-12">
-      {/* 参数单摘要条（与效果图页同款——可追溯） */}
+      {/* 参数单摘要条（与效果图页同款——可追溯；unknown 无信息量
+          不渲染，防止链接丢失 order query 时露出原始 i18n key） */}
       {order && (
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-[var(--color-line)] py-4 font-mono text-[12px] tracking-[0.12em] text-[var(--color-silver-400)] uppercase">
-          <span>FORM · {t(`interview.values.sealForm.${order.seal_form}`)}</span>
-          <span>STONE · {t(`interview.values.stone.${order.stone_type}`)}</span>
+          {order.seal_form !== "unknown" && (
+            <span>FORM · {t(`interview.values.sealForm.${order.seal_form}`)}</span>
+          )}
+          {order.stone_type !== "unknown" && (
+            <span>STONE · {t(`interview.values.stone.${order.stone_type}`)}</span>
+          )}
           <span>SEED · {seed}</span>
           <span>TASK · {taskId.slice(0, 13)}</span>
         </div>
