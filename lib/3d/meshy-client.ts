@@ -1,5 +1,6 @@
 import type { SealOrder } from "@/lib/design/seal-order";
 import { STONE_VISUAL, LOOK_VISUAL } from "@/lib/design/seal-prompt";
+import { outboundFetch } from "@/lib/3d/outbound-fetch";
 import type { Seal3dErrorResponse } from "@/types/seal-3d";
 
 /**
@@ -75,30 +76,30 @@ export function taskFailureEnvelope(task: MeshyTask): Seal3dErrorResponse {
 async function meshyJson(
   key: string,
   path: string,
-  init: RequestInit & { timeoutMs: number },
+  init: { method: "GET" | "POST"; timeoutMs: number; body?: string },
 ): Promise<{ ok: boolean; status: number; body: unknown; bodyText: string }> {
-  const { timeoutMs, ...rest } = init;
+  const { timeoutMs, method, body } = init;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const res = await fetch(`${MESHY_BASE}${path}`, {
-      ...rest,
+    const res = await outboundFetch(`${MESHY_BASE}${path}`, {
+      method,
+      body,
       headers: {
         Authorization: `Bearer ${key}`,
         "Content-Type": "application/json",
         Accept: "application/json",
-        ...(rest.headers ?? {}),
       },
       signal: controller.signal,
     });
     const bodyText = await res.text();
-    let body: unknown = null;
+    let parsed: unknown = null;
     try {
-      body = JSON.parse(bodyText);
+      parsed = JSON.parse(bodyText);
     } catch {
       /* 非 JSON 响应按原文透传给错误分类 */
     }
-    return { ok: res.ok, status: res.status, body, bodyText };
+    return { ok: res.ok, status: res.status, body: parsed, bodyText };
   } finally {
     clearTimeout(timer);
   }
@@ -149,7 +150,7 @@ export async function downloadGlb(url: string): Promise<{ bytes: ArrayBuffer } |
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 120_000);
   try {
-    const res = await fetch(url, { signal: controller.signal });
+    const res = await outboundFetch(url, { signal: controller.signal });
     if (!res.ok) {
       return { success: false, error: `glb 下载失败 HTTP ${res.status}`, code: "transfer_failed" };
     }
