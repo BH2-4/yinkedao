@@ -151,6 +151,7 @@ curl -s -X POST "https://api.vercel.com/v13/deployments/{目标uid}/promote?team
 | 日期 | deployment | 变更摘要 | 验证结果 |
 |---|---|---|---|
 | 2026-09-06 | dpl_ZxaAq26jZkdWBrFg3DQJABetxQmG | c102ab9..68c6810（7 commit，含小篆印蜕+白主题） | 门禁全过（worktree 独立验证 68c6810：build/tsc/smoke/render）；构建 ~90s READY；vercel.app 被 Standard Protection 拦（预期，见 §6）；正式域名验证待 DNS |
+| 2026-09-06 | dpl_CpkmammK5UFPsYwA8MKiYWP1eDGN | 639fd8f 文化匹配引导层（CulturalHintCards+seal-culture-v1+Zod 契约） | 门禁全过（build 0 错/tsc 0 错/smoke 5×200/render 30✓0✕，脚本更新版）；构建 READY；DNS 仍未生效（configVerifiedAt=None，NS 仍 spaceship.net） |
 
 ## 6. 部署保护说明（2026-09-06 实测发现）
 
