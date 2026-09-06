@@ -1,5 +1,5 @@
 import { z } from "zod";
-import dataJson from "@/data/cultural-match/seal-culture-v1.json";
+import dataJson from "@/data/SealCulture-v1/data/cultural-match.json";
 
 /**
  * 文化匹配引导层（F6 · MVP 简化形态）——数据契约与只读仓储。

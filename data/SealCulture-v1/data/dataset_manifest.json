@@ -1,0 +1,74 @@
+{
+  "dataset_name": "SealCulture-v1",
+  "version": "1.0",
+  "scope": "印章文化知识库（印可道 · source-first 数据集，E 批换域落盘）",
+  "created": "2026-09-06",
+  "methodology": {
+    "principle": "source-first（继承自 SilverHeritage-GZ-v1 的文化知识可信供给链方法论）",
+    "primary_source_policy": "事实来源限定为：篆刻调研报告（05/06/08）、产品文档（PRD/ASSETS-SURVEY）与素材实有（yinding 馆藏棚拍 32 张、章体棚拍 13 张、RENAME-LOG 著录台账）；02-石料与雕刻性质仅由文化匹配层 CE-18/19 以 source.doc 文本引用，八实体无条目引用故不入 sources（来源覆盖率 100%）。官方登记源暂缺，故 evidence_level 不使用 official；museum=馆藏/素材实有印证，academic=教材/印论/调研报告转述，inference=AI 解释（独立字段，永不混入）。",
+    "unsupported_claim_policy": "没有直接证据的文化寓意、流派归属、地域/朝代/作者归属不写成事实；材料外内容标「待核实」或不写。RENAME-LOG 识读原则（篆书款文/印文宁缺毋滥，未识出处标「印文待识」）全文适用。",
+    "image_policy": "沿用 usage:internal 口径：馆藏图与棚拍图仅限内部参考与 demo 展示，未确认授权不得训练/商用/再发布。",
+    "ai_inference_policy": "AI 解释与事实分字段保存（三件套 match 引擎中 matched_reasons 与 cultural_evidence 分离）。"
+  },
+  "domain_swap": {
+    "from": "SilverHeritage-GZ-v1（贵州苗银，F 批删除对象——本批原样保留，未删未改）",
+    "principle": "换的是内容，不换的是机制：lib/heritage/ 三件套（match/guardrail/evidence）与 glossary/search/types/repository 一行未改；本数据集经临时脚本（scripts/smoke-sealculture-trio.mjs）以模块重映射接线完成机制冒烟。",
+    "structure": "对齐 SilverHeritage-GZ-v1 嵌套组织：根目录仅 README.md；data/ 放 8 实体 json + cultural-match.json + dataset_manifest.json；docs/ 放 schema.md。",
+    "cultural_match_layer": "已上线引导层文件 data/cultural-match/seal-culture-v1.json（六顶层键 version/note/elements/series/items/scenarios）升级并入本数据集为 data/cultural-match.json，构成唯一真身（不另建双源）；lib/cultural-match/repository.ts 读取路径已接线至本文件——属数据路径接线，非机制改动。",
+    "ce_absorption": {
+      "note": "F6 元素总表 CE-01~CE-19 并入八实体：17 条按下方映射转入 motifs；扩充 3 条（MOTIF-018~020）来自 05 报告。",
+      "absorbed": [
+        "CE-01", "CE-02", "CE-03", "CE-04", "CE-05", "CE-06", "CE-07",
+        "CE-08", "CE-09", "CE-10", "CE-11", "CE-12", "CE-13", "CE-14",
+        "CE-15", "CE-16", "CE-17"
+      ],
+      "ce_to_motif": {
+        "CE-01": "纪年纪地边款",
+        "CE-02": "薄意山水入景",
+        "CE-03": "随形保天然",
+        "CE-04": "对章成双",
+        "CE-05": "龙钮谱系",
+        "CE-06": "汉印均分正格",
+        "CE-07": "回文印双名不拆",
+        "CE-08": "椭圆引首章",
+        "CE-09": "日字格半通印",
+        "CE-10": "朱白分工倾向",
+        "CE-11": "化瑕为俏",
+        "CE-12": "敕赐典制印式",
+        "CE-13": "斋堂收藏印",
+        "CE-14": "乾卦团纹饰面",
+        "CE-15": "瓦钮钱纹",
+        "CE-16": "九叠篆官印体式",
+        "CE-17": "萝卜纹与红格"
+      },
+      "f6_only": {
+        "CE-18": "青田白文刀感——石性规则（02 报告），八实体模型无石种位，留在文化匹配层",
+        "CE-19": "中间价位老挝石——市场价位信息，非文化元素，留在文化匹配层"
+      }
+    },
+    "empty_entities_policy": {
+      "regional_styles": "空置数组跑机制——05 报告仅浅带提及流派章法倾向（浙派丁敬切刀承汉/齐白石疏密对比/吴昌硕封泥式边栏/元朱文），无各派归属的核实细节；宁缺毋滥，不编造。待流派专源核实后再补。",
+      "people": "空置——印人/匠人条目等外部背书人落实后再补（08 报告缺口②：同类获奖先例均有文化侧背书，本团队暂无）。"
+    },
+    "dropped_for_no_source": [
+      "满白文——任务示例提及，但 02/05/06/08 报告与素材著录均未出现该印式名，无来源即删",
+      "做旧——素材与报告均无此技法著录（06 报告所载染色/煨色/注胶属作伪手段而非工艺）",
+      "砂地——06 报告定性为质地缺陷（L4 砂地/水泥地），非篆刻技法，不入 crafts"
+    ]
+  },
+  "counts": {
+    "sources": 8,
+    "motifs": 20,
+    "crafts": 8,
+    "heritage_items": 12,
+    "regional_styles": 0,
+    "projects": 1,
+    "people": 0,
+    "cultural_rules": 7
+  },
+  "counts_note": "cultural_rules 7 条：SilverHeritage 源文件实有 7 条（其 manifest 计数 6 已过期），本批按源文件全部 7 条直译改写域词，未删减护栏。",
+  "review_notes": [
+    "PROJ-001「篆刻 2009 年入选人类非遗代表作名录」：转引自 08 报告收录的公开资料，条目内已标注「对外使用前需官方源复核」，不得作为已核实事实对外引用。",
+    "全部石种/质感为照片推断口径，非实物鉴定；yinding-05-5/13-4 等印文待识条目沿用 RENAME-LOG 待复核清单。"
+  ]
+}

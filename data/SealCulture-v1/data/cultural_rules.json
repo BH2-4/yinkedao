@@ -1,0 +1,93 @@
+[
+  {
+    "id": "RULE-001",
+    "type": "source_required",
+    "severity": "high",
+    "rule": "任何印式典故、钮饰纹样的文化断言，必须绑定可追溯来源（调研报告/素材实有著录）；无来源时不得作为事实输出。",
+    "rationale": "调研报告大量著录形制、款识与工艺，但纹样题材与印式的文化义多未著录；RENAME-LOG 识读原则即「宁缺毋滥」。",
+    "source_ids": [
+      "SRC-001",
+      "SRC-002",
+      "SRC-006",
+      "SRC-009"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "RULE-002",
+    "type": "provenance_attribution",
+    "severity": "high",
+    "rule": "不得把未著录出处的印式、钮制或纹样归属到具体地域、朝代、作者或流派；馆藏素材仅著录形制与款识，多处印文标「待识」，归属必须留空。",
+    "rationale": "yinding/章体素材均为照片推断口径，RENAME-LOG 待人工复核清单尚有 9 项；在源外补归属即编造。",
+    "source_ids": [
+      "SRC-007",
+      "SRC-008",
+      "SRC-009"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "RULE-003",
+    "type": "motif_meaning",
+    "severity": "high",
+    "rule": "仅有形制/纹样/款识证据时，只能描述为「题材/视觉元素/体式」，不能自动升级为「文化寓意」。",
+    "rationale": "如乾卦团纹、瓦钮钱纹仅著录纹样形制，来源本身未给出统一象征义。",
+    "source_ids": [
+      "SRC-001",
+      "SRC-007",
+      "SRC-009"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "RULE-004",
+    "type": "evidence_level",
+    "severity": "medium",
+    "rule": "教材/印论/调研报告转述标记为 academic，馆藏与素材实有印证标记为 museum；AI 生成解释必须单独标记为 inference，不得混入前两者。",
+    "rationale": "本数据集无官方登记源，evidence_level 不使用 official；分层口径见 docs/schema.md。",
+    "source_ids": [
+      "SRC-001",
+      "SRC-002",
+      "SRC-006",
+      "SRC-007"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "RULE-005",
+    "type": "design_transformation",
+    "severity": "medium",
+    "rule": "设计系统可以进行现代化转译，但输出应明确区分「传统资料事实」和「AI 设计建议」。",
+    "rationale": "PRD 场景映射（如把毕业比作人生敕封时刻）属设计层叙事，不是史料事实。",
+    "source_ids": [
+      "SRC-005"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "RULE-006",
+    "type": "image_rights",
+    "severity": "high",
+    "rule": "网络图片与馆藏棚拍图可作为研究线索，但未确认授权前不得标记为可训练、可商业使用或可再发布素材（yinding/章体素材沿用 usage:internal 口径，仅限内部参考与 demo 展示）。",
+    "rationale": "本知识库只验证文化事实来源，不默认解决第三方图片版权；馆藏图版权归博物馆。",
+    "source_ids": [
+      "SRC-006",
+      "SRC-007",
+      "SRC-008"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "RULE-007",
+    "type": "claim_level_integrity",
+    "severity": "high",
+    "rule": "证据等级只能由数据集来源推导，不得因 AI 推理而提升；仅素材实有的纹样/体式只能保持视觉引用（visual_only），不得自动转为文化事实。",
+    "rationale": "素材记录形制的存在性，但多未记录文化义；系统必须如实区分「形制存在」与「文化事实」。",
+    "source_ids": [
+      "SRC-001",
+      "SRC-002",
+      "SRC-007"
+    ],
+    "evidence_level": "academic"
+  }
+]

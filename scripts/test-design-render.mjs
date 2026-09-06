@@ -200,8 +200,8 @@ function scenario8ReferenceLibrary() {
 }
 
 function scenario9CultureData() {
-  console.log("\n[9] 文化匹配数据完整性（seal-culture-v1）");
-  const data = JSON.parse(readFileSync(resolve(__dirname, "..", "data", "cultural-match", "seal-culture-v1.json"), "utf8"));
+  console.log("\n[9] 文化匹配数据完整性（SealCulture-v1/cultural-match）");
+  const data = JSON.parse(readFileSync(resolve(__dirname, "..", "data", "SealCulture-v1", "data", "cultural-match.json"), "utf8"));
   assert(data.scenarios.length === 9, `9 scenarios (got ${data.scenarios.length})`);
   const elementIds = new Set(data.elements.map((e) => e.id));
   const seriesIds = new Set(data.series.map((s) => s.id));

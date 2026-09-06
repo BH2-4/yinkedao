@@ -1,0 +1,85 @@
+[
+  {
+    "id": "CRAFT-001",
+    "name": "薄意",
+    "description": "在印石表层作极浅的浮雕纹样（山水楼阁/云纹/花卉）——ASSETS-SURVEY 将薄意、浅刻、深雕并列为山水中呈现的三种工艺梯度；章体画1 薄意山水楼阁、画4 薄意云纹对章、素顶方章_薄意花卉纹浅粉对章为实有印证。",
+    "source_ids": [
+      "SRC-006",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "CRAFT-002",
+    "name": "浅刻",
+    "description": "单刀细线浅入的阴刻技法——ASSETS-SURVEY 表 B 画2 记「松针放射簇/峭壁方折阴线/江面孤舟蓑翁，单刀细线浅入」；章体画2 浅刻山水方柱章为实有印证。",
+    "source_ids": [
+      "SRC-006",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "CRAFT-003",
+    "name": "深雕兼镂雕",
+    "description": "通景深雕并辅以镂雕的立体技法——ASSETS-SURVEY 表 B 画3 记「深雕兼镂雕通景山水人物＋翠玉螭龙顶」；章体画3 深雕山水人物方柱章一对为实有印证。",
+    "source_ids": [
+      "SRC-006",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "CRAFT-004",
+    "name": "高浮雕",
+    "description": "钮饰与章体的高起浮雕——ASSETS-SURVEY 表 A 记 yinding-06「高浮雕云龙纹」、yinding-10「高浮雕盘龙钮（穿云戏珠状）」；馆藏两件为实有印证。",
+    "source_ids": [
+      "SRC-006",
+      "SRC-007"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "CRAFT-005",
+    "name": "圆雕印钮",
+    "description": "印钮的全方位圆雕技法——ASSETS-SURVEY 表 A 记 yinding-02「狮钮（螺旋鬃毛圆雕）」、yinding-09「马钮（立马回首提蹄）」、句1「古兽钮（伏卧回首露齿）」；馆藏与章体多件实有。",
+    "source_ids": [
+      "SRC-006",
+      "SRC-007",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "CRAFT-006",
+    "name": "减地浅浮雕",
+    "description": "减地起凸的饰面技法——ASSETS-SURVEY 表 A 记 yinding-11-2「减地浅浮雕团纹（乾卦＋双弦纹圈＋卷云夔钩纹，瓦当式放射布局）」、yinding-12-3「牌内浮雕螭虎」；馆藏两件为实有印证。",
+    "source_ids": [
+      "SRC-006",
+      "SRC-007"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "CRAFT-007",
+    "name": "俏色巧雕",
+    "description": "06 报告：质杂色杂本属不纯，「经俏色雕刻反增值——瑕疵与美感的一线之隔」；并载「化瑕、去除、随形雕刻」为瑕疵少量时的价值最大化处理。章体句4 红黄夹色随形章、yinding-03 红黄白三色为实有印证。",
+    "source_ids": [
+      "SRC-002",
+      "SRC-006",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "CRAFT-008",
+    "name": "边款刻制",
+    "description": "印侧刻款技法，书体与幅面多样：章体句1 行草侧款多行、句2 满刻边款（小楷约6行＋行楷，可辨「節子」「遂生刻」）、句7 隶书刻款四行、素顶方章_朱红石_白文边款（楷书4-5字，刀痕清晰）、句6 短款两行六字均为实有印证；PRD 将纪年纪地边款定为纪念范式（设计层用法）。",
+    "source_ids": [
+      "SRC-005",
+      "SRC-006",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  }
+]

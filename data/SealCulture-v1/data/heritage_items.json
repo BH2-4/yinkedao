@@ -1,0 +1,137 @@
+[
+  {
+    "id": "ITEM-001",
+    "name": "汉印正格印式",
+    "category": "印式·章法",
+    "region": "无地域著录",
+    "description": "05 报告：汉印（及教学首选临摹对象）的章法特征是「均分印面、任疏任密」——每字等分印面，疏密听凭笔画自然繁简；四字印 2×2 为正格，是最简单也最可形式化的默认布局策略。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "ITEM-002",
+    "name": "回文印",
+    "category": "印式·字序",
+    "region": "无地域著录",
+    "description": "05 报告：回文印读序改为右上→左上→左下→右下（逆时针回旋），使单姓双名者双名上下相邻且读序连贯；汉代姓名印常见；并载回文印三忌（忌用于双姓单名等三条）。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "ITEM-003",
+    "name": "日字格半通印",
+    "category": "印式·形制",
+    "region": "无地域著录",
+    "description": "05 报告：长方形多作「日」字格半通印——秦低级职官印约为正方官印之半。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "ITEM-004",
+    "name": "田字格官印式",
+    "category": "印式·界格",
+    "region": "无地域著录",
+    "description": "05 报告：「田」字格为四字秦官印的典型特征，「以田字日字为界格，疏密有致，自然生动」；界格与所配文字的体制匹配是硬规则（如周秦格式中填汉印文字即不伦不类）。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "ITEM-005",
+    "name": "随形印",
+    "category": "印式·形制",
+    "region": "无地域著录",
+    "description": "05 报告：以印材天然形态为基础「随形布字、随形变字」，通过调整文字笔画与章法结构实现艺术表现——文字为石形让路，布局服从材料；章体句4 随形章（天然卵石轮廓、仅底切平）为实有印证。",
+    "source_ids": [
+      "SRC-001",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "ITEM-006",
+    "name": "椭圆引首鉴赏印式",
+    "category": "印式·形制",
+    "region": "无地域著录",
+    "description": "05 报告：圆形比较少，椭圆形多见于鉴赏印和引首章；秦私印实证圆形/椭圆形边框均为弧线，印文适应弧形印边。yinding-08 太狮少狮钮椭圆章附椭圆朱文印蜕为实有印证。",
+    "source_ids": [
+      "SRC-001",
+      "SRC-007"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "ITEM-007",
+    "name": "元朱文印式",
+    "category": "印式·印风",
+    "region": "无地域著录",
+    "description": "05 报告（流派章法倾向浅带项）：元朱文细边细文、工稳雅致（多来源）。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "ITEM-008",
+    "name": "九叠篆官印式",
+    "category": "印式·官印",
+    "region": "无地域著录",
+    "description": "馆藏实有九叠篆白文 2×2、双线边栏、刻槽宽深规整（yinding-05-5/13-4，篆法变形剧烈印文待识）；05 报告载五字以上官印分成三列、文字相对狭长的格局。",
+    "source_ids": [
+      "SRC-007",
+      "SRC-001"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "ITEM-009",
+    "name": "鸟虫篆印式",
+    "category": "印式·字法",
+    "region": "无地域著录",
+    "description": "05 报告：「章法分布50例」载「印文美术（鸟虫篆）」模式（每种均附古印/名家印例）；鸟虫篆入印为图形与文字共享印面的分支。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "ITEM-010",
+    "name": "肖形印",
+    "category": "印式·图形",
+    "region": "无地域著录",
+    "description": "05 报告浅带项：来楚生肖形印是「图形与文字共享印面」的分支，与鸟虫篆入印同列，可作产品拓展题材。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "ITEM-011",
+    "name": "十字井字界格印式",
+    "category": "印式·界格",
+    "region": "无地域著录",
+    "description": "05 报告：「十」字界用于四字印（吴昌硕「明月前身」用以稳住欹侧字势），「井」字界用于九字印（「千里之路不可扶以绳」金文入印用以团聚）。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "ITEM-012",
+    "name": "多字官印三列式",
+    "category": "印式·官印",
+    "region": "无地域著录",
+    "description": "05 报告：五字以上官印「分成三列，文字变得相对狭长」——列数由字数决定，字格纵横比随之改变。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  }
+]

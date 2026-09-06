@@ -1,0 +1,256 @@
+[
+  {
+    "id": "MOTIF-001",
+    "name": "纪年纪地边款",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "侧边款刻时间与地名，把纪年钉进石侧——文人边款传统。素材句5 侧款可辨「丁卯春 作於沪上」、句2 满刻边款（小楷约6行，可辨「節子」「遂生刻」）为实有印证；PRD 场景一将其定为纪念旅行的设计范式（设计层用法）。",
+    "source_ids": [
+      "SRC-005",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-002",
+    "name": "薄意山水入景",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "山水意象入薄意纹样，目的地风景随章携带。章体画1 薄意山水楼阁（楼阁/峭壁/松/扁舟人物）、画4 薄意云纹、素顶方章_薄意花卉纹为实有印证；ASSETS-SURVEY 将薄意列为山水呈现的工艺梯度之一。",
+    "source_ids": [
+      "SRC-005",
+      "SRC-006",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-003",
+    "name": "随形保天然",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "以印材天然形态为基础，随形布字、随形变字——文字为石形让路，布局服从材料（05 报告「随形印」条）。章体句4 随形章（天然卵石轮廓、仅底切平）为实有印证。",
+    "source_ids": [
+      "SRC-001",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-004",
+    "name": "对章成双",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "两方等高等宽、纹样刀法呼应的成对形制。素材实有四组对章：yinding-10 雕龙钮朱红对章、画3 深雕山水人物对章、画4 薄意云纹对章、素顶方章_薄意花卉纹浅粉对章。",
+    "source_ids": [
+      "SRC-006",
+      "SRC-007",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-005",
+    "name": "龙钮谱系",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "盘龙/穿云戏珠/低伏衔珠等龙钮谱系。馆藏 yinding-03（低伏衔珠附小兽）、yinding-06（高浮雕云龙）、yinding-10（穿云戏珠成对）与章体句3（镂雕龙钮长方章）多件实有。",
+    "source_ids": [
+      "SRC-007",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-006",
+    "name": "汉印均分正格",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "05 报告：汉印基准章法为「均分印面、任疏任密」——每字等分印面，疏密听凭笔画自然繁简；正方为最正规（姓名印正格），四字印 2×2 为正格。馆藏 yinding-05-5/13-4 九叠篆白文 2×2 排布为实有印证。",
+    "source_ids": [
+      "SRC-001",
+      "SRC-007"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-007",
+    "name": "回文印双名不拆",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "回文读序为右上→左上→左下→右下（逆时针回旋），使单姓双名者双名上下相邻、读序连贯；汉代姓名印常见；05 报告并载回文印三忌（忌用于双姓单名等）。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "MOTIF-008",
+    "name": "椭圆引首章",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "05 报告：圆形比较少，椭圆形多见于鉴赏印和引首章；秦私印实证印文适应弧形印边、笔画处理成弧线以契合印面。yinding-08 太狮少狮钮椭圆章附椭圆朱文印蜕（回纹边框）为实有印证。",
+    "source_ids": [
+      "SRC-001",
+      "SRC-007"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-009",
+    "name": "日字格半通印",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "05 报告：长方形多作「日」字格半通印——秦低级职官印约为正方官印之半（9610.com《印章种类》转述）。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "MOTIF-010",
+    "name": "朱白分工倾向",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "姓名章偏白文饱满、斋号引首偏朱文清雅——PRD 7.1 记为经验倾向而非硬规则；05 报告载朱白布局差异：朱文经营留白、白文经营留红，朱文印边和文粗细一致、白文印边粗细与笔画间隙相近。",
+    "source_ids": [
+      "SRC-001",
+      "SRC-005"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "MOTIF-011",
+    "name": "化瑕为俏",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "质杂色杂经俏色雕刻反增值——瑕疵与美感的一线之隔（06 报告）。章体句4 红黄夹色随形章（朱红-暗红片状晕染）、yinding-03 红黄白三色交融为实有印证。",
+    "source_ids": [
+      "SRC-002",
+      "SRC-007",
+      "SRC-008"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-012",
+    "name": "敕赐典制印式",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "带年款敕赐印的仪式形制——yinding-05 法轮钮象牙方章肩款可读「永樂二十二年三月日 賜剌麻也失藏卜」，侧款三见红色馆藏号 1994.56。",
+    "source_ids": [
+      "SRC-007"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-013",
+    "name": "斋堂收藏印",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "斋号加「珍藏」款式的文人收藏印传统——yinding-09 马钮方章侧款楷书清晰「光緒庚辰仲春／九思堂主人珍藏」。",
+    "source_ids": [
+      "SRC-007"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-014",
+    "name": "乾卦团纹饰面",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "减地浅浮雕团纹饰面：内心刻三横相连的乾卦、外套两道弦纹圈、瓦当式放射布局（yinding-11-2 实有）。卦象含义未在来源中引证，仅取纹样形制。",
+    "source_ids": [
+      "SRC-007"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-015",
+    "name": "瓦钮钱纹",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "桥形拱钮取象屋瓦，瓦背上叠置圆形钱纹钮（yinding-11 系列三视实有：斜侧视/正面视拱形瓦钮孔/团纹饰面）。",
+    "source_ids": [
+      "SRC-007"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-016",
+    "name": "九叠篆官印体式",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "叠笔盘曲填格、双线边栏的官印体式——yinding-05-5 与 13-4 九叠篆白文 2×2 四字实有（篆法变形剧烈，印文待识）；05 报告载五字以上官印分列格局。",
+    "source_ids": [
+      "SRC-007",
+      "SRC-001"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-017",
+    "name": "萝卜纹与红格",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "田黄行话「无格不成田、无丝（纹）不成田」——萝卜丝纹与红筋（格）为判定特征而非瑕疵，瑕疵在身份体系里兼具身份证与减分项双重角色（06 报告）；yinding-12 隐约萝卜纹为实有印证。",
+    "source_ids": [
+      "SRC-002",
+      "SRC-007"
+    ],
+    "evidence_level": "museum"
+  },
+  {
+    "id": "MOTIF-018",
+    "name": "鸟虫篆入印",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "05 报告「章法分布50例」载「印文美术（鸟虫篆）」模式；并指鸟虫篆入印与肖形印同为「图形与文字共享印面」的分支题材，可作产品拓展。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "MOTIF-019",
+    "name": "瓦当文字弧形适配",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "圆形/椭圆形印面印文适应弧形印边，往往将笔画处理成弧线使文字外形与印面契合——这种处理方法与秦汉瓦当文字的处理相同（05 报告，容轩读印·秦代私印转述）。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  },
+  {
+    "id": "MOTIF-020",
+    "name": "印面界格饰面",
+    "region": "无地域著录",
+    "documented_visual_subject": true,
+    "documented_meaning": null,
+    "description": "界格兼具装饰与规整章法两用——「日」字格（二字/半通）、「田」字格（四字秦官印）、「十」字界、「井」字界与一字一格组合边（05 报告界格类型学）；界格须与所配文字的传统体制匹配。",
+    "source_ids": [
+      "SRC-001"
+    ],
+    "evidence_level": "academic"
+  }
+]

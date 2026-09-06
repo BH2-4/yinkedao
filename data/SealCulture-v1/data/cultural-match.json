@@ -1,6 +1,6 @@
 {
-  "version": "0.1-mvp",
-  "note": "F6 文化匹配层 MVP 简化形态：固定映射表（source-first：每条文化元素带 doc+evidence 溯源）。M8 灰度版由 heritage 三件套接管本 schema。石种全部为照片推断口径；馆藏图 usage:internal 仅限内部参考与 demo 展示。",
+  "version": "1.0",
+  "note": "印章文化数据集 SealCulture-v1 的文化匹配引导层数据（F6 · 设计引导层，source-first：每条文化元素带 doc+evidence 溯源）。E 批起由 data/cultural-match/seal-culture-v1.json 升级并入本数据集为唯一真身，八实体知识库见同目录各 json；lib/cultural-match/repository.ts 读取路径已接线至本文件。M8 灰度版由 heritage 三件套(match/guardrail/evidence)接管本 schema（guardrail 白名单 = elements 总表 + 系列/单品库）。石种全部为照片推断口径；馆藏图 usage:internal 仅限内部参考与 demo 展示。",
   "elements": [
     {
       "id": "CE-01",
