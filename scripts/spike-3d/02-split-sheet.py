@@ -53,15 +53,18 @@ def read_png_rgb(path):
     return w, h, [raw[1 + y * px_w : (y + 1) * px_w] for y in range(h)]
 
 
-def write_png(path, rows):
-    h, px_w = len(rows), len(rows[0])
+def write_png(path, rows, w_px):
+    """rows 为字节行（RGB 无 filter 前缀）；w_px 是像素宽——注意不是
+    字节宽（曾把 512px*3=1536 字节宽写进 IHDR 导致 Meshy 解码
+    'bad filter type'，字节错位后像素被当 filter 字节读）。"""
+    h, px_w = len(rows), w_px * 3
     raw = b"".join(b"\x00" + r for r in rows)
 
     def chunk(tag, body):
         c = tag + body
         return struct.pack(">I", len(body)) + c + struct.pack(">I", zlib.crc32(c))
 
-    ihdr = struct.pack(">IIBBBBB", px_w, h, 8, 2, 0, 0, 0)
+    ihdr = struct.pack(">IIBBBBB", w_px, h, 8, 2, 0, 0, 0)
     Path(path).write_bytes(
         b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", ihdr) + chunk(b"IDAT", zlib.compress(raw, 6)) + chunk(b"IEND", b"")
     )
@@ -86,7 +89,12 @@ def main():
         # 裁切（与前端 canvas drawImage 的 sx,sy,sw,sh 同参）
         cell_rows = [rows[y][x0 * 3 : (x0 + CELL) * 3] for y in range(y0, y0 + CELL)]
         dst = out_dir / f"cell-r{row}c{col}.png"
-        write_png(dst, cell_rows)
+        write_png(dst, cell_rows, CELL)
+
+        # 回读校验：解码输出文件本身（防止 IHDR/行宽错位类 bug 流出），
+        # 服务端解码是唯一真相——本地必须先当一次严格的解码器。
+        cw, chh, _crows = read_png_rgb(dst)
+        assert (cw, chh) == (CELL, CELL), f"{dst.name} 回读 {cw}×{chh} ≠ {CELL}×{CELL}"
 
         # 断言：四角 + 编号外圈点均为本格底色；任何跨格泄漏都会变色
         checks = {
