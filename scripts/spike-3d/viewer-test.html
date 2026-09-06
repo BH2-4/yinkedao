@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>model-viewer 加载验证 · seal.glb</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #f5f4f0; color: #333; }
+  model-viewer { width: 100vw; height: 82vh; background: #e8e6e0; }
+  #log { padding: 10px 16px; font-size: 13px; line-height: 1.7; }
+  .ok { color: #1a7f37; } .err { color: #c0392b; }
+</style>
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.3.1/model-viewer.min.js"></script>
+</head>
+<body>
+<model-viewer id="mv" camera-controls auto-rotate touch-action="pan-y"
+  src="https://i5y1y4ahjeuoicd3.public.blob.vercel-storage.com/seal-spike/seal.glb"
+  alt="Meshy 生成的印章 glb"></model-viewer>
+<div id="log">
+  <div id="l1">· 等待 model-viewer 脚本加载…</div>
+  <div id="l2">· 等待 glb 拉取…</div>
+  <div id="l3">· 等待渲染…</div>
+</div>
+<script>
+const mv = document.getElementById('mv');
+const mark = (id, ok, text) => {
+  const el = document.getElementById(id);
+  el.textContent = text;
+  el.className = ok ? 'ok' : 'err';
+  document.title = 'MV:' + (ok ? 'OK' : 'ERR') + '|' + [l1,l2,l3].every(e=>e.className==='ok');
+};
+const [l1, l2, l3] = ['l1','l2','l3'].map(i => document.getElementById(i));
+customElements.whenDefined('model-viewer').then(
+  () => mark('l1', true, '✓ model-viewer v4 web component 已定义'),
+  () => mark('l1', false, '✗ web component 定义失败'));
+mv.addEventListener('progress', e => {
+  const p = e.detail?.totalProgress;
+  if (p !== undefined) l2.textContent = `· glb 拉取进度 ${(p * 100).toFixed(0)}%`;
+});
+mv.addEventListener('load', () => {
+  mark('l2', true, '✓ glb 加载完成（52.9MB 自 Vercel Blob 公开 URL）');
+  mark('l3', true, '✓ 场景渲染完成');
+});
+mv.addEventListener('error', () => mark('l3', false, '✗ 加载出错：' + (mv.getAttribute('alt') || '')));
+setTimeout(() => { if (!l3.className) mark('l3', false, '✗ 90 秒超时未渲染'); }, 90000);
+</script>
+</body>
+</html>
