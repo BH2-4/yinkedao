@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
       "./public/seal-references/craftsmanship/**/*",
       "./public/collection/assets/images/**/*",
     ],
+    // 崇曦字体（服务端私有资产，不进 public/）：随 /api/seal-face
+    // 函数 bundle 上 serverless（路线 A：运行时 fs 直读原始 OTF）。
+    // 注意：字体当前被 .gitignore（安置方式待决）——CI/部署环境缺此
+    // 文件时 glob 为空集，font-stack 自动回退峄山碑栈，不阻断构建。
+    "/api/seal-face": ["./assets/fonts/chongxi/**/*"],
   },
   // 成品独立站托管在 public/collection/（纯静态多页站）。
   // 独立站内部全部使用相对路径，浏览器需要以 /collection/ 为基准
