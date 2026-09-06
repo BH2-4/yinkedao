@@ -176,6 +176,57 @@ curl -s -o /dev/null -w "%{http_code}\n" \
 - 域名/DNS 层不动，仅切流量指向。
 - 若新部署构建失败：production 仍指向上一个成功构建，**线上不受影响**，修复代码再 push 即可。
 
+## 10. Cloudflare 迁移记录（2026-09-06，凭据探索结论）
+
+### 探索结果（全部为否）
+
+| 途径 | 结果 |
+|---|---|
+| wrangler CLI | 未安装；且其 OAuth scope 不含 Zone DNS 写权限，装了也解不了 DNS 编辑 |
+| 环境变量 CF_API_TOKEN / CF_API_KEY | 无 |
+| shell 配置（~/.zshrc 等） | 无 CF/Spaceship export |
+| ~/.cloudflare/ | 存在但仅 skills 缓存/config 空文件，无凭据 |
+| Spaceship API 凭据 | 无 |
+
+**结论：CF 侧当前零自动能力，需用户走 A 或 B 二选一。**
+
+### 路线 A（推荐）：给部署 agent 一个 API Token，后续全自动
+
+1. 用户打开 https://dash.cloudflare.com/profile/api-tokens → **Create Token** → 模板 **「Edit zone DNS」**；
+   Zone Resources 选 **Include → Specific zone → eurekadelta.com**（若 zone 尚不存在，先按路线 B 第 1 步建 zone，或临时选 All zones）；
+2. 生成的 Token 存到 `~/.yinkedao-cf-token`（或告知路径）；
+3. 此后 agent 自动完成：zone 状态检查/创建、3 条 DNS 记录入库、NS 切换后轮询 pending→active、
+   Vercel configVerifiedAt 复查、正式域名 7 项上线验证。
+   （Spaceship NS 切换无论哪条路线都需用户网页操作——Spaceship API key 未配置）
+
+### 路线 B：用户网页手动（两站各一次）
+
+**① Cloudflare 侧**（https://dash.cloudflare.com）：
+
+- 若 zone 不存在：Add a site → `eurekadelta.com` → Free 计划 → 继续（不用加记录，next 步给全）；
+- 记下 Overview 页显示的 **两条 assigned nameservers**（形如 `xxx.ns.cloudflare.com` / `yyy.ns.cloudflare.com`）；
+- DNS → Records 加三条（全部**仅 DNS 灰云**）：
+
+| 类型 | 名称 | 内容 | 代理状态 |
+|---|---|---|---|
+| CNAME | `yinkedao` | `cname.vercel-dns.com` | 仅 DNS |
+| A | `@` | `54.149.79.189` | 仅 DNS |
+| A | `@` | `34.216.117.25` | 仅 DNS |
+
+**② Spaceship 侧**（https://www.spaceship.com/manage/）：
+
+Domains → eurekadelta.com → **Name servers** → 选 **Custom** → 删掉 launch1/launch2.spaceship.net，
+填入 ① 记下的两条 CF nameservers → Save。
+
+**③ 生效**：NS 变更全球传播几分钟~数小时；CF zone 从 pending 变 **active**（会收到邮件）；
+随后 agent 复查 Vercel `configVerifiedAt` + 证书签发 + 正式域名 7 项验证。
+
+### 当前状态快照
+
+- Vercel：production 已 READY（dpl_ZxaAq26jZkdWBrFg3DQJABetxQmG），域名 alias 已挂，
+  `configVerifiedAt=None`（等 DNS）；
+- CF zone：存在性未确认（无凭据不可查）；NS 实测仍指 spaceship.net。
+
 ## 9. 已知遗留（不阻塞部署）
 
 - **eurekadelta.com 权威 NS 是 spaceship.net 而非 Cloudflare**（Vercel 侧实测）——见 §4 NS 警示，用户加 CNAME 前需先确认 CF zone 状态，否则记录不生效。

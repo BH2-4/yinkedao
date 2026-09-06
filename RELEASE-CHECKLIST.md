@@ -110,9 +110,14 @@ curl -s "https://api.vercel.com/v4/domains/yinkedao.eurekadelta.com?teamId=team_
 
 ---
 
-## 当前阻塞项（2026-09-06）
+## 当前阻塞项（2026-09-06 第二轮更新）
 
 1. **DNS CNAME 未加/未生效**（`configVerifiedAt=None`）——等用户在 DNS 面板加
    `CNAME yinkedao → cname.vercel-dns.com`（灰云），见 DEPLOY-PLAN §4 NS 警示（先确认
    eurekadelta.com 的 CF zone 是否 Active，NS 实测仍指 spaceship.net）。
-2. 工程 agent 内容迁移任务链进行中——① 的路由快照会漂移，push 前以当日 build 输出为准。
+2. ~~工程 agent 内容迁移任务链进行中~~ 首轮已上线（68c6810，READY）。
+3. **`*.vercel.app` 域名被 Standard Protection 拦（302→SSO/401）是 Hobby 预期行为**，
+   正式域名不受保护——§④ 验证须在 yinkedao.eurekadelta.com 做（DNS 通后），勿误判故障
+   （详见 RELEASE-SOP §6）。
+4. test-design-proposal / test-design-translation 两脚本目标 API 路由在当前 HEAD 不存在
+   （工程 agent 为后续迭代预写）——门禁暂以 smoke-stage0 + test-design-render 为准。

@@ -437,7 +437,22 @@
     "decideAll": "帮我全决定",
     "decideAllHint": "跳过逐题，直接从三套完整方案中选",
     "noteLabel": "还想多说一句？（可选）",
-    "notePlaceholder": "这个维度上你的具体想法……"
+    "notePlaceholder": "这个维度上你的具体想法……",
+    "cultural": {
+      "label": "文化速览",
+      "title": "这样的场合，前人这样刻。",
+      "intro": "三个与你场景相合的文化元素——每个都有出处，来自馆藏实物与章法调研，无一编造。",
+      "sourceLabel": "出处",
+      "seriesLabel": "关联成品系列",
+      "seriesUnit": "系",
+      "seriesNote": "馆藏与图录实拍（内部参考展示口径）；石质描述为照片推断，非实物鉴定。",
+      "hintsLabel": "为您倾向",
+      "hintsNote": "点击倾向即预填到后续题目（可随时改选）",
+      "chipApply": "回填",
+      "stoneLabel": "石色倾向",
+      "continue": "继续访谈",
+      "continueHint": "文化只是倾向，决定权在你"
+    }
   },
   "errors": {
     "somethingWentWrong": "出错了",

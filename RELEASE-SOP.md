@@ -150,4 +150,11 @@ curl -s -X POST "https://api.vercel.com/v13/deployments/{目标uid}/promote?team
 
 | 日期 | deployment | 变更摘要 | 验证结果 |
 |---|---|---|---|
-| （待首条） | | | |
+| 2026-09-06 | dpl_ZxaAq26jZkdWBrFg3DQJABetxQmG | c102ab9..68c6810（7 commit，含小篆印蜕+白主题） | 门禁全过（worktree 独立验证 68c6810：build/tsc/smoke/render）；构建 ~90s READY；vercel.app 被 Standard Protection 拦（预期，见 §6）；正式域名验证待 DNS |
+
+## 6. 部署保护说明（2026-09-06 实测发现）
+
+- 本项目 Hobby 计划默认 **Vercel Authentication + Standard Protection**：`*.vercel.app` 域名（含 production deployment URL）匿名访问 302 到 SSO、API 401 "Protected deployment"——**这是预期行为，非故障**；
+- **production 自定义域名（yinkedao.eurekadelta.com）不受保护、公开可访问**（Hobby 仅 Standard 可用，All Deployments 是 Pro 特性）；
+- 因此上线验证必须在正式域名做（或浏览器登录 Vercel 账号访问 vercel.app）；
+- 判别方法：302 的 `location` 指向 `vercel.com/sso-api` / 401 body 含 `"Protected deployment"` 即是保护拦截，不要误判为部署故障。

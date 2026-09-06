@@ -199,6 +199,42 @@ function scenario8ReferenceLibrary() {
   );
 }
 
+function scenario9CultureData() {
+  console.log("\n[9] 文化匹配数据完整性（seal-culture-v1）");
+  const data = JSON.parse(readFileSync(resolve(__dirname, "..", "data", "cultural-match", "seal-culture-v1.json"), "utf8"));
+  assert(data.scenarios.length === 9, `9 scenarios (got ${data.scenarios.length})`);
+  const elementIds = new Set(data.elements.map((e) => e.id));
+  const seriesIds = new Set(data.series.map((s) => s.id));
+  const itemSkus = new Set(data.items.map((i) => i.sku));
+  for (const sc of data.scenarios) {
+    assert(sc.culture_elements.length === 3, `${sc.id} has exactly 3 culture elements`);
+    for (const el of sc.culture_elements) {
+      assert(!!el.source?.doc && !!el.source?.evidence, `${sc.id}/${el.id} carries source{doc,evidence}`);
+      assert(elementIds.has(el.id), `${sc.id}/${el.id} exists in element registry`);
+    }
+    for (const sid of sc.series_refs) assert(seriesIds.has(sid), `${sc.id} series_ref ${sid} exists`);
+    for (const key of ["form", "button", "stone_color"]) {
+      assert(sc.design_hints[key].length >= 1, `${sc.id} hints.${key} non-empty`);
+    }
+    assert(!!sc.design_hints.zhu_bai && !!sc.design_hints.reason, `${sc.id} hints complete`);
+  }
+  /* items 图片文件存在性（public/ 下） */
+  const pubRoot = resolve(__dirname, "..", "public");
+  let missingImgs = 0;
+  for (const item of data.items) {
+    for (const img of [item.img, ...item.views]) {
+      if (!existsSync(resolve(pubRoot, img.replace(/^\/seal-references/, "seal-references")))) {
+        missingImgs++;
+        console.error(`  missing img: ${item.sku} → ${img}`);
+      }
+    }
+  }
+  assert(missingImgs === 0, `all ${data.items.length} items' images exist on disk`);
+  assert(data.items.length >= 24, `>= 24 items catalogued (got ${data.items.length})`);
+  assert(data.elements.length >= 19, `>= 19 culture elements (got ${data.elements.length})`);
+  assert(itemSkus.size === data.items.length, "skus unique");
+}
+
 function scenario7I18nParity() {
   console.log("\n[7] i18n parity — zh-CN 三站键完整");
   const dict = JSON.parse(readFileSync(resolve(MESSAGES, "zh-CN.json"), "utf-8"));
@@ -257,6 +293,7 @@ async function main() {
   await scenario6Validation();
   scenario7I18nParity();
   scenario8ReferenceLibrary();
+  scenario9CultureData();
 
   console.log(`\n${passed} passed, ${failed} failed`);
   process.exit(failed > 0 ? 1 : 0);

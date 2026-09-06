@@ -1,0 +1,1569 @@
+{
+  "version": "0.1-mvp",
+  "note": "F6 文化匹配层 MVP 简化形态：固定映射表（source-first：每条文化元素带 doc+evidence 溯源）。M8 灰度版由 heritage 三件套接管本 schema。石种全部为照片推断口径；馆藏图 usage:internal 仅限内部参考与 demo 展示。",
+  "elements": [
+    {
+      "id": "CE-01",
+      "name": "纪年纪地边款",
+      "description": "侧边款刻时间＋地名，文人边款传统",
+      "source": {
+        "doc": "PRD 6 场景一",
+        "evidence": "侧面边款刻「丙午秋 西湖」"
+      },
+      "asset_ref": "LT-004 句5 款「丁卯春 作於沪上」"
+    },
+    {
+      "id": "CE-02",
+      "name": "薄意山水入景",
+      "description": "目的地山水意象入薄意纹样",
+      "source": {
+        "doc": "PRD 11.5 F6",
+        "evidence": "纪念杭州→西湖意象入边款/薄意纹样建议"
+      },
+      "asset_ref": "LS-001 薄意山水楼阁 / PD-003 薄意云纹"
+    },
+    {
+      "id": "CE-03",
+      "name": "随形保天然",
+      "description": "随形布字随形变字，文字为石形让路",
+      "source": {
+        "doc": "05-篆刻章法与布局规则",
+        "evidence": "以印材天然形态为基础，随形布字"
+      },
+      "asset_ref": "LT-003 句4 随形章"
+    },
+    {
+      "id": "CE-04",
+      "name": "对章成双",
+      "description": "两方等高等宽、纹样呼应的成对形制",
+      "source": {
+        "doc": "素材实有(yinding-10)",
+        "evidence": "对章钮饰题材、刀法呼应成对"
+      },
+      "asset_ref": "PD 系列 4 组"
+    },
+    {
+      "id": "CE-05",
+      "name": "龙钮谱系",
+      "description": "盘龙/穿云戏珠/低伏衔珠龙钮",
+      "source": {
+        "doc": "素材实有",
+        "evidence": "馆藏与章体多件龙钮"
+      },
+      "asset_ref": "Y03/Y06/Y10/句3"
+    },
+    {
+      "id": "CE-06",
+      "name": "汉印均分正格",
+      "description": "2×2 四字正格，姓名印最正规制",
+      "source": {
+        "doc": "05 报告",
+        "evidence": "正方为最正规（姓名印正格）；汉印均分印面"
+      },
+      "asset_ref": "MS-007 九叠篆 2x2"
+    },
+    {
+      "id": "CE-07",
+      "name": "回文印（双名不拆）",
+      "description": "右上→左上→左下→右下，双名上下相邻",
+      "source": {
+        "doc": "05 报告",
+        "evidence": "回文使双名上下相邻且读序连贯"
+      },
+      "asset_ref": null
+    },
+    {
+      "id": "CE-08",
+      "name": "椭圆引首章",
+      "description": "椭圆形多见于鉴赏印和引首章",
+      "source": {
+        "doc": "05 报告",
+        "evidence": "椭圆形多见于鉴赏印和引首章"
+      },
+      "asset_ref": "MS-002 圆章朱文 / MS-003 椭圆"
+    },
+    {
+      "id": "CE-09",
+      "name": "日字格半通印",
+      "description": "长方形多作日字格半通印",
+      "source": {
+        "doc": "05 报告",
+        "evidence": "长方形多作「日」字格半通印"
+      },
+      "asset_ref": null
+    },
+    {
+      "id": "CE-10",
+      "name": "朱白分工倾向",
+      "description": "姓名章偏白文饱满，斋号引首偏朱文清雅",
+      "source": {
+        "doc": "PRD 7.1 正例4",
+        "evidence": "姓名章偏白文、斋号引首偏朱文——经验倾向"
+      },
+      "asset_ref": "LS-001 白文印蜕 / MS-002 朱文"
+    },
+    {
+      "id": "CE-11",
+      "name": "化瑕为俏（俏色）",
+      "description": "质杂色杂经俏色雕刻反增值",
+      "source": {
+        "doc": "06-印石瑕疵分类与鉴别",
+        "evidence": "混杂经俏色雕刻反增值"
+      },
+      "asset_ref": "LT-003 红黄夹色 / AB-002 三色"
+    },
+    {
+      "id": "CE-12",
+      "name": "敕赐典制印式",
+      "description": "带年款敕赐印的仪式感形制",
+      "source": {
+        "doc": "素材实有(yinding-05-4)",
+        "evidence": "款「永乐二十二年三月日 赐剌麻也失藏卜」"
+      },
+      "asset_ref": "MS-001"
+    },
+    {
+      "id": "CE-13",
+      "name": "斋堂收藏印",
+      "description": "斋号＋「珍藏」款式的文人收藏印传统",
+      "source": {
+        "doc": "素材实有(yinding-09)",
+        "evidence": "「光緒庚辰仲春 九思堂主人珍藏」"
+      },
+      "asset_ref": "MS-004"
+    },
+    {
+      "id": "CE-14",
+      "name": "乾卦团纹饰面",
+      "description": "乾卦☰瓦当式布局的饰面形制（仅取纹样形制）",
+      "source": {
+        "doc": "素材实有(yinding-11-2)",
+        "evidence": "三横相连乾卦、两道弦纹圈、瓦当式放射"
+      },
+      "asset_ref": "MS-006"
+    },
+    {
+      "id": "CE-15",
+      "name": "瓦钮钱纹",
+      "description": "桥形拱钮＋方孔钱形环状纹",
+      "source": {
+        "doc": "素材实有(yinding-11)",
+        "evidence": "瓦背上叠置圆形钱纹钮"
+      },
+      "asset_ref": "MS-006"
+    },
+    {
+      "id": "CE-16",
+      "name": "九叠篆官印体式",
+      "description": "叠笔盘曲填格、双线边栏，典重庄严",
+      "source": {
+        "doc": "素材实有+05 报告",
+        "evidence": "yinding-05-5/13-4 九叠篆白文"
+      },
+      "asset_ref": "MS-001 / MS-007"
+    },
+    {
+      "id": "CE-17",
+      "name": "萝卜纹/红格（材质故事）",
+      "description": "田黄「无纹不成田」，瑕疵即身份证",
+      "source": {
+        "doc": "06 报告",
+        "evidence": "红筋（格）、萝卜丝纹俱为判定特征"
+      },
+      "asset_ref": "MS-005 隐约萝卜纹"
+    },
+    {
+      "id": "CE-18",
+      "name": "青田白文刀感",
+      "description": "青田性脆爽不宜朱文，白文稳",
+      "source": {
+        "doc": "02-石料与雕刻性质",
+        "evidence": "青田爽脆常崩裂，不宜刻朱文，刻白文没问题"
+      },
+      "asset_ref": null
+    },
+    {
+      "id": "CE-19",
+      "name": "中间价位老挝石",
+      "description": "老挝石为市场主力、中间价位带",
+      "source": {
+        "doc": "02 报告+PRD 5.1",
+        "evidence": "演示若买料大概率是老挝石或青田练习料"
+      },
+      "asset_ref": null
+    }
+  ],
+  "series": [
+    {
+      "id": "museum-masterworks",
+      "prefix": "MS",
+      "name": "馆藏名品系列",
+      "theme": "官印典制与文人珍藏的馆藏级范本",
+      "tags": [
+        "宫廷敕赐",
+        "斋堂收藏",
+        "九叠篆",
+        "田黄样"
+      ],
+      "story": "敕赐年款、斋堂珍藏款与九叠篆官印体式——馆藏级形制的庄严谱系。"
+    },
+    {
+      "id": "literati-seals",
+      "prefix": "LT",
+      "name": "文人章系列",
+      "theme": "边款与刻款承载的文人印记",
+      "tags": [
+        "边款",
+        "隶书刻款",
+        "随形闲章",
+        "红丝芙蓉"
+      ],
+      "story": "满刻边款、行草侧款、随形阴刻——文人把时间与心事刻在石侧。"
+    },
+    {
+      "id": "landscape-mood",
+      "prefix": "LS",
+      "name": "山水意境系列",
+      "theme": "薄意／浅刻／深雕三种工艺的山水呈现梯度",
+      "tags": [
+        "薄意山水",
+        "云纹",
+        "深雕",
+        "对章",
+        "旅行纪念"
+      ],
+      "story": "从薄如纸意的山水楼阁，到单刀浅刻的孤舟蓑翁，再到通景深雕的层叠人物——三方章展现印石上山水的三种深度。"
+    },
+    {
+      "id": "auspicious-beasts",
+      "prefix": "AB",
+      "name": "瑞兽钮系列",
+      "theme": "兽钮谱系：狮龙螭马",
+      "tags": [
+        "狮钮",
+        "龙钮",
+        "双螭",
+        "马钮",
+        "镂雕"
+      ],
+      "story": "螺旋鬃毛的狮、衔珠的龙、对望的双螭、回首的马——钮制上的神兽谱。"
+    },
+    {
+      "id": "paired-seals",
+      "prefix": "PD",
+      "name": "对章系列",
+      "theme": "成对呼应的形制",
+      "tags": [
+        "对章",
+        "婚庆",
+        "伴侣"
+      ],
+      "story": "两方等高等宽、纹样刀法呼应——一人一方，各执成双。"
+    }
+  ],
+  "items": [
+    {
+      "sku": "MS-001",
+      "series": [
+        "museum-masterworks"
+      ],
+      "name": "永乐敕赐法轮钮象牙章",
+      "img": "/seal-references/forms/ornamented-top/yinding-05_法轮钮象牙方章_正面_永乐二十二年款.jpg",
+      "views": [
+        "/seal-references/forms/ornamented-top/yinding-05_法轮钮象牙方章_正面_永乐二十二年款.jpg",
+        "/seal-references/craftsmanship/side-inscription/yinding-05-1_法轮钮象牙方章_侧面款一.jpg",
+        "/seal-references/forms/ornamented-top/yinding-05-4_法轮钮象牙方章_俯视肩款_永乐二十二年三月日_赐剌麻也失藏卜.jpg"
+      ],
+      "stone": {
+        "type": "象牙（推断）",
+        "type_note": "推断",
+        "color": "牙白微黄",
+        "luster": "蜡状",
+        "translucency": "不透"
+      },
+      "form": "方章",
+      "button": "法轮钮＋覆莲座",
+      "seal_face": {
+        "type": "白文",
+        "script": "九叠篆",
+        "layout": "2x2"
+      },
+      "inscription": "款「永乐二十二年三月日 赐剌麻也失藏卜」",
+      "texture_tags": [
+        "敕赐年款",
+        "九叠篆"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-05_法轮钮象牙方章_正面_永乐二十二年款.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "MS-002",
+      "series": [
+        "museum-masterworks"
+      ],
+      "name": "兽钮圆章·田黄样",
+      "img": "/seal-references/forms/oval-round/yinding-01_兽钮圆章_橙黄田黄样_侧面.jpg",
+      "views": [
+        "/seal-references/forms/oval-round/yinding-01_兽钮圆章_橙黄田黄样_侧面.jpg"
+      ],
+      "stone": {
+        "type": "田黄样（推断）",
+        "type_note": "推断",
+        "color": "橙黄",
+        "luster": "蜡状偏油脂",
+        "translucency": "半冻"
+      },
+      "form": "圆章",
+      "button": "兽钮",
+      "seal_face": {
+        "type": "朱文",
+        "script": "待识",
+        "layout": "椭圆多字"
+      },
+      "inscription": "（印文待识）",
+      "texture_tags": [
+        "田黄样"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-01_兽钮圆章_橙黄田黄样_侧面.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "MS-003",
+      "series": [
+        "museum-masterworks"
+      ],
+      "name": "太狮少狮钮椭圆章·田黄样",
+      "img": "/seal-references/forms/oval-round/yinding-08_太狮少狮钮椭圆章_金黄田黄样_附椭圆印蜕.jpg",
+      "views": [
+        "/seal-references/forms/oval-round/yinding-08_太狮少狮钮椭圆章_金黄田黄样_附椭圆印蜕.jpg"
+      ],
+      "stone": {
+        "type": "田黄类（推断）",
+        "type_note": "推断",
+        "color": "金黄",
+        "luster": "蜡状",
+        "translucency": "半冻"
+      },
+      "form": "椭圆",
+      "button": "太狮少狮钮",
+      "seal_face": {
+        "type": "朱文",
+        "script": "待识",
+        "layout": "椭圆回纹边"
+      },
+      "inscription": "（附椭圆朱文印蜕）",
+      "texture_tags": [
+        "田黄类"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-08_太狮少狮钮椭圆章_金黄田黄样_附椭圆印蜕.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "MS-004",
+      "series": [
+        "museum-masterworks"
+      ],
+      "name": "九思堂马钮章",
+      "img": "/seal-references/forms/square-beast/yinding-09_马钮方章_红白寿山石_侧款光绪庚辰仲春九思堂主人珍藏.jpg",
+      "views": [
+        "/seal-references/forms/square-beast/yinding-09_马钮方章_红白寿山石_侧款光绪庚辰仲春九思堂主人珍藏.jpg"
+      ],
+      "stone": {
+        "type": "寿山杜陵/善伯或巴林（推断）",
+        "type_note": "推断",
+        "color": "红白",
+        "luster": "蜡状",
+        "translucency": "软地"
+      },
+      "form": "方章",
+      "button": "马钮（立马回首）",
+      "seal_face": null,
+      "inscription": "款「光緒庚辰仲春 九思堂主人珍藏」",
+      "texture_tags": [
+        "斋堂收藏款"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-09_马钮方章_红白寿山石_侧款光绪庚辰仲春九思堂主人珍藏.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "MS-005",
+      "series": [
+        "museum-masterworks"
+      ],
+      "name": "双兽拱团牌钮方章·田黄样",
+      "img": "/seal-references/forms/ornamented-top/yinding-12_双兽拱团牌钮方章_橙黄田黄样_侧面.jpg",
+      "views": [
+        "/seal-references/forms/ornamented-top/yinding-12_双兽拱团牌钮方章_橙黄田黄样_侧面.jpg",
+        "/seal-references/forms/ornamented-top/yinding-12-1_双兽拱团牌钮方章_正面.jpg",
+        "/seal-references/forms/ornamented-top/yinding-12-3_团牌螭纹_特写.jpg"
+      ],
+      "stone": {
+        "type": "田黄类（推断）",
+        "type_note": "推断",
+        "color": "橙黄",
+        "luster": "蜡状偏油脂",
+        "translucency": "半冻"
+      },
+      "form": "方章",
+      "button": "双兽拱团牌（螭纹牌面）",
+      "seal_face": null,
+      "inscription": "（萝卜纹隐约）",
+      "texture_tags": [
+        "团牌钮",
+        "萝卜纹"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-12_双兽拱团牌钮方章_橙黄田黄样_侧面.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "MS-006",
+      "series": [
+        "museum-masterworks"
+      ],
+      "name": "瓦钮钱纹方章",
+      "img": "/seal-references/forms/ornamented-top/yinding-11_瓦钮方章_金黄冻石_斜侧视.jpg",
+      "views": [
+        "/seal-references/forms/ornamented-top/yinding-11_瓦钮方章_金黄冻石_斜侧视.jpg",
+        "/seal-references/forms/ornamented-top/yinding-11-1_瓦钮方章_金黄冻石_正面视.jpg",
+        "/seal-references/forms/ornamented-top/yinding-11-2_瓦钮方章_团纹饰面_金黄冻石.jpg"
+      ],
+      "stone": {
+        "type": "黄芙蓉/黄性山坑或巴林福黄（推断）",
+        "type_note": "推断",
+        "color": "金黄",
+        "luster": "蜡状",
+        "translucency": "半冻"
+      },
+      "form": "方章",
+      "button": "瓦钮＋乾卦团纹饰面",
+      "seal_face": null,
+      "inscription": "饰面：乾卦瓦当式团纹",
+      "texture_tags": [
+        "瓦钮",
+        "钱纹"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-11_瓦钮方章_金黄冻石_斜侧视.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "MS-007",
+      "series": [
+        "museum-masterworks"
+      ],
+      "name": "缠枝冠钮印·嵌绿松石",
+      "img": "/seal-references/forms/ornamented-top/yinding-13_象牙雕缠枝冠钮印_铜鎏金錾花座_正面.jpg",
+      "views": [
+        "/seal-references/forms/ornamented-top/yinding-13_象牙雕缠枝冠钮印_铜鎏金錾花座_正面.jpg",
+        "/seal-references/forms/ornamented-top/yinding-13-3_象牙雕缠枝冠钮印_正视_嵌绿松石.jpg"
+      ],
+      "stone": {
+        "type": "象牙（推断）",
+        "type_note": "推断",
+        "color": "牙白",
+        "luster": "蜡状",
+        "translucency": "不透"
+      },
+      "form": "冠钮异形",
+      "button": "缠枝冠钮＋铜鎏金錾花座＋通天孔",
+      "seal_face": {
+        "type": "白文",
+        "script": "九叠篆",
+        "layout": "2x2 四字"
+      },
+      "inscription": "（印文待识）",
+      "texture_tags": [
+        "缠枝冠钮",
+        "九叠篆"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-13_象牙雕缠枝冠钮印_铜鎏金錾花座_正面.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "AB-001",
+      "series": [
+        "auspicious-beasts"
+      ],
+      "name": "螺鬃狮钮方章",
+      "img": "/seal-references/forms/square-beast/yinding-02_狮钮方章_橙黄冻石.jpg",
+      "views": [
+        "/seal-references/forms/square-beast/yinding-02_狮钮方章_橙黄冻石.jpg"
+      ],
+      "stone": {
+        "type": "寿山芙蓉/杜陵类（推断）",
+        "type_note": "推断",
+        "color": "橙黄",
+        "luster": "蜡状",
+        "translucency": "半冻"
+      },
+      "form": "方章",
+      "button": "狮钮（螺旋鬃毛）",
+      "seal_face": null,
+      "inscription": null,
+      "texture_tags": [
+        "狮钮",
+        "白絮斑"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-02_狮钮方章_橙黄冻石.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "AB-002",
+      "series": [
+        "auspicious-beasts"
+      ],
+      "name": "三色龙钮方章",
+      "img": "/seal-references/forms/square-beast/yinding-03_龙钮方章_红黄白芙蓉石.jpg",
+      "views": [
+        "/seal-references/forms/square-beast/yinding-03_龙钮方章_红黄白芙蓉石.jpg"
+      ],
+      "stone": {
+        "type": "寿山芙蓉或巴林彩石（推断）",
+        "type_note": "推断",
+        "color": "红黄白三色",
+        "luster": "蜡状",
+        "translucency": "软地"
+      },
+      "form": "方章",
+      "button": "龙钮（衔珠附小兽）",
+      "seal_face": null,
+      "inscription": null,
+      "texture_tags": [
+        "龙钮",
+        "三色"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-03_龙钮方章_红黄白芙蓉石.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "AB-003",
+      "series": [
+        "auspicious-beasts"
+      ],
+      "name": "云龙纹方柱章",
+      "img": "/seal-references/forms/square-beast/yinding-06_雕云龙纹方柱章_橙黄冻石.jpg",
+      "views": [
+        "/seal-references/forms/square-beast/yinding-06_雕云龙纹方柱章_橙黄冻石.jpg"
+      ],
+      "stone": {
+        "type": "寿山杜陵坑/善伯类（推断）",
+        "type_note": "推断",
+        "color": "橙黄",
+        "luster": "蜡状",
+        "translucency": "半冻"
+      },
+      "form": "方柱",
+      "button": "高浮雕云龙",
+      "seal_face": null,
+      "inscription": null,
+      "texture_tags": [
+        "云龙纹",
+        "高浮雕"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-06_雕云龙纹方柱章_橙黄冻石.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "AB-004",
+      "series": [
+        "auspicious-beasts"
+      ],
+      "name": "双螭钮红白方章",
+      "img": "/seal-references/forms/square-beast/yinding-07_双螭钮方章_红白寿山石.jpg",
+      "views": [
+        "/seal-references/forms/square-beast/yinding-07_双螭钮方章_红白寿山石.jpg"
+      ],
+      "stone": {
+        "type": "寿山芙蓉类（推断）",
+        "type_note": "推断",
+        "color": "红白双色",
+        "luster": "蜡状",
+        "translucency": "软地"
+      },
+      "form": "方章",
+      "button": "双螭钮",
+      "seal_face": null,
+      "inscription": null,
+      "texture_tags": [
+        "双螭",
+        "双色层"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-07_双螭钮方章_红白寿山石.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "AB-005",
+      "series": [
+        "auspicious-beasts"
+      ],
+      "name": "镂雕双兽钮长方章",
+      "img": "/seal-references/forms/rectangle-chang/句3_龙钮长方章_红斑花石_侧长款.jpg",
+      "views": [
+        "/seal-references/forms/rectangle-chang/句3_龙钮长方章_红斑花石_侧长款.jpg"
+      ],
+      "stone": {
+        "type": "寿山高山带红斑（推断）",
+        "type_note": "推断",
+        "color": "红斑花色",
+        "luster": "蜡状",
+        "translucency": "软地"
+      },
+      "form": "长方",
+      "button": "镂雕双古兽钮",
+      "seal_face": null,
+      "inscription": "填白长款十余行",
+      "texture_tags": [
+        "镂雕",
+        "长款"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "句3_龙钮长方章_红斑花石_侧长款.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "LT-001",
+      "series": [
+        "literati-seals"
+      ],
+      "name": "行草侧款兽钮方章",
+      "img": "/seal-references/forms/square-beast/句1_兽钮方章_青白冻石_侧款面.jpg",
+      "views": [
+        "/seal-references/forms/square-beast/句1_兽钮方章_青白冻石_侧款面.jpg"
+      ],
+      "stone": {
+        "type": "白芙蓉/白高山（推断）",
+        "type_note": "推断",
+        "color": "青白",
+        "luster": "蜡状",
+        "translucency": "半冻"
+      },
+      "form": "方章",
+      "button": "古兽钮",
+      "seal_face": null,
+      "inscription": "侧款行草多行",
+      "texture_tags": [
+        "兽钮",
+        "行草款"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "句1_兽钮方章_青白冻石_侧款面.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "LT-002",
+      "series": [
+        "literati-seals"
+      ],
+      "name": "满刻边款金黄冻方章",
+      "img": "/seal-references/forms/square-plain/句2_素顶方章_金黄冻石_满刻边款.jpg",
+      "views": [
+        "/seal-references/forms/square-plain/句2_素顶方章_金黄冻石_满刻边款.jpg"
+      ],
+      "stone": {
+        "type": "田黄类掘性独石（推断）",
+        "type_note": "推断",
+        "color": "金黄",
+        "luster": "蜡状偏油脂",
+        "translucency": "半冻"
+      },
+      "form": "素顶方章",
+      "button": "满刻边款（小楷6行＋行楷）",
+      "seal_face": null,
+      "inscription": "款可辨「節子」「遂生刻」",
+      "texture_tags": [
+        "满刻边款",
+        "金黄冻"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "句2_素顶方章_金黄冻石_满刻边款.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "LT-003",
+      "series": [
+        "literati-seals"
+      ],
+      "name": "红黄夹色随形章",
+      "img": "/seal-references/forms/freeform/句4_随形章_红黄夹色石_阴刻款.jpg",
+      "views": [
+        "/seal-references/forms/freeform/句4_随形章_红黄夹色石_阴刻款.jpg"
+      ],
+      "stone": {
+        "type": "掘性软石鹿目格/鲎箕类（推断）",
+        "type_note": "推断",
+        "color": "红黄夹色",
+        "luster": "蜡状",
+        "translucency": "软地"
+      },
+      "form": "随形",
+      "button": "天然轮廓＋阴刻款",
+      "seal_face": null,
+      "inscription": "款「…霞起」「月溪」样",
+      "texture_tags": [
+        "随形",
+        "巧色"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "句4_随形章_红黄夹色石_阴刻款.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "LT-004",
+      "series": [
+        "literati-seals"
+      ],
+      "name": "红纹浅粉素顶方章",
+      "img": "/seal-references/forms/square-plain/句5_素顶方章_浅粉带红纹石_侧款面.jpg",
+      "views": [
+        "/seal-references/forms/square-plain/句5_素顶方章_浅粉带红纹石_侧款面.jpg"
+      ],
+      "stone": {
+        "type": "红纹芙蓉或巴林（推断）",
+        "type_note": "推断",
+        "color": "浅粉带红纹",
+        "luster": "蜡状",
+        "translucency": "半冻"
+      },
+      "form": "素顶方章",
+      "button": "红丝絮纹",
+      "seal_face": null,
+      "inscription": "款「丁卯春 作於沪上」",
+      "texture_tags": [
+        "红丝",
+        "素顶"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "句5_素顶方章_浅粉带红纹石_侧款面.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "LT-005",
+      "series": [
+        "literati-seals"
+      ],
+      "name": "短款狮钮金黄方章",
+      "img": "/seal-references/forms/square-beast/句6_狮钮方章_金黄田黄_侧短款.jpg",
+      "views": [
+        "/seal-references/forms/square-beast/句6_狮钮方章_金黄田黄_侧短款.jpg"
+      ],
+      "stone": {
+        "type": "黄冻类近田黄（推断）",
+        "type_note": "推断",
+        "color": "金黄",
+        "luster": "蜡状偏油脂",
+        "translucency": "半冻"
+      },
+      "form": "方章",
+      "button": "古狮钮",
+      "seal_face": null,
+      "inscription": "短款两行六字",
+      "texture_tags": [
+        "狮钮",
+        "金黄"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "句6_狮钮方章_金黄田黄_侧短款.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "LT-006",
+      "series": [
+        "literati-seals"
+      ],
+      "name": "白文边款朱红方章",
+      "img": "/seal-references/forms/square-plain/素顶方章_朱红石_白文边款.jpg",
+      "views": [
+        "/seal-references/forms/square-plain/素顶方章_朱红石_白文边款.jpg"
+      ],
+      "stone": {
+        "type": "朱红系软质寿山/老挝类（推断）",
+        "type_note": "推断",
+        "color": "朱红",
+        "luster": "蜡状",
+        "translucency": "软地"
+      },
+      "form": "素顶方章",
+      "button": "白文边款（楷书4-5字）",
+      "seal_face": null,
+      "inscription": null,
+      "texture_tags": [
+        "白文边款",
+        "朱红系"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "素顶方章_朱红石_白文边款.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "LS-001",
+      "series": [
+        "landscape-mood"
+      ],
+      "name": "薄意山水楼阁长方章",
+      "img": "/seal-references/forms/rectangle-chang/画1_素顶长方章_金黄石_薄意山水楼阁_附印蜕.jpg",
+      "views": [
+        "/seal-references/forms/rectangle-chang/画1_素顶长方章_金黄石_薄意山水楼阁_附印蜕.jpg"
+      ],
+      "stone": {
+        "type": "田黄类掘性黄冻（推断）",
+        "type_note": "推断",
+        "color": "橙黄(橘皮黄)",
+        "luster": "蜡状偏油脂",
+        "translucency": "半冻"
+      },
+      "form": "长方章",
+      "button": "薄意山水楼阁（楼阁/松/扁舟人物）",
+      "seal_face": {
+        "type": "白文",
+        "script": "待识",
+        "layout": "方形附印蜕"
+      },
+      "inscription": null,
+      "texture_tags": [
+        "薄意",
+        "山水楼阁"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "画1_素顶长方章_金黄石_薄意山水楼阁_附印蜕.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "LS-002",
+      "series": [
+        "landscape-mood"
+      ],
+      "name": "浅刻山水方柱章",
+      "img": "/seal-references/craftsmanship/bask-relief/画2_素顶方柱章_棕褐冻石_浅刻山水_侧面.jpg",
+      "views": [
+        "/seal-references/craftsmanship/bask-relief/画2_素顶方柱章_棕褐冻石_浅刻山水_侧面.jpg"
+      ],
+      "stone": {
+        "type": "寿山老岭或青田类（推断）",
+        "type_note": "推断",
+        "color": "棕褐/土黄",
+        "luster": "蜡状-油脂",
+        "translucency": "软地"
+      },
+      "form": "方柱章",
+      "button": "浅刻山水（孤舟蓑翁）",
+      "seal_face": null,
+      "inscription": "二字落款（待识）",
+      "texture_tags": [
+        "浅刻",
+        "单刀细线"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "画2_素顶方柱章_棕褐冻石_浅刻山水_侧面.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "LS-003",
+      "series": [
+        "landscape-mood",
+        "paired-seals"
+      ],
+      "name": "深雕山水人物对章·玉质",
+      "img": "/seal-references/craftsmanship/deep-carving/画3_深雕山水人物方柱章_一对_青白玉质绿顶.jpg",
+      "views": [
+        "/seal-references/craftsmanship/deep-carving/画3_深雕山水人物方柱章_一对_青白玉质绿顶.jpg"
+      ],
+      "stone": {
+        "type": "青白玉带褐沁（推断）",
+        "type_note": "推断",
+        "color": "青白+褐沁+翠绿顶",
+        "luster": "蜡状+局部玻璃",
+        "translucency": "半冻"
+      },
+      "form": "方柱对章",
+      "button": "深雕兼镂雕通景＋翠玉螭龙顶",
+      "seal_face": null,
+      "inscription": null,
+      "texture_tags": [
+        "深雕",
+        "镂雕",
+        "对章",
+        "沁色"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "画3_深雕山水人物方柱章_一对_青白玉质绿顶.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "PD-001",
+      "series": [
+        "paired-seals"
+      ],
+      "name": "雕龙钮朱红对章",
+      "img": "/seal-references/forms/square-beast/yinding-10_雕龙钮方章_朱红石_一对.jpg",
+      "views": [
+        "/seal-references/forms/square-beast/yinding-10_雕龙钮方章_朱红石_一对.jpg"
+      ],
+      "stone": {
+        "type": "寿山红色山坑（推断）",
+        "type_note": "推断",
+        "color": "朱红",
+        "luster": "蜡状",
+        "translucency": "软地"
+      },
+      "form": "方章对",
+      "button": "盘龙戏珠钮成对",
+      "seal_face": null,
+      "inscription": null,
+      "texture_tags": [
+        "对章",
+        "龙钮",
+        "朱红系"
+      ],
+      "source": {
+        "repo": "yinding",
+        "file": "yinding-10_雕龙钮方章_朱红石_一对.jpg",
+        "origin": "博物馆馆藏棚拍",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "PD-002",
+      "series": [
+        "paired-seals"
+      ],
+      "name": "薄意花卉浅粉对章",
+      "img": "/seal-references/forms/square-plain/素顶方章_薄意花卉纹_浅粉石_一对.jpg",
+      "views": [
+        "/seal-references/forms/square-plain/素顶方章_薄意花卉纹_浅粉石_一对.jpg"
+      ],
+      "stone": {
+        "type": "寿山粉调芙蓉/粉冻（推断）",
+        "type_note": "推断",
+        "color": "浅粉",
+        "luster": "蜡状",
+        "translucency": "半冻"
+      },
+      "form": "方章对",
+      "button": "四面薄意花卉＋行书边款",
+      "seal_face": null,
+      "inscription": null,
+      "texture_tags": [
+        "薄意花卉",
+        "浅粉系"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "素顶方章_薄意花卉纹_浅粉石_一对.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    },
+    {
+      "sku": "PD-003",
+      "series": [
+        "paired-seals",
+        "landscape-mood"
+      ],
+      "name": "薄意云纹对章",
+      "img": "/seal-references/craftsmanship/bask-relief/画4_薄意云纹方柱章_一对_橙黄冻石.jpg",
+      "views": [
+        "/seal-references/craftsmanship/bask-relief/画4_薄意云纹方柱章_一对_橙黄冻石.jpg"
+      ],
+      "stone": {
+        "type": "寿山或巴林橙黄冻（推断）",
+        "type_note": "推断",
+        "color": "橙黄",
+        "luster": "蜡状",
+        "translucency": "半冻"
+      },
+      "form": "方柱对章",
+      "button": "薄意如意云纹（亭台小景）",
+      "seal_face": null,
+      "inscription": null,
+      "texture_tags": [
+        "薄意云纹",
+        "对章",
+        "橙黄系"
+      ],
+      "source": {
+        "repo": "篆刻资料库-章体",
+        "file": "画4_薄意云纹方柱章_一对_橙黄冻石.jpg",
+        "origin": "棚拍图录",
+        "usage": "internal"
+      }
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "travel-memento",
+      "label": "纪念旅行",
+      "prd_ref": "PRD 5.1/6 场景一",
+      "culture_elements": [
+        {
+          "id": "CE-01",
+          "name": "纪年纪地边款",
+          "description": "边款刻旅行时间与地名（如「丙午秋 西湖」），把旅程钉进石头侧面",
+          "source": {
+            "doc": "PRD-篆刻定制Agent.md 6 场景一",
+            "evidence": "侧面边款刻「丙午秋 西湖」"
+          },
+          "asset_ref": "LT-004 句5 款「丁卯春 作於沪上」"
+        },
+        {
+          "id": "CE-02",
+          "name": "薄意山水入景",
+          "description": "目的地山水意象化作石身薄意纹样，风景随章携带",
+          "source": {
+            "doc": "PRD 11.5 F6",
+            "evidence": "纪念杭州 → 西湖意象入边款/薄意纹样建议"
+          },
+          "asset_ref": "LS-001 薄意山水楼阁 / PD-003 薄意云纹对章"
+        },
+        {
+          "id": "CE-03",
+          "name": "随形保天然",
+          "description": "保留印石天然轮廓只切印面，旅程不定之形与石不雕之形同构",
+          "source": {
+            "doc": "05-篆刻章法与布局规则",
+            "evidence": "随形印「随形布字、随形变字」，布局服从材料"
+          },
+          "asset_ref": "LT-003 句4 红黄夹色随形章"
+        }
+      ],
+      "series_refs": [
+        "landscape-mood"
+      ],
+      "design_hints": {
+        "form": [
+          "长方章(日字格半通印)",
+          "随形章"
+        ],
+        "button": [
+          "素顶",
+          "薄意山水/云纹"
+        ],
+        "stone_color": [
+          "金黄/橙黄暖系"
+        ],
+        "zhu_bai": "白文四字为主（白文饱满稳重）",
+        "reason": "PRD 场景一原案：日字格半通＋素钮＋边款纪年＋白文四字"
+      }
+    },
+    {
+      "id": "life-wedding",
+      "label": "婚庆",
+      "prd_ref": "PRD 5.1 人生节点",
+      "culture_elements": [
+        {
+          "id": "CE-04",
+          "name": "对章成双",
+          "description": "两方等高等宽、纹样呼应的成对印章，一人一方",
+          "source": {
+            "doc": "素材实有(yinding-10)",
+            "evidence": "对章「钮饰题材、刀法呼应成对」"
+          },
+          "asset_ref": "PD-001 雕龙钮朱红对章 / PD-002 薄意花卉浅粉对章"
+        },
+        {
+          "id": "CE-05",
+          "name": "龙钮谱系",
+          "description": "盘龙戏珠钮的成对雕饰，气势呼应",
+          "source": {
+            "doc": "素材实有",
+            "evidence": "yinding-10 高浮雕盘龙钮，两方钮饰题材、刀法呼应"
+          },
+          "asset_ref": "PD-001"
+        },
+        {
+          "id": "CE-01",
+          "name": "纪年边款",
+          "description": "边款刻婚期年月，日期入石",
+          "source": {
+            "doc": "PRD 6 场景一(边款纪年范式)",
+            "evidence": "「丙午秋 西湖」式纪年款"
+          },
+          "asset_ref": "LT-002 满刻边款方章"
+        }
+      ],
+      "series_refs": [
+        "paired-seals"
+      ],
+      "design_hints": {
+        "form": [
+          "对章(方章两方)"
+        ],
+        "button": [
+          "雕龙钮",
+          "薄意花卉"
+        ],
+        "stone_color": [
+          "朱红/柿红喜庆暖系",
+          "浅粉柔系"
+        ],
+        "zhu_bai": "白文为主（白文饱满，宜姓名印）",
+        "reason": "成对形制＋暖色系对应双人纪念"
+      }
+    },
+    {
+      "id": "life-newborn",
+      "label": "生子（成长礼）",
+      "prd_ref": "PRD 6 场景二",
+      "culture_elements": [
+        {
+          "id": "CE-06",
+          "name": "汉印均分正格",
+          "description": "孩子姓名四字 2×2 正格排布，字序右上→右下→左上→左下",
+          "source": {
+            "doc": "05 报告",
+            "evidence": "正方为最正规（姓名印正格）；PRD 场二按 05 章法给 2×2 正格"
+          },
+          "asset_ref": "MS-007 九叠篆 2x2 排布实例"
+        },
+        {
+          "id": "CE-07",
+          "name": "回文印(双名不拆)",
+          "description": "单姓双名用回文使双名上下相邻、读序连贯",
+          "source": {
+            "doc": "05 报告",
+            "evidence": "回文使双名上下相邻且读序连贯；汉代姓名印常见"
+          },
+          "asset_ref": null
+        },
+        {
+          "id": "CE-11",
+          "name": "化瑕为俏(巧色叙事)",
+          "description": "石上天然巧色喻天性天成——成长礼的材质故事",
+          "source": {
+            "doc": "06 报告",
+            "evidence": "混杂经俏色雕刻反增值"
+          },
+          "asset_ref": "LT-003 句4 红黄夹色随形 / AB-002 三色龙钮"
+        }
+      ],
+      "series_refs": [
+        "literati-seals"
+      ],
+      "design_hints": {
+        "form": [
+          "方章正格 2x2"
+        ],
+        "button": [
+          "素顶",
+          "兽钮(伏卧回首)"
+        ],
+        "stone_color": [
+          "浅粉柔系",
+          "青白清雅系"
+        ],
+        "zhu_bai": "白文（PRD 场二原案：白文更饱满）",
+        "reason": "姓名章正格＋白文是 PRD 场景二已定示例"
+      }
+    },
+    {
+      "id": "life-graduation",
+      "label": "毕业",
+      "prd_ref": "PRD 5.1 人生节点",
+      "culture_elements": [
+        {
+          "id": "CE-06",
+          "name": "汉印均分正格",
+          "description": "姓名印 2×2 正格，学业有成的方正气象",
+          "source": {
+            "doc": "05 报告",
+            "evidence": "姓名印正格"
+          },
+          "asset_ref": "MS-007"
+        },
+        {
+          "id": "CE-09",
+          "name": "日字格半通印",
+          "description": "长方日字格，秦汉职官印式的「进阶」形制感",
+          "source": {
+            "doc": "05 报告",
+            "evidence": "长方形多作「日」字格半通印"
+          },
+          "asset_ref": null
+        },
+        {
+          "id": "CE-12",
+          "name": "敕赐典制印式",
+          "description": "仿年款敕赐印的仪式形制，把毕业当作人生敕封时刻",
+          "source": {
+            "doc": "素材实有(yinding-05-4)",
+            "evidence": "款「永乐二十二年三月日 赐剌麻也失藏卜」"
+          },
+          "asset_ref": "MS-001 永乐敕赐象牙章"
+        }
+      ],
+      "series_refs": [
+        "museum-masterworks"
+      ],
+      "design_hints": {
+        "form": [
+          "方章正格",
+          "长方日字格"
+        ],
+        "button": [
+          "素顶",
+          "马钮"
+        ],
+        "stone_color": [
+          "金黄/橙黄",
+          "青白清雅"
+        ],
+        "zhu_bai": "白文为主（饱满庄重）",
+        "reason": "典制感来自馆藏官印范式；马钮为馆藏实有钮制(MS-004)"
+      }
+    },
+    {
+      "id": "life-housewarming",
+      "label": "乔迁新居",
+      "prd_ref": "PRD 5.1 人生节点",
+      "culture_elements": [
+        {
+          "id": "CE-15",
+          "name": "瓦钮钱纹",
+          "description": "桥形瓦钮取象屋瓦、钮面方孔钱形环纹——居室意象的钮制",
+          "source": {
+            "doc": "素材实有(yinding-11)",
+            "evidence": "瓦背上叠置圆形钱纹钮"
+          },
+          "asset_ref": "MS-006 瓦钮钱纹方章"
+        },
+        {
+          "id": "CE-14",
+          "name": "乾卦团纹饰面",
+          "description": "乾卦☰团纹瓦当式布局的饰面形制（仅取纹样形制）",
+          "source": {
+            "doc": "素材实有(yinding-11-2)",
+            "evidence": "三横相连乾卦、两道弦纹圈、瓦当式放射布局"
+          },
+          "asset_ref": "MS-006"
+        },
+        {
+          "id": "CE-02",
+          "name": "薄意山水入景",
+          "description": "新居周边山水入薄意，居所环境随章铭记",
+          "source": {
+            "doc": "PRD 11.5 F6",
+            "evidence": "山水意象入薄意纹样建议"
+          },
+          "asset_ref": "LS-001 / LS-002"
+        }
+      ],
+      "series_refs": [
+        "museum-masterworks",
+        "landscape-mood"
+      ],
+      "design_hints": {
+        "form": [
+          "方章"
+        ],
+        "button": [
+          "瓦钮",
+          "纹饰顶(勾连纹带)",
+          "薄意山水"
+        ],
+        "stone_color": [
+          "金黄系(暖居)",
+          "棕褐古朴系"
+        ],
+        "zhu_bai": "朱文清雅或白文均可（斋馆类偏朱文）",
+        "reason": "瓦钮/纹饰顶为馆藏与章体实有形制；暖色系切合安家氛围"
+      }
+    },
+    {
+      "id": "gift-mentor",
+      "label": "赠礼·师长",
+      "prd_ref": "PRD 5.1 赠礼",
+      "culture_elements": [
+        {
+          "id": "CE-13",
+          "name": "斋堂收藏印",
+          "description": "「九思堂主人珍藏」式收藏印传统——敬赠师长的藏印",
+          "source": {
+            "doc": "素材实有(yinding-09)",
+            "evidence": "侧款「光緒庚辰仲春 九思堂主人珍藏」"
+          },
+          "asset_ref": "MS-004 九思堂马钮章"
+        },
+        {
+          "id": "CE-10",
+          "name": "朱白分工",
+          "description": "斋号/引首类内容偏朱文清雅，配姓名白文成对使用",
+          "source": {
+            "doc": "PRD 7.1 正例4",
+            "evidence": "斋号引首偏朱文清雅——经验倾向，非硬规则"
+          },
+          "asset_ref": "MS-002 椭圆朱文 / LS-001 白文印蜕"
+        },
+        {
+          "id": "CE-16",
+          "name": "九叠篆官印体式",
+          "description": "叠笔典重的官印体式，庄重敬意",
+          "source": {
+            "doc": "素材实有(yinding-05-5/13-4)",
+            "evidence": "九叠篆白文，双线边栏，刻槽宽深规整"
+          },
+          "asset_ref": "MS-001 / MS-007"
+        }
+      ],
+      "series_refs": [
+        "museum-masterworks"
+      ],
+      "design_hints": {
+        "form": [
+          "方章",
+          "椭圆引首章"
+        ],
+        "button": [
+          "素顶",
+          "法轮钮(馆藏范式)"
+        ],
+        "stone_color": [
+          "青白/淡青清雅系",
+          "棕褐古朴系"
+        ],
+        "zhu_bai": "朱文清雅（斋号引首倾向）",
+        "reason": "师长赠礼偏庄重典雅"
+      }
+    },
+    {
+      "id": "gift-friend",
+      "label": "赠礼·友人",
+      "prd_ref": "PRD 5.1 赠礼",
+      "culture_elements": [
+        {
+          "id": "CE-03",
+          "name": "随形闲章",
+          "description": "随形不拘、天然轮廓的闲章，友情的自在形态",
+          "source": {
+            "doc": "05 报告",
+            "evidence": "随形布字随形变字"
+          },
+          "asset_ref": "LT-003"
+        },
+        {
+          "id": "CE-11",
+          "name": "化瑕为俏",
+          "description": "巧色天成、独一无二的石色叙事",
+          "source": {
+            "doc": "06 报告",
+            "evidence": "俏色雕刻反增值"
+          },
+          "asset_ref": "AB-002 三色龙钮 / LT-004 红丝浅粉"
+        },
+        {
+          "id": "CE-02",
+          "name": "薄意云纹",
+          "description": "如意云纹薄意（馆藏式卷云贯顶布局）",
+          "source": {
+            "doc": "素材实有(画4)",
+            "evidence": "薄意如意云纹，自顶端向下回旋流转"
+          },
+          "asset_ref": "PD-003 薄意云纹对章"
+        }
+      ],
+      "series_refs": [
+        "literati-seals",
+        "landscape-mood"
+      ],
+      "design_hints": {
+        "form": [
+          "随形章",
+          "方章"
+        ],
+        "button": [
+          "薄意云纹/花卉",
+          "素顶"
+        ],
+        "stone_color": [
+          "橙黄暖系",
+          "浅粉系"
+        ],
+        "zhu_bai": "朱白皆宜（闲章自由度高）",
+        "reason": "友人赠礼重趣味与独一性"
+      }
+    },
+    {
+      "id": "gift-partner",
+      "label": "赠礼·伴侣",
+      "prd_ref": "PRD 5.1 赠礼 / 6 场景三",
+      "culture_elements": [
+        {
+          "id": "CE-04",
+          "name": "对章成双",
+          "description": "成对呼应形制，各执一方",
+          "source": {
+            "doc": "素材实有",
+            "evidence": "yinding-10 等四组对章"
+          },
+          "asset_ref": "PD 系列 4 组"
+        },
+        {
+          "id": "CE-05",
+          "name": "龙钮成对",
+          "description": "两方盘龙钮刀法呼应",
+          "source": {
+            "doc": "素材实有(yinding-10)",
+            "evidence": "两方钮饰题材、刀法呼应成对"
+          },
+          "asset_ref": "PD-001"
+        },
+        {
+          "id": "CE-01",
+          "name": "纪念边款",
+          "description": "相识纪念日或赠言入边款",
+          "source": {
+            "doc": "PRD 6 场景一(边款范式)",
+            "evidence": "「丙午秋 西湖」"
+          },
+          "asset_ref": "PD-002 薄意花卉对章(带行书边款)"
+        }
+      ],
+      "series_refs": [
+        "paired-seals"
+      ],
+      "design_hints": {
+        "form": [
+          "对章"
+        ],
+        "button": [
+          "雕龙钮",
+          "薄意花卉"
+        ],
+        "stone_color": [
+          "朱红/柿红暖系",
+          "浅粉系"
+        ],
+        "zhu_bai": "白文（姓名印倾向）",
+        "reason": "与婚庆共享对章语言，色系更偏个人化"
+      }
+    },
+    {
+      "id": "self-calligraphy",
+      "label": "自用·书画",
+      "prd_ref": "PRD 5.2",
+      "culture_elements": [
+        {
+          "id": "CE-08",
+          "name": "椭圆引首章",
+          "description": "书画引首/鉴赏用椭圆章，笔画就弧形边框",
+          "source": {
+            "doc": "05 报告",
+            "evidence": "椭圆形多见于鉴赏印和引首章"
+          },
+          "asset_ref": "MS-003 太狮少狮椭圆章(附椭圆印蜕) / MS-002 圆章朱文"
+        },
+        {
+          "id": "CE-10",
+          "name": "朱白分工组合",
+          "description": "姓名白文＋斋号/引首朱文的传统搭配",
+          "source": {
+            "doc": "PRD 7.1 正例4",
+            "evidence": "姓名章偏白文、斋号引首偏朱文"
+          },
+          "asset_ref": "LS-001 白文印蜕＋MS-003 朱文印蜕"
+        },
+        {
+          "id": "CE-13",
+          "name": "斋堂收藏印",
+          "description": "自用斋号＋「珍藏」款式（九思堂范式）",
+          "source": {
+            "doc": "素材实有(yinding-09)",
+            "evidence": "「九思堂主人珍藏」款"
+          },
+          "asset_ref": "MS-004"
+        }
+      ],
+      "series_refs": [
+        "literati-seals",
+        "museum-masterworks"
+      ],
+      "design_hints": {
+        "form": [
+          "椭圆引首章＋方章姓名印组合",
+          "方章"
+        ],
+        "button": [
+          "素顶(实用)",
+          "瓦钮"
+        ],
+        "stone_color": [
+          "青白/淡青系(不抢墨色)",
+          "朱红系(钤朱呼应)"
+        ],
+        "zhu_bai": "朱白组合：引首朱文＋姓名白文",
+        "reason": "书画用印有明确形制分工(05 报告)"
+      }
+    }
+  ]
+}

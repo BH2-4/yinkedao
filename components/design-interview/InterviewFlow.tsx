@@ -22,6 +22,7 @@ import { encodeSealOrder, sealOrderFromIntent } from "@/lib/design/seal-order";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { QuestionCard } from "./QuestionCard";
 import { IntentSummary } from "./IntentSummary";
+import { CulturalHintCards } from "./CulturalHintCards";
 
 interface InterviewFlowProps {
   demoMode: boolean;
@@ -29,6 +30,8 @@ interface InterviewFlowProps {
 
 type Phase =
   | { kind: "interview" }
+  /** 用途维度确定后插入的文化匹配引导屏（F6 设计引导层） */
+  | { kind: "cultural" }
   | { kind: "synthesizing" }
   | { kind: "summary"; intent: UserDesignIntent; source: "ai" | "rule" };
 
@@ -51,6 +54,7 @@ export function InterviewFlow({ demoMode: _demoMode }: InterviewFlowProps) {
   const [askedOrder, setAskedOrder] = useState<InterviewQuestionId[]>([]);
   const [phase, setPhase] = useState<Phase>({ kind: "interview" });
   const [continuing, setContinuing] = useState(false);
+  const [culturalShown, setCulturalShown] = useState(false);
   /** 每维度自由文本补充（「再多说一句」——不进 URL，sessionStorage 补充通道） */
   const [notes, setNotes] = useState<Record<string, string>>({});
 
@@ -120,10 +124,29 @@ export function InterviewFlow({ demoMode: _demoMode }: InterviewFlowProps) {
       setAnswers(nextAnswers);
       setAskedOrder(nextAsked);
 
+      /* 用途确定且非跳过 → 插入文化匹配引导屏（每次访谈只插一次） */
+      if (id === "occasion" && value && value.length > 0 && !culturalShown) {
+        setCulturalShown(true);
+        setPhase({ kind: "cultural" });
+        return;
+      }
+
       const next = nextQuestionId(nextAnswers, new Set(nextAsked));
       if (!next) void synthesize(nextAnswers);
     },
-    [answers, askedOrder, synthesize],
+    [answers, askedOrder, synthesize, culturalShown],
+  );
+
+  /** 倾向芯片回填：写入访谈答案（等同预选，用户后续可改） */
+  const applyCulturalHint = useCallback(
+    (patch: { field: string; token: string }) => {
+      setAnswers((prev) =>
+        prev[patch.field as InterviewQuestionId]
+          ? prev /* 用户已答过的不覆盖 */
+          : { ...prev, [patch.field]: [patch.token] },
+      );
+    },
+    [],
   );
 
   /** 跳过：记录 null（置信度惩罚）并推进 */
@@ -209,7 +232,7 @@ export function InterviewFlow({ demoMode: _demoMode }: InterviewFlowProps) {
           </div>
         </header>
 
-        {phase.kind !== "summary" && (
+        {phase.kind === "interview" && (
           <div className="mt-12 flex items-center gap-4">
             <span className="font-mono text-[12px] tracking-[0.14em] text-[var(--color-silver-400)]">
               {String(Math.min(progressCurrent, progressTotal)).padStart(2, "0")}{" "}
@@ -237,6 +260,14 @@ export function InterviewFlow({ demoMode: _demoMode }: InterviewFlowProps) {
               onSkip={handleSkip}
               onBack={handleBack}
               canBack={askedOrder.length > 0}
+            />
+          )}
+
+          {phase.kind === "cultural" && answers.occasion?.[0] && (
+            <CulturalHintCards
+              occasion={answers.occasion[0]}
+              onApplyHint={applyCulturalHint}
+              onContinue={() => setPhase({ kind: "interview" })}
             />
           )}
 
