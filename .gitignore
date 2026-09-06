@@ -40,6 +40,12 @@ next-env.d.ts
 .vscode/
 .idea/
 
+# 崇曦字体服务端私有资产（不进 public/ 可下载路径——CC BY-ND 3.0 TW
+# 「只渲染不分发」路线 A）。入 git 方式（git-lfs vs 直接 commit）待
+# 主对话拍板，拍板前不入库；缺文件时 font-stack 自动回退峄山碑栈。
+# 拍板后若入库，删除下面这行并配 .gitattributes。
+/assets/fonts/
+
 # local test artifacts
 .test-render/
 _patch_render.mjs
