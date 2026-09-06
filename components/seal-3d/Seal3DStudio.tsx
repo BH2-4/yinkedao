@@ -52,8 +52,6 @@ export function Seal3DStudio() {
   const poll = useCallback(async () => {
     if (!taskId) return;
     cancelledRef.current = false;
-    setPhase("polling");
-    setErrorDetail(null);
 
     const tick = async () => {
       if (cancelledRef.current) return;
@@ -153,7 +151,11 @@ export function Seal3DStudio() {
             {/* 网络抖动/查询失败：同任务重试（Meshy 任务可能仍在跑） */}
             <button
               type="button"
-              onClick={() => void poll()}
+              onClick={() => {
+                setPhase("polling");
+                setErrorDetail(null);
+                void poll();
+              }}
               className="btn-pill btn-pill-secondary"
             >
               <RefreshCw className="h-4 w-4" strokeWidth={1.5} />

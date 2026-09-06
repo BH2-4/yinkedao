@@ -12,7 +12,10 @@ import { useEffect, useRef } from "react";
  * - 属性一律传字符串：model-viewer 的 boolean 属性按「存在性」生效
  */
 
+/* web component 的 JSX 类型声明没有 ES module 形态——namespace 是
+   React 官方认可的补类型写法，此处豁免 no-namespace 规则。 */
 declare module "react" {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace JSX {
     interface IntrinsicElements {
       "model-viewer": React.DetailedHTMLProps<
