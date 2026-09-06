@@ -24,8 +24,10 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
  */
 
 export interface Seal3DSceneProps {
-  /** 章石 glb（blob 公开 URL） */
+  /** 章石 glb 主地址（blob 公开 URL） */
   glbUrl: string;
+  /** 章石 glb 兜底地址（本地缓存路径——blob 偶发中断时回退） */
+  glbFallbackUrl?: string;
   /** 印面贴图（镜像版 PNG 的公开路径） */
   faceTextureUrl: string;
   /** 场景对象就绪回调（导出 GLB 用——把含印面的 scene 树交给外层） */
@@ -43,23 +45,96 @@ const FACE_RATIO = 0.7;
 /** 印面相对顶面的抬升（防 z-fighting） */
 const FACE_LIFT = 0.004;
 
+/* ─── 姿态校正（立板章料 → 印面朝天） ─────────────────────────
+ * Meshy 从六宫格照片重建的章料常呈「立板」姿态：最薄轴才是印面
+ * 法向（实测 X 厚 0.444 / Y 1.882 / Z 1.903），印面端面顶点密度
+ * 远高于背面（建模侧重视角的高密度细分）。检测两信号后旋转对齐
+ * Y+，印面朝上——钤印语义与「正视印面」视角都建立在这个姿态上。
+ */
+
+/** 密度带容差：厚度方向的 8%（端面顶点落在这个带内） */
+const DENSITY_BAND = 0.08;
+
+/** 检测最薄轴（印面法向）与高密度端（真印面侧）。 */
+function detectFaceSide(model: THREE.Object3D): {
+  axis: "x" | "y" | "z";
+  atMax: boolean;
+} {
+  const box = new THREE.Box3().setFromObject(model);
+  const size = new THREE.Vector3();
+  box.getSize(size);
+  const dims = [
+    { axis: "x" as const, len: size.x },
+    { axis: "y" as const, len: size.y },
+    { axis: "z" as const, len: size.z },
+  ].sort((a, b) => a.len - b.len);
+  const thin = dims[0];
+
+  /* 采样顶点（隔 3 取 1，4 万级顶点毫秒完成），统计两端密度带内数量 */
+  let nearMax = 0;
+  let nearMin = 0;
+  const eps = thin.len * DENSITY_BAND;
+  const v = new THREE.Vector3();
+  model.updateWorldMatrix(true, true);
+  model.traverse((obj) => {
+    const mesh = obj as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const pos = mesh.geometry?.attributes?.position;
+    if (!pos) return;
+    for (let i = 0; i < pos.count; i += 3) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(mesh.matrixWorld);
+      const coord = v[thin.axis];
+      if (Math.abs(coord - box.max[thin.axis]) < eps) nearMax += 1;
+      else if (Math.abs(coord - box.min[thin.axis]) < eps) nearMin += 1;
+    }
+  });
+  return { axis: thin.axis, atMax: nearMax >= nearMin };
+}
+
+/** 姿态校正：把印面（最薄轴的高密度端）旋转到 +Y 朝天，原地改 model。 */
+function orientSealUpright(model: THREE.Object3D): void {
+  const { axis, atMax } = detectFaceSide(model);
+  if (axis === "y") {
+    if (!atMax) model.rotation.z = Math.PI; /* 印面朝下 → 翻 180° */
+    return;
+  }
+  if (axis === "x") {
+    /* X+→Y+ 用 Rz(+90°)；X-→Y+ 用 Rz(-90°) */
+    model.rotation.z = atMax ? Math.PI / 2 : -Math.PI / 2;
+  } else {
+    /* Z+→Y+ 用 Rx(-90°)；Z-→Y+ 用 Rx(+90°) */
+    model.rotation.x = atMax ? -Math.PI / 2 : Math.PI / 2;
+  }
+}
+
 function SealModel({
   glbUrl,
+  glbFallbackUrl,
   faceTextureUrl,
   onSceneObject,
   onRendered,
 }: Omit<Seal3DSceneProps, "onError">) {
   /* 手动 fetch + parseAsync（不用 useLoader）：FileLoader 的 onError
-     只给 ProgressEvent（吞掉真实错误），parseAsync 会带完整栈 */
+     只给 ProgressEvent（吞掉真实错误），parseAsync 会带完整栈。
+     blob 主地址失败（偶发中断）时回退本地缓存再试一次 */
   const [gltf, setGltf] = useState<GLTF | null>(null);
   useEffect(() => {
     let alive = true;
     (async () => {
-      const res = await fetch(glbUrl);
-      if (!res.ok) throw new Error(`glb 拉取失败 HTTP ${res.status}`);
-      const buf = await res.arrayBuffer();
-      const loader = new GLTFLoader();
-      const parsed = await loader.parseAsync(buf, "");
+      const load = async (url: string) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const buf = await res.arrayBuffer();
+        return new GLTFLoader().parseAsync(buf, "");
+      };
+      let parsed: GLTF;
+      try {
+        parsed = await load(glbUrl);
+      } catch (primaryErr) {
+        if (!glbFallbackUrl) throw primaryErr;
+        console.warn("[3d-scene] blob 主地址失败，回退本地缓存:", primaryErr);
+        parsed = await load(glbFallbackUrl);
+      }
       if (alive) setGltf(parsed);
     })().catch((err: unknown) => {
       console.error("[3d-scene] glb 加载/解析失败:", err);
@@ -67,22 +142,38 @@ function SealModel({
     return () => {
       alive = false;
     };
-  }, [glbUrl]);
+  }, [glbUrl, glbFallbackUrl]);
 
   const faceTex = useLoader(THREE.TextureLoader, faceTextureUrl);
-  const groupRef = useRef<THREE.Group>(null);
+  const [composed, setComposed] = useState<THREE.Group | null>(null);
 
   /* eslint-disable react-hooks/immutability -- three.js 场景装配是命令式
      惯用法（纹理参数/add/transform），React Compiler 不可变规则不适用 */
   useEffect(() => {
-    if (!gltf || !groupRef.current) return;
+    if (!gltf) return;
     const model = gltf.scene;
 
-    /* 印面 plane：包围盒顶面居中（spike 方案的顶面版）
-       只叠一次——faceTextureUrl 切换时重建（key 由外层控制） */
-    const box = new THREE.Box3().setFromObject(model);
+    /* 姿态校正（haiku 检验根因）：Meshy 章料常呈「立板」姿态——最薄
+       轴才是印面法向（本例 X 厚 0.444，印面是 ±X 的 1.87×1.87 大面，
+       密度端顶点密集 40 倍）。检测最薄轴 + 密度端 → 旋转对齐 Y+，
+       印面朝天，再按顶面逻辑贴 plane。 */
+    orientSealUpright(model);
+
+    /* wrapper：章料（已旋转）+ 印面 plane 共同的导出/渲染根。
+       plane 放 wrapper 局部系（无旋转），避免 model 旋转的坐标耦合。 */
+    const wrapper = new THREE.Group();
+    wrapper.name = "seal-composed";
+    wrapper.add(model);
+
+    const box = new THREE.Box3().setFromObject(wrapper);
     const size = new THREE.Vector3();
     box.getSize(size);
+    /* 章料坐到 y=0（旋转后中心在原点，悬空） */
+    wrapper.position.y = -box.min.y;
+    box.translate(new THREE.Vector3(0, -box.min.y, 0));
+
+    /* 印面 plane：贴真实顶面（姿态校正后的印面端面），尺寸取顶面
+       两条实际边长的短边（不再假设竖方章 min(X,Z)） */
     const planeW = Math.min(size.x, size.z) * FACE_RATIO;
     const center = new THREE.Vector3();
     box.getCenter(center);
@@ -109,24 +200,21 @@ function SealModel({
     plane.rotation.x = -Math.PI / 2;
     plane.position.set(center.x, box.max.y + FACE_LIFT * size.y, center.z);
     plane.name = "seal-face-overlay";
-    model.add(plane);
+    wrapper.add(plane);
 
-    onSceneObject?.(model);
+    onSceneObject?.(wrapper);
     onRendered?.();
+    setComposed(wrapper);
     /* eslint-enable react-hooks/immutability */
   }, [gltf, faceTex, onSceneObject, onRendered]);
 
-  return (
-    <group ref={groupRef}>
-      {gltf && <primitive object={gltf.scene} />}
-    </group>
-  );
+  return composed ? <primitive object={composed} /> : null;
 }
 
 /** 视角预设（top 用极小 z 偏移防万向锁） */
 const VIEWS: Record<"orbit" | "top", { pos: [number, number, number]; target: [number, number, number] }> = {
   orbit: { pos: [2.4, 2.0, 3.2], target: [0, 0.4, 0] },
-  top: { pos: [0, 3.4, 0.001], target: [0, 0.5, 0] },
+  top: { pos: [0, 3.2, 0.001], target: [0, 0.9, 0] },
 };
 
 /** 手动挂载 OrbitControls（依赖最小化，不引 drei）；响应视角预设 */
@@ -164,7 +252,7 @@ export function Seal3DScene(props: Seal3DSceneProps) {
 
   return (
     <Canvas
-      camera={{ position: [2.4, 2.0, 3.2], fov: 40 }}
+      camera={{ position: [2.7, 2.3, 3.6], fov: 38 }}
       gl={{ antialias: true, toneMapping: THREE.ACESFilmicToneMapping, preserveDrawingBuffer: true }}
       style={{ background: "#e8e6e0" }}
     >

@@ -39,18 +39,15 @@ type FaceStyle = keyof typeof FACE_TEXTURES;
 /** blob 公开桶域名（本地缓存路径约定与之配对） */
 const BLOB_HOST = "i5y1y4ahjeuoicd3.public.blob.vercel-storage.com";
 
-/** glb 的 blob URL → 加载路径。本地 dev 读预拉缓存
- *  （scripts/seal-3d-face/fetch-blob-cache.sh——本机网络对该域大文件
- *  传输不稳，curl 走代理预拉一次最稳）；生产直连 blob（CORS 通）。
- *  非本桶 URL 原样返回。 */
-function toAssetProxyUrl(url: string): string {
+/** glb 加载地址对：blob 主地址优先，本地缓存回退（本机网络对该域
+ *  大文件传输偶发中断——预拉缓存见 scripts/seal-3d-face/fetch-blob-cache.sh；
+ *  线上缓存不存在时 blob 已成功，回退路径不会被触发）。 */
+function glbLoadUrls(url: string): { primary: string; fallback?: string } {
   const m = /^https:\/\/([^/]+)\/(.+)$/.exec(url);
   if (m && m[1] === BLOB_HOST) {
-    return process.env.NODE_ENV === "development"
-      ? `/blob-cache/${m[2]}`
-      : url;
+    return { primary: url, fallback: `/blob-cache/${m[2]}` };
   }
-  return url;
+  return { primary: url };
 }
 
 type Phase = "polling" | "ready" | "error";
@@ -247,7 +244,8 @@ export function Seal3DStudio() {
                   Canvas 内，放外面会让 useLoader throw 时卸载重挂 Canvas */}
               <Seal3DScene
                 key={faceStyle}
-                glbUrl={toAssetProxyUrl(model.model_url)}
+                glbUrl={glbLoadUrls(model.model_url).primary}
+                glbFallbackUrl={glbLoadUrls(model.model_url).fallback}
                 faceTextureUrl={FACE_TEXTURES[faceStyle]}
                 onSceneObject={handleSceneObject}
                 onRendered={handleRendered}
