@@ -8,6 +8,7 @@ import { useI18n } from "@/components/i18n/I18nProvider";
 import { decodeSealOrder, encodeSealOrder } from "@/lib/design/seal-order";
 import type { SealOrder } from "@/lib/design/seal-order";
 import type { SealRenderApiResponse } from "@/types/design-render";
+import type { SealFontStack } from "@/lib/seal-face/font-stack";
 import { SealFaceProof } from "./SealFaceProof";
 
 /**
@@ -18,7 +19,7 @@ import { SealFaceProof } from "./SealFaceProof";
  * 「重新生成」＝ 换 seed（换参考图组合产生变体）。
  * 印面文字由字体引擎另行叠加——本页展示的是无文字素坯质感层。
  */
-export function RenderStudio() {
+export function RenderStudio({ sealFontStack = "yishan" }: { sealFontStack?: SealFontStack }) {
   const { t } = useI18n();
   const searchParams = useSearchParams();
   const order: SealOrder | null = useMemo(
@@ -200,6 +201,7 @@ export function RenderStudio() {
           <SealFaceProof
             initialText={order.seal_text ?? ""}
             initialStyle={order.seal_style}
+            fontStack={sealFontStack}
           />
         </div>
       )}
@@ -209,6 +211,7 @@ export function RenderStudio() {
         <SealFaceProof
           initialText={order.seal_text ?? ""}
           initialStyle={order.seal_style}
+          fontStack={sealFontStack}
         />
       )}
     </section>

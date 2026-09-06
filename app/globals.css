@@ -1554,3 +1554,34 @@ html[data-stage="design-render"] .stage-space::after {
 .seal-proof.clean {
   filter: none;
 }
+
+/* ── 崇曦栈印蜕（服务端 SVG dataUrl 渲染——路线 A） ──────────────
+   服务端 SVG 已自带纸底/边框/斑驳/carved 滤镜（svg-proof.ts 同源
+   规格），这里只负责显示尺寸与加载态：印面 400/460 占比 → 印面
+   300px 时画布 345px，与峄山碑栈 .seal-proof 300px 同视觉量级。 */
+.seal-proof-chongxi {
+  width: 345px;
+  max-width: 100%;
+  transition: opacity 0.2s ease;
+}
+
+.seal-proof-chongxi img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+.seal-proof-chongxi.loading {
+  opacity: 0.55;
+}
+
+.seal-proof-chongxi-empty {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  background: linear-gradient(
+    145deg,
+    rgba(168, 53, 39, 0.04),
+    rgba(168, 53, 39, 0.01)
+  );
+}
