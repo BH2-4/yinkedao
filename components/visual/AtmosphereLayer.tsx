@@ -33,7 +33,7 @@ export function AtmosphereLayer() {
           background:
             "radial-gradient(1000px 700px at 78% 8%, rgba(231, 226, 211, 0.035), transparent 62%)," +
             "radial-gradient(900px 640px at 12% 92%, rgba(201, 204, 209, 0.028), transparent 65%)," +
-            "radial-gradient(680px 480px at 50% 50%, rgba(255, 255, 255, 0.012), transparent 70%)",
+            "radial-gradient(680px 480px at 50% 50%, rgba(195, 39, 43, 0.02), transparent 70%)",
         }}
       />
       {/* Vignette + top rim — sits ABOVE the particles but BELOW content
@@ -45,9 +45,9 @@ export function AtmosphereLayer() {
         style={{
           zIndex: 1,
           background:
-            "radial-gradient(1400px 900px at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.32) 100%)," +
+            "radial-gradient(1400px 900px at 50% 50%, transparent 55%, rgba(26, 26, 26, 0.05) 100%)," +
             "linear-gradient(to bottom, rgba(245, 241, 232, 0.018), transparent 8%)," +
-            "linear-gradient(to top, rgba(0, 0, 0, 0.22), transparent 22%)",
+            "linear-gradient(to top, rgba(195, 39, 43, 0.025), transparent 22%)",
         }}
       />
     </>

@@ -215,7 +215,7 @@ export function InterviewFlow({ demoMode: _demoMode }: InterviewFlowProps) {
               {String(Math.min(progressCurrent, progressTotal)).padStart(2, "0")}{" "}
               / {String(progressTotal).padStart(2, "0")}
             </span>
-            <div className="h-px flex-1 bg-[rgba(255,255,255,0.1)]">
+            <div className="h-px flex-1 bg-[rgba(26,26,26,0.1)]">
               <div
                 className="h-full bg-[linear-gradient(90deg,var(--color-silver-400),var(--color-silver-200))] transition-[width] duration-500"
                 style={{ width: `${progressPct}%` }}
@@ -243,7 +243,7 @@ export function InterviewFlow({ demoMode: _demoMode }: InterviewFlowProps) {
           {phase.kind === "synthesizing" && (
             <div className="animate-fade-in flex flex-1 flex-col items-center justify-center gap-6 py-20">
               <div
-                className="h-7 w-7 animate-spin rounded-full border border-[rgba(255,255,255,0.14)] border-t-[var(--color-silver-300)]"
+                className="h-7 w-7 animate-spin rounded-full border border-[rgba(26,26,26,0.12)] border-t-[var(--color-silver-300)]"
                 role="status"
                 aria-label={t("interview.synthesizing")}
               />

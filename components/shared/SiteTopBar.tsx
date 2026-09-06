@@ -23,7 +23,7 @@ export function SiteTopBar() {
   const journeyIndex = stageIndexFromPathname(pathname);
 
   return (
-    <div className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[rgba(0,0,0,0.78)] backdrop-blur-md supports-[backdrop-filter]:bg-[rgba(0,0,0,0.62)]">
+    <div className="sticky top-0 z-40 border-b border-[var(--color-line)] bg-[rgba(255,255,255,0.82)] backdrop-blur-md supports-[backdrop-filter]:bg-[rgba(255,255,255,0.7)]">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between gap-8 px-8 py-5 sm:px-12 lg:px-16">
         <BrandMark />
 

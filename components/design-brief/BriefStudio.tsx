@@ -161,7 +161,7 @@ export function BriefStudio() {
         <h2 className="font-sans text-[24px] leading-[1.2] tracking-[-0.01em] text-[var(--color-ivory)] sm:text-[28px]">
           {t("designBrief.briefTitle")}
         </h2>
-        <div className="grid grid-cols-1 overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[rgba(255,255,255,0.015)] sm:grid-cols-2">
+        <div className="grid grid-cols-1 overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[rgba(26,26,26,0.015)] sm:grid-cols-2">
           <BriefField
             label={t("interview.fields.occasion")}
             chips={[

@@ -67,7 +67,7 @@ export function IntentSummary({
         {t("interview.summaryTitle")}
       </h2>
 
-      <blockquote className="rounded-[0_var(--radius-md)_var(--radius-md)_0] border-l-2 border-[var(--color-silver-300)] bg-[rgba(255,255,255,0.03)] px-6 py-5">
+      <blockquote className="rounded-[0_var(--radius-md)_var(--radius-md)_0] border-l-2 border-[var(--color-silver-300)] bg-[rgba(26,26,26,0.025)] px-6 py-5">
         <p className="font-sans text-[15px] leading-[1.9] text-[var(--color-silver-200)]">
           {intent.user_context}
         </p>
@@ -80,7 +80,7 @@ export function IntentSummary({
         </span>
       </blockquote>
 
-      <div className="grid grid-cols-1 overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[rgba(255,255,255,0.015)] sm:grid-cols-2">
+      <div className="grid grid-cols-1 overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[rgba(26,26,26,0.015)] sm:grid-cols-2">
         <Fact
           label={t("interview.fields.occasion")}
           display={orDash("occasion", intent.occasion)}
@@ -137,7 +137,7 @@ export function IntentSummary({
         <span className="font-mono text-[11px] tracking-[0.18em] text-[var(--color-silver-500)] uppercase">
           {t("interview.confidenceLabel")}
         </span>
-        <div className="h-0.5 flex-1 overflow-hidden rounded-full bg-[rgba(255,255,255,0.08)]">
+        <div className="h-0.5 flex-1 overflow-hidden rounded-full bg-[rgba(26,26,26,0.08)]">
           <div
             className="h-full rounded-full bg-[linear-gradient(90deg,var(--color-silver-500),var(--color-silver-200))] transition-[width] duration-700"
             style={{ width: `${confidencePct}%` }}

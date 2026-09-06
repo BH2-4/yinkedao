@@ -101,7 +101,7 @@ export function RenderStudio() {
       {phase === "generating" && (
         <div className="flex flex-col items-center justify-center gap-6 py-24">
           <div
-            className="h-7 w-7 animate-spin rounded-full border border-[rgba(255,255,255,0.14)] border-t-[var(--color-silver-300)]"
+            className="h-7 w-7 animate-spin rounded-full border border-[rgba(26,26,26,0.12)] border-t-[var(--color-silver-300)]"
             role="status"
             aria-label={t("designRender.generatingTitle")}
           />

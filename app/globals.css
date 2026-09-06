@@ -2,27 +2,31 @@
 
 @theme {
   /* Surface — 纯黑为底，多黑少白。 */
-  --color-bg: #000000;
-  --color-surface: #0a0a0b;
-  --color-surface-2: #131315;
-  --color-surface-3: #1d1d1f;
+  /* 白色主题：宣纸白底 + 深墨字 + 朱砂强调（印泥色系） */
+  --color-bg: #ffffff;
+  --color-surface: #fafaf8;
+  --color-surface-2: #f4f4f1;
+  --color-surface-3: #ececea;
 
-  /* Apple-style neutral ramp（白→灰）。文字主用 #f5f5f7，辅助 #86868b。 */
-  --color-silver-100: #f5f5f7;
-  --color-silver-200: #e8e8ed;
-  --color-silver-300: #d2d2d7;
-  --color-silver-400: #a1a1a6;
-  --color-silver-500: #86868b;
-  --color-silver-600: #6e6e73;
-  --color-silver-700: #424245;
+  /* 墨阶（浅主题下语义反转：100=主墨最深，700=最浅）。
+     主文字 #1a1a1a（白底 17:1 AAA）；正文 #5f5f64（5.75:1 AA）；
+     辅助 #6e6e73（4.9:1 AA）；极弱注释 #707075（4.72:1 AA）。 */
+  --color-silver-100: #1a1a1a;
+  --color-silver-200: #333336;
+  --color-silver-300: #4d4d51;
+  /* 400/500/600 压深保白底 AA（4.5:1+）：5.75 / 4.9 / 4.72 */
+  --color-silver-400: #5f5f64;
+  --color-silver-500: #6e6e73;
+  --color-silver-600: #707075;
+  --color-silver-700: #d2d2d7;
 
-  --color-ivory: #f5f5f7;
-  --color-highlight: #ffffff;
-  --color-accent: #f5f5f7;
+  --color-ivory: #1a1a1a;
+  --color-highlight: #c3272b;
+  --color-accent: #c3272b;
 
   /* Borders */
-  --color-line: rgba(255, 255, 255, 0.08);
-  --color-line-strong: rgba(255, 255, 255, 0.14);
+  --color-line: rgba(26, 26, 26, 0.10.2);
+  --color-line-strong: rgba(26, 26, 26, 0.2);
 
   /* Fonts */
   --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, "Segoe UI",
@@ -50,14 +54,12 @@
   --dur-wash: 640ms;
 
   /* Depth shadows — never harsh, only spatial. */
-  --shadow-object-1: 0 1px 0 rgba(255, 255, 255, 0.03) inset,
-    0 12px 32px -20px rgba(0, 0, 0, 0.85);
-  --shadow-object-2: 0 1px 0 rgba(255, 255, 255, 0.04) inset,
-    0 22px 48px -24px rgba(0, 0, 0, 0.9),
-    0 1px 0 rgba(255, 255, 255, 0.05);
-  --shadow-object-lift: 0 1px 0 rgba(255, 255, 255, 0.06) inset,
-    0 32px 60px -28px rgba(0, 0, 0, 0.95),
-    0 1px 0 rgba(231, 226, 211, 0.05);
+  --shadow-object-1: 0 1px 2px rgba(26, 26, 26, 0.04),
+    0 12px 32px -20px rgba(26, 26, 26, 0.18);
+  --shadow-object-2: 0 1px 2px rgba(26, 26, 26, 0.05),
+    0 22px 48px -24px rgba(26, 26, 26, 0.2);
+  --shadow-object-lift: 0 1px 2px rgba(26, 26, 26, 0.06),
+    0 32px 60px -28px rgba(26, 26, 26, 0.22);
 }
 
 @layer base {
@@ -85,19 +87,19 @@
   html {
     background-image: radial-gradient(
         1200px 600px at 80% -10%,
-        rgba(231, 226, 211, 0.1),
+        rgba(195, 39, 43, 0.06),
         transparent 60%
       ),
       radial-gradient(
         900px 500px at -10% 110%,
-        rgba(201, 204, 209, 0.08),
+        rgba(26, 26, 26, 0.03),
         transparent 60%
       );
   }
 
   ::selection {
-    background-color: rgba(231, 226, 211, 0.22);
-    color: var(--color-ivory);
+    background-color: #1a1a1a;
+    color: #ffffff;
   }
 
   :focus-visible {
@@ -138,8 +140,8 @@
     background: var(--color-surface);
     border: 1px solid var(--color-line);
     border-radius: 20px;
-    box-shadow: 0 2px 0 rgba(255, 255, 255, 0.04) inset,
-      0 8px 24px -16px rgba(0, 0, 0, 0.85);
+    box-shadow: 0 1px 2px rgba(26, 26, 26, 0.04),
+      0 8px 24px -16px rgba(26, 26, 26, 0.16);
     transition:
       transform var(--dur-hover) var(--ease-atelier),
       box-shadow var(--dur-hover) var(--ease-atelier),
@@ -154,9 +156,8 @@
     transform: translate3d(0, -3px, 0);
     border-color: var(--color-line-strong);
     background-color: var(--color-surface-2);
-    box-shadow: 0 2px 0 rgba(255, 255, 255, 0.06) inset,
-      0 20px 48px -24px rgba(0, 0, 0, 0.95),
-      0 1px 0 rgba(255, 255, 255, 0.05);
+    box-shadow: 0 1px 2px rgba(26, 26, 26, 0.05),
+      0 20px 48px -24px rgba(26, 26, 26, 0.2);
   }
 
   .chip {
@@ -267,7 +268,7 @@
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(231, 226, 211, 0.14) 50%,
+    rgba(26, 26, 26, 0.06) 50%,
     transparent 100%
   );
   background-size: 200% 100%;
@@ -321,7 +322,7 @@
   color: var(--color-silver-500);
 }
 
-/* 品牌字标 — 苹果风纯净白字，无渐变无特效。 */
+/* 品牌字标 — 苹果风纯净墨字，无渐变无特效。 */
 .brand-mark-text {
   color: var(--color-ivory);
   transition: opacity var(--dur-hover) var(--ease-atelier);
@@ -526,11 +527,11 @@ html[data-stage="render"]::before {
  * Stage 5 及首页叙事共用的"黑暗展厅"语言。
  * --------------------------------------------------------------------*/
 
-/* 展厅画框 —— 图像不再是卡片，而是一件被光照亮的展品：
-   无圆角、无边框盒子，四周由极暗的 vignette 收束。 */
+/* 展厅画框 —— 图像是一件被光照亮的展品（浅色展厅版）：
+   纸白底座 + 极浅的暖灰 vignette 收束。 */
 .exhibition-frame {
   position: relative;
-  background: #050506;
+  background: #f6f4ef;
 }
 .exhibition-frame::before {
   content: "";
@@ -540,7 +541,7 @@ html[data-stage="render"]::before {
   background: radial-gradient(
     120% 90% at 50% 38%,
     transparent 42%,
-    rgba(0, 0, 0, 0.5) 100%
+    rgba(26, 26, 26, 0.08) 100%
   );
   z-index: 1;
 }
@@ -648,7 +649,7 @@ html[data-stage="home"] #particle-field {
   font-size: clamp(7rem, 23vw, 24rem);
   line-height: 0.86;
   letter-spacing: -0.045em;
-  color: rgba(231, 226, 211, 0.09);
+  color: rgba(26, 26, 26, 0.075);
 }
 
 /* 左侧陈述 —— 陈述级标题（巨字的角色已交给墙面） */
@@ -785,7 +786,7 @@ a.stage-hero-visual:hover img,
   color: var(--color-silver-600);
 }
 .editorial-input:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(26, 26, 26, 0.2);
   background: rgba(13, 13, 14, 0.86);
 }
 .editorial-input:focus {
@@ -938,7 +939,7 @@ html[data-stage="design-render"] .stage-space::after {
 .archive-card:hover {
   border-color: var(--color-line-strong);
   transform: translate3d(0, -2px, 0);
-  box-shadow: 0 24px 48px -28px rgba(0, 0, 0, 0.95);
+  box-shadow: 0 24px 48px -28px rgba(26, 26, 26, 0.22);
 }
 .archive-card[data-selected="true"] {
   border-color: rgba(231, 226, 211, 0.45);
@@ -1077,7 +1078,7 @@ html[data-stage="design-render"] .stage-space::after {
 .fit-line-bar {
   height: 1px;
   flex: 1;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(26, 26, 26, 0.06);
   position: relative;
 }
 .fit-line-bar::after {
@@ -1224,12 +1225,12 @@ html[data-stage="design-render"] .stage-space::after {
 }
 .journey-menu-item:hover,
 .journey-menu-item:focus-visible {
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(26, 26, 26, 0.02);
   border-left-color: rgba(231, 226, 211, 0.4);
   outline: none;
 }
 .journey-menu-item[data-active] {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(26, 26, 26, 0.015);
   border-left-color: var(--color-ivory);
 }
 
@@ -1257,11 +1258,11 @@ html[data-stage="design-render"] .stage-space::after {
   align-items: center;
   gap: 6vw;
   padding: 34px 0 34px 0;
-  border-top: 0.5px solid rgba(255, 255, 255, 0.05);
+  border-top: 0.5px solid rgba(26, 26, 26, 0.08);
   transition: border-color 500ms var(--ease-atelier);
 }
 .journey-station:last-child {
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 0.5px solid rgba(26, 26, 26, 0.08);
 }
 .journey-station:hover {
   border-color: rgba(231, 226, 211, 0.16);
@@ -1471,6 +1472,7 @@ html[data-stage="design-render"] .stage-space::after {
    朱文=红字纸底红框；白文(.white-style)=红底纸字。
    carved 滤镜（feTurbulence+feDisplacementMap）摹刻制质感。 */
 .seal-proof-paper {
+  border: 1px solid var(--color-line);
   padding: 25px 12px 30px;
   background:
     radial-gradient(ellipse at 20% 30%, rgba(213, 198, 172, 0.1), transparent 65%),

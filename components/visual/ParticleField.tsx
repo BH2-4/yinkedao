@@ -334,8 +334,8 @@ export function ParticleField() {
           mouse.y,
           gr,
         );
-        glow.addColorStop(0, "rgba(255, 255, 255, 0.045)");
-        glow.addColorStop(1, "rgba(255, 255, 255, 0)");
+        glow.addColorStop(0, "rgba(26, 26, 26, 0.06)");
+        glow.addColorStop(1, "rgba(26, 26, 26, 0)");
         ctx!.fillStyle = glow;
         ctx!.fillRect(mouse.x - gr, mouse.y - gr, gr * 2, gr * 2);
       }

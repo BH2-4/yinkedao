@@ -739,8 +739,8 @@ function renderSealMockSvg({ prompt, seed }: SealImageRequest): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img">
   <defs>
     <radialGradient id="bg" cx="50%" cy="40%" r="82%">
-      <stop offset="0%" stop-color="#17181b"/>
-      <stop offset="100%" stop-color="#08090b"/>
+      <stop offset="0%" stop-color="#faf8f3"/>
+      <stop offset="100%" stop-color="#efeadf"/>
     </radialGradient>
     <linearGradient id="stone" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="${stopA}"/>
@@ -751,10 +751,10 @@ function renderSealMockSvg({ prompt, seed }: SealImageRequest): string {
   <rect width="${W}" height="${H}" fill="url(#bg)"/>
   ${piece.join("\n  ")}
   <g font-family="ui-monospace, monospace" text-anchor="middle">
-    <text x="${cx}" y="${H - 116}" font-size="18" letter-spacing="6" fill="#d8d3c6">AI 效果示意 · 素坯质感层</text>
+    <text x="${cx}" y="${H - 116}" font-size="18" letter-spacing="6" fill="#1a1a1a">AI 效果示意 · 素坯质感层</text>
     <text x="${cx}" y="${H - 86}" font-size="13" letter-spacing="2" fill="#8a8f98">印面文字由标准篆字引擎另行叠加 · 本层无任何文字</text>
-    <text x="${cx}" y="${H - 60}" font-size="11" letter-spacing="1.5" fill="#6b7280">${info}</text>
-    <text x="${cx}" y="${H - 36}" font-size="11" letter-spacing="2" fill="#9aa0a8">非实物 · 不代表任何真实藏品</text>
+    <text x="${cx}" y="${H - 60}" font-size="11" letter-spacing="1.5" fill="#86868b">${info}</text>
+    <text x="${cx}" y="${H - 36}" font-size="11" letter-spacing="2" fill="#a1a1a6">非实物 · 不代表任何真实藏品</text>
   </g>
 </svg>`;
 

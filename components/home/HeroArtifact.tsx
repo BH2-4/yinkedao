@@ -111,7 +111,7 @@ export function HeroArtifact({
               <motion.div
                 aria-hidden
                 style={{ opacity: veil }}
-                className="absolute inset-0 bg-black"
+                className="absolute inset-0 bg-white"
               />
             </div>
           </motion.div>

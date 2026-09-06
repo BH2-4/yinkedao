@@ -151,7 +151,7 @@ function ActThree() {
             />
           </div>
           {/* 压暗层 —— 保证文字可读 */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(0,0,0,0.78),rgba(0,0,0,0.25)_55%,rgba(0,0,0,0.55))]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(255,255,255,0.86),rgba(255,255,255,0.4)_55%,rgba(255,255,255,0.7))]" />
         </motion.div>
 
         {/* 文字 —— 居中沉底 */}
@@ -221,7 +221,7 @@ function ActFour() {
               className="object-cover"
             />
           </div>
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.82),rgba(0,0,0,0.3)_50%,rgba(0,0,0,0.66))]" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.88),rgba(255,255,255,0.45)_50%,rgba(255,255,255,0.72))]" />
         </motion.div>
 
         {/* 文字 —— 右侧 */}
