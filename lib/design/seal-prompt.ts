@@ -38,8 +38,9 @@ const FINIAL_VISUAL: Record<string, string> = {
   unknown: "a simply finished top",
 };
 
-/** 石种 → 质感语言（02/06 调研石料体系；不写参数数字） */
-const STONE_VISUAL: Record<string, string> = {
+/** 石种 → 质感语言（02/06 调研石料体系；不写参数数字）。
+ *  导出供 3D 管线（Meshy texture_prompt）复用——石料视觉词汇单一事实源 */
+export const STONE_VISUAL: Record<string, string> = {
   qingtian: "Qingtian stone: pale celadon-green paste, waxy luster, fine even grain",
   shoushan: "Shoushan stone: warm ivory-to-cream tone with subtle pearlescent sheen",
   changhua: "Changhua stone: warm ground with vivid vermilion cinnabar streaks",
@@ -48,8 +49,8 @@ const STONE_VISUAL: Record<string, string> = {
   unknown: "fine Chinese seal stone with gentle translucency",
 };
 
-/** 观感修饰（06 质地语言：蜡状/玻璃/珍珠光泽） */
-const LOOK_VISUAL: Record<string, string> = {
+/** 观感修饰（06 质地语言：蜡状/玻璃/珍珠光泽）。同上：导出复用 */
+export const LOOK_VISUAL: Record<string, string> = {
   waxy: "waxy subdued luster",
   vitreous: "glassy vitreous transparency",
   pearly: "soft pearly satiny reflection",
