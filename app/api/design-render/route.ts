@@ -18,8 +18,10 @@ import type { SealRenderApiResponse } from "@/types/design-render";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-// 生图（gpt-image-2 含参考图编辑）实测 30-90 秒；60s 在所有计划内合法。
-export const maxDuration = 60;
+// 生图（gpt-image-2 含参考图编辑）实测 30-90 秒，偶发 502 重试最坏 ~143s。
+// Hobby + Fluid Compute 上限 300s；线上实测 60s 会间歇性掐断长单（平台
+// 直接返回非 JSON 超时页，前端 JSON.parse 炸出 "Unexpected token"）。
+export const maxDuration = 300;
 
 const RenderRequestSchema = z.object({
   order: SealOrderSchema,

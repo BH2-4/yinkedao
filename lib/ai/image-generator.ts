@@ -511,8 +511,10 @@ function getImageModel(): string {
  * 生图请求超时。必须 ≤ 路由的 maxDuration（见 app/api/design-render/route.ts），
  * 否则线上函数先被平台杀掉，SDK 还在空等，客户端只能收到平台的超时页而非
  * 我们的 typed error envelope。
+ * 240s：DMXAPI gpt-image-2-ssvip 单张常态 30-60s，偶发网关抖动 + 一次
+ * 3s 退避重试最坏 ~150s——留足头部，且仍在 maxDuration=300 之内。
  */
-const IMAGE_TIMEOUT_MS = Number(process.env.IMAGE_TIMEOUT_MS) || 55_000;
+const IMAGE_TIMEOUT_MS = Number(process.env.IMAGE_TIMEOUT_MS) || 240_000;
 
 /**
  * 标本档案版面尺寸：2 列 × 3 行、单格 512²，故为竖版 1024×1536。
@@ -523,8 +525,8 @@ const SHEET_SIZE = "1024x1536" as const;
 
 /**
  * 形制 → 参考图目录（forms/ 章型钮制 + craftsmanship/ 工艺特写必附）。
- * materials/<石种> 目录属 M1 石料照片库（待采购拍摄）；缺失时降级到
- * forms+craftsmanship，再缺失走纯文本生成（同模型）。
+ * materials/（M1 石料实拍库，7 张已落盘）由 pickMaterialReference 单独
+ * 处理：命中石种则占 1 张参考位。全部缺失时走纯文本生成（同模型）。
  */
 const SEAL_REFERENCE_CATEGORIES: Record<string, string[]> = {
   square: ["forms/square-plain", "forms/square-beast", "craftsmanship/side-inscription"],
@@ -533,8 +535,40 @@ const SEAL_REFERENCE_CATEGORIES: Record<string, string[]> = {
   unknown: ["forms/square-plain", "craftsmanship/side-inscription"],
 };
 
+/**
+ * M1 石料实拍的石种匹配词——对齐 materials/ 实际文件名（01_昌化鸡血石…
+ * 07_瑕疵练习料一组）。零命中不补位：错石种实拍会反向引导色感（如寿山
+ * 单拉一张鸡血石图），宁缺毋滥，forms 池仍在。
+ */
+const MATERIAL_STONE_KEYWORDS: Record<string, string[]> = {
+  changhua: ["昌化"],
+  balin: ["巴林"],
+  laoshit: ["老挝"],
+  qingtian: ["青田"],
+  shoushan: ["寿山", "田黄"],
+};
+
+/** 按订单石种挑 1 张石料实拍（seed 轮转同款石头多张时换图）。 */
+async function pickMaterialReference(
+  stoneType: string,
+  seed: number,
+): Promise<string[]> {
+  let files: string[] = [];
+  try {
+    files = (await fs.readdir(path.join(SEAL_REFERENCE_DIR, "materials")))
+      .filter((f) => /\.(jpe?g|png|webp)$/i.test(f));
+  } catch {
+    return []; // 目录缺失（M1 前）静默降级
+  }
+  const keywords = MATERIAL_STONE_KEYWORDS[stoneType] ?? [];
+  const hit = files.filter((f) => keywords.some((k) => f.includes(k)));
+  if (hit.length === 0) return [];
+  return [path.join(SEAL_REFERENCE_DIR, "materials", hit[seed % hit.length])];
+}
+
 async function pickSealReferences(
   sealForm: string,
+  stoneType: string,
   seed: number,
 ): Promise<string[]> {
   const categories =
@@ -551,15 +585,19 @@ async function pickSealReferences(
     }
     candidates.push(...files.map((f) => path.join(dir, f)));
   }
-  if (candidates.length === 0) return [];
+
+  /* 石料实拍置顶占 1 位（INTEGRATION-IMAGEPIPE §2.2），forms/craft 池让位：
+     命中时 3 张 = materials 1 + 池 2；未命中回落池 3 张。 */
+  const materialPicked = await pickMaterialReference(stoneType, seed);
+  if (candidates.length === 0) return materialPicked;
+  const count = Math.min(3 - materialPicked.length, candidates.length);
 
   /* 步长与候选数互质才能不重复取样：原先固定步长 3 在候选数为 3 的倍数时
      （freeform = freeform 1 张 + bask-relief 2 张）三次全落同一张图，
      等于把「三张参考图」退化成一张。 */
-  const count = Math.min(3, candidates.length);
   const step = candidates.length % 3 === 0 ? 1 : 3;
   const start = seed % candidates.length;
-  const picked: string[] = [];
+  const picked: string[] = [...materialPicked];
   for (let i = 0; i < count; i++) {
     picked.push(candidates[(start + i * step) % candidates.length]);
   }
@@ -581,6 +619,22 @@ export async function generateSealDesignImage(
     model: "mock-seal-renderer-v1",
     generatedAt: new Date().toISOString(),
   };
+}
+
+/**
+ * edit 端点上游偶发 502/504 网关抖动（中转 API 实测）——等 3s 重试一次；
+ * 401（key 失效）/429（限流）等不重试直接抛，避免无谓等待。
+ */
+async function withEditRetry<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    const status = err instanceof OpenAI.APIError ? err.status : undefined;
+    if (status !== 502 && status !== 504) throw err;
+    console.warn(`[image-generator] edit 端点网关抖动(HTTP ${status})，3s 后重试一次`);
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    return fn();
+  }
 }
 
 async function generateSealViaGptImage(
@@ -605,6 +659,7 @@ async function generateSealViaGptImage(
 
   const referencePaths = await pickSealReferences(
     prompt.form.seal_form,
+    prompt.stone.stone_type,
     request.seed,
   );
 
@@ -632,13 +687,15 @@ async function generateSealViaGptImage(
     ),
   );
 
-  const response = await openai.images.edit({
-    model,
-    image: files,
-    prompt: fullPrompt,
-    n: 1,
-    size: SHEET_SIZE,
-  });
+  const response = await withEditRetry(() =>
+    openai.images.edit({
+      model,
+      image: files,
+      prompt: fullPrompt,
+      n: 1,
+      size: SHEET_SIZE,
+    }),
+  );
 
   const b64 = response.data?.[0]?.b64_json;
   if (!b64) throw new Error(`${model} returned no image data for the seal render.`);
