@@ -8,6 +8,7 @@ import { useI18n } from "@/components/i18n/I18nProvider";
 import { decodeSealOrder, encodeSealOrder } from "@/lib/design/seal-order";
 import type { SealOrder } from "@/lib/design/seal-order";
 import type { SealRenderApiResponse } from "@/types/design-render";
+import { SealFaceProof } from "./SealFaceProof";
 
 /**
  * 效果图工作室（三站流程第 3 站 · 印章质感层）。
@@ -184,7 +185,21 @@ export function RenderStudio() {
               {t("designRender.actions.back")}
             </Link>
           </div>
+
+          {/* 印蜕 · 文字层（与质感层并列——石是载体，印是灵魂） */}
+          <SealFaceProof
+            initialText={order.seal_text ?? ""}
+            initialStyle={order.seal_style}
+          />
         </div>
+      )}
+
+      {/* 印蜕 · 文字层（未生成质感图时同样可用——独立渲染） */}
+      {phase !== "done" && (
+        <SealFaceProof
+          initialText={order.seal_text ?? ""}
+          initialStyle={order.seal_style}
+        />
       )}
     </section>
   );

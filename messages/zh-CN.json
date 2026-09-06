@@ -586,7 +586,21 @@
     "customizationComingSoon": "定制沟通 · 即将开放",
     "introBody": "视觉参数完全来自你确认的参数单——这一步只生成无文字的章体质感层，印面文字随后由标准篆字引擎叠加。",
     "generateCta": "生成效果图",
-    "differenceNote": "效果图为 AI 示意；天然石料每块纹理独一无二，匠人手工刀痕亦有差异——这正是手工篆刻的价值。"
+    "differenceNote": "效果图为 AI 示意；天然石料每块纹理独一无二，匠人手工刀痕亦有差异——这正是手工篆刻的价值。",
+    "sealFaceLabel": "印蜕 · 文字层",
+    "sealFaceTitle": "印是灵魂。",
+    "sealFaceIntro": "印文由峄山碑篆体确定性渲染——章法按传统读序（先上后下、先右后左），朱白可切换，缺字如实告知。",
+    "sealFaceInputLabel": "印文（1-4 字）",
+    "sealFaceInputPlaceholder": "如：劉雨茜 / 天下太平 / 一苇堂……",
+    "sealFaceMissing": "当前字体未收录：{chars}——无标准篆形，绝不造字。请换字或提供字形参考。",
+    "sealFaceTooLong": "当前支持 1-4 字印文（四字为经典正格）。",
+    "sealFaceOrderNote": "读序：{order}（右上起）",
+    "sealFaceBaiwen": "白文",
+    "sealFaceZhuwen": "朱文",
+    "sealFaceFreedom": "章法错落",
+    "sealFaceTexture": "印泥斑驳",
+    "sealFaceShuffle": "换一版章法",
+    "sealFaceFontCredit": "字形来源：峄山碑篆体（字传 · 免费商用授权）· 渲染式使用，不修改字型"
   },
   "designBrief": {
     "stageLabel": "Stage 1 · Design Brief",

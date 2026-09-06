@@ -78,7 +78,13 @@ async function scenario3BriefUrlPersist() {
   assert(html.includes("兽钮"), "finial label restored from URL (beast)");
   assert(html.includes("白文"), "style label restored from URL (baiwen)");
 
-  /* 无效 query 静默回退空参数单（三提案可见），不 500 */
+  /* 全字段 URL：参数单可载（语义正确性由 scenario4 的 API decode 背书——
+     SSR 对 useSearchParams 客户端组件 bailout，HTML includes 会命中
+     内联字典造成假阳性，故不在此断言渲染值）。 */
+  const full = await fetch(`${BASE}/design-brief?o=milestone&st=laoshit&sl=waxy&sb=daily&f=square&fi=beast&si=short&d=plain&tt=name&tc=four&ss=baiwen`);
+  assert(full.status === 200, "full-order brief loads (200)");
+
+  /* 无效 query 静默回退空参数单，不 500 */
   const bad = await fetch(`${BASE}/design-brief?st=not-a-stone`);
   assert(bad.status === 200, "invalid query degrades gracefully (200)");
 }

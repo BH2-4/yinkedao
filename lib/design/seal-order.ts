@@ -31,28 +31,31 @@ import {
 /* ─── 参数单 Schema ──────────────────────────────────────────── */
 
 export const SealOrderSchema = z.object({
+  /* 全枚举字段带 unknown 默认值：URL 只携带显式选择（encode 跳过
+     unknown），部分参数链接也能安全反序列化——缺失维度回落
+     unknown，绝不整单判废。 */
   /** 用途 */
-  occasion: z.enum(OCCASIONS),
+  occasion: z.enum(OCCASIONS).default("unknown"),
   /** 石种 */
-  stone_type: z.enum(STONE_TYPES),
+  stone_type: z.enum(STONE_TYPES).default("unknown"),
   /** 石料质地观感 */
-  stone_look: z.enum(STONE_LOOKS),
+  stone_look: z.enum(STONE_LOOKS).default("unknown"),
   /** 价位带倾向（不含价格数字） */
-  stone_budget: z.enum(STONE_BUDGETS),
+  stone_budget: z.enum(STONE_BUDGETS).default("unknown"),
   /** 形制 */
-  seal_form: z.enum(SEAL_FORMS),
+  seal_form: z.enum(SEAL_FORMS).default("unknown"),
   /** 钮制 */
-  finial_type: z.enum(FINIAL_TYPES),
+  finial_type: z.enum(FINIAL_TYPES).default("unknown"),
   /** 边款 */
-  side_inscription: z.enum(SIDE_INSCRIPTIONS),
+  side_inscription: z.enum(SIDE_INSCRIPTIONS).default("unknown"),
   /** 装饰纹样程度 */
-  decoration_level: z.enum(DECORATION_LEVELS),
+  decoration_level: z.enum(DECORATION_LEVELS).default("unknown"),
   /** 印文意向 */
-  text_type: z.enum(TEXT_TYPES),
+  text_type: z.enum(TEXT_TYPES).default("unknown"),
   /** 字数 */
-  text_count: z.enum(TEXT_COUNTS),
+  text_count: z.enum(TEXT_COUNTS).default("unknown"),
   /** 朱白 */
-  seal_style: z.enum(SEAL_STYLES),
+  seal_style: z.enum(SEAL_STYLES).default("unknown"),
 
   /* ── 确认态补充 ── */
   /** 实际印文（用户输入；仅元信息，质感层渲染不使用文字） */
@@ -126,7 +129,7 @@ export function encodeSealOrder(order: SealOrder): string {
     const value = (order as Record<string, unknown>)[key];
     if (value === undefined || value === null) continue;
     const str = typeof value === "boolean" ? (value ? "1" : "0") : String(value);
-    if (str === "" ) continue;
+    if (str === "" || str === "unknown") continue; // unknown 缺省不进 URL
     params.set(short, str);
   }
   return params.toString();

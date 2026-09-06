@@ -1465,3 +1465,90 @@ html[data-stage="design-render"] .stage-space::after {
     padding-right: 26px;
   }
 }
+
+/* ─── 小篆印蜕渲染器（SealFaceProof）────────────────────────────
+   印面视觉 ported from JackerKun/XiaoZhuan (MIT) css/stamp.css：
+   朱文=红字纸底红框；白文(.white-style)=红底纸字。
+   carved 滤镜（feTurbulence+feDisplacementMap）摹刻制质感。 */
+.seal-proof-paper {
+  padding: 25px 12px 30px;
+  background:
+    radial-gradient(ellipse at 20% 30%, rgba(213, 198, 172, 0.1), transparent 65%),
+    #f7f0e2;
+  border-radius: 3px;
+}
+
+.seal-proof {
+  --stamp-ink: #a83527;
+  --stamp-paper: #f7f0e2;
+  position: relative;
+  isolation: isolate;
+  width: 300px;
+  max-width: 100%;
+  aspect-ratio: 1;
+  transform: rotate(-2deg);
+  border: 8px solid var(--stamp-ink);
+  border-radius: 4% 2% 5% 2% / 2% 5% 3% 4%;
+  padding: 2px;
+  color: var(--stamp-ink);
+  background: var(--stamp-paper);
+  filter: url(#seal-carved);
+  box-shadow: 1px 1px 0 rgba(168, 53, 39, 0.19);
+}
+
+.seal-proof.white-style {
+  background: var(--stamp-ink);
+  color: var(--stamp-paper);
+}
+
+.seal-proof-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  height: 100%;
+  container-type: inline-size;
+}
+
+.seal-proof-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+  font-family: "峄山碑篆体";
+  font-size: 40cqi;
+  line-height: 1;
+  text-shadow: 0.6px 0 currentColor, -0.6px 0 currentColor;
+  transition: transform 0.25s ease;
+}
+
+.seal-proof.white-style .seal-proof-cell {
+  text-shadow: 1px 0 currentColor, -1px 0 currentColor;
+}
+
+/* 一字居中：占满整个 grid */
+.seal-proof-center {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+  font-size: 72cqi;
+}
+
+.seal-proof-wear {
+  position: absolute;
+  inset: -10px;
+  width: calc(100% + 20px);
+  height: calc(100% + 20px);
+  z-index: 2;
+  pointer-events: none;
+  fill: var(--stamp-paper);
+}
+
+.seal-proof.clean .seal-proof-wear {
+  display: none;
+}
+
+.seal-proof.clean {
+  filter: none;
+}

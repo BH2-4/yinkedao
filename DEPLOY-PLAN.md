@@ -1,23 +1,32 @@
 # 印可道 Vercel 部署方案
 
-> 目标域名：**yinkedao.eurekadelta.com**（DNS 在 Cloudflare）
+> 目标域名：**yinkedao.eurekadelta.com**（DNS 计划在 Cloudflare，见 §5 的 NS 警示）
 > 首版策略：**DEMO_MODE=true**（无 Key 完整体验），真实 Key 后补配
 > 代码：`github.com/BH2-4/yinkedao`（私有，production = main）
 > 部署 agent 维护；工程代码不在本方案范围内
+>
+> **状态（2026-09-05）：Vercel 侧准备已全部完成**（项目已建 + Git 已连 + 域名已加 + 环境变量已配）。
+> 剩余两件事：① 用户在 DNS 侧加一条 CNAME（见 §5 操作卡）；② 主对话 push 代码即自动构建上线（见 §6）。
 
 ---
 
-## 0. 预检结论（2026-09-05）
+## 0. 预检结论与 API 路线（2026-09-05）
 
 | 项 | 结果 |
 |---|---|
-| vercel CLI | 已装，59.10.0（/opt/homebrew/bin/vercel） |
-| CLI 登录态 | **未登录**（`vercel whoami` → Logged out）——当前唯一阻塞项 |
+| vercel CLI | 已装 59.10.0，但本机所有网络路径（直连/HTTP 代理/SOCKS）均 `fetch failed`，**废弃 CLI** |
+| 实际路线 | **curl + Vercel REST API 直连**（api.vercel.com 直连正常；token 账号 bh2-4，Hobby plan，team `team_IU5cDGEtZ0O2qfP44ai7oeu9`） |
+| 团队权限 | 已确认：`GET /v9/projects` 列出 4 项目，含参照项目 `silverforgedgui` |
 | vercel.json | 不存在，也不需要（部署相关配置已在 next.config.ts / 路由文件内） |
 | outputFileTracingIncludes | 已配置：`/api/design-render` ← `./public/collection/assets/images/**/*` |
 | maxDuration=60 | 已在 `app/api/design-render/route.ts` 导出 |
 | 构建 | 标准 Next.js 16（`next build` 自动检测），无自定义构建命令 |
 | git 状态 | 本地 main 领先 origin/main 多个 commit（等工程 agent 完成后由主对话统一 push）；fork 自 SilverForgedGui |
+
+### 参照：银中贵项目配置（API 实测）
+
+`silverforgedgui`（prj_5AFSjQnXFCxhAJj5vr9J7mQHjfbS）：framework=nextjs、nodeVersion=24.x、
+Git App credential=`cred_53d67087…`（org BH2-4）、productionBranch=**main**。yinkedao 全部对齐。
 
 ## 1. 项目创建方式：**GitHub Git 集成（推荐）**
 
@@ -61,90 +70,77 @@
 > 配置层级：环境变量加 **Production + Preview** 两个环境（`vercel env add` 需分别指定）。
 > 注意 `NEXT_PUBLIC_*` 属构建期内联，改动需重新部署才生效；服务端变量 redeploy 即生效。
 
-## 3. 用户需做的两步（当前等待中）
+## 3. Vercel 侧已执行记录（curl + REST API，全部成功）
 
-### 3.1 Vercel CLI 登录（阻塞 Vercel 侧所有操作）
+| # | 动作 | API 调用 | 结果要点 |
+|---|---|---|---|
+| 1 | 列项目确认权限 | `GET /v9/projects?teamId=…&limit=100` | 4 项目可见（silverforgedgui 等）；银中贵 link 结构作参照 |
+| 2 | 创建项目 | `POST /v9/projects`（body: name=yinkedao, framework=nextjs） | **prj_77ye01EbrzMmoOnBGYSb4f2mIoTD**，nodeVersion=24.x，region=iad1 |
+| 3 | 连 GitHub 仓库 | `POST /v9/projects/{id}/link`（body: type=github, repo=BH2-4/yinkedao） | link 挂载成功：repoId=1357984555、gitCredentialId 同银中贵、**productionBranch=main**、rootDirectory 默认 `/` |
+| 4 | 加自定义域名 | `POST /v10/projects/{id}/domains`（name=yinkedao.eurekadelta.com） | 域名已挂到项目，**verified: true**（apex eurekadelta.com 此前已在团队验证过） |
+| 5 | 写环境变量 | `POST /v10/projects/{id}/env`（批量） | DEMO_MODE=`"true"`、NEXT_PUBLIC_3D_SEAL_URL=`""`，target=production+preview，已逐个 GET 核对值 |
 
-终端执行：
+API 使用备注（供后续迭代复用）：
+- `POST /v9/projects` 的 body **不接受 `link` 字段**（报 `should NOT have additional property "link"`），连仓库必须用独立端点 `POST /v9/projects/{id}/link`，body 为 `{"type":"github","repo":"org/repo"}`；
+- 环境变量重复 POST 会报 `ENV_CONFLICT`，更新已有值用 `PATCH /v9/projects/{id}/env/{envId}`；
+- GitHub App 对 BH2-4 org 的仓库权限**已就绪**（步骤 3 直接解析出 repoId，未报 repo_not_found），无需网页端补授权。
 
-```bash
-vercel login
-```
+构建配置核对（无需改动）：rootDirectory=默认根、productionBranch=main、framework=nextjs、buildCommand/installCommand=null（自动检测）、nodeVersion=24.x。
 
-选择 **GitHub** 方式登录，且必须登录到**拥有 BH2-4 org 权限的账号**（即银中贵项目所在账号）。
-登录成功后告知部署 agent，后续 Vercel 侧操作全部由 agent 执行。
+## 4. 唯一待用户操作：DNS 加一条 CNAME
 
-### 3.2 GitHub 侧确认 Vercel App 仓库权限（连仓库时可能需要）
-
-GitHub → Settings → Applications → Vercel：
-- 若 org 的 Vercel App 是「All repositories」→ 无需操作；
-- 若是「Only select repositories」→ 把 `BH2-4/yinkedao` 加入列表。
-
-## 4. 授权后由部署 agent 执行的动作
-
-```bash
-cd /Users/arco/yinkedao
-
-# 1. 创建/关联项目（scope 选 BH2-4 所在 team）
-vercel project add yinkedao    # 或 vercel link 交互创建
-vercel link -p yinkedao
-
-# 2. 连接 GitHub 仓库（此后 push main 即自动构建）
-vercel git connect BH2-4/yinkedao
-
-# 3. 环境变量（Production，逐个）
-vercel env add DEMO_MODE production        # 值: true
-vercel env add NEXT_PUBLIC_3D_SEAL_URL production   # 值: （空）
-
-# 4. 添加域名（触发证书预签发，Vercel 会返回待验证 DNS 记录）
-vercel domains add yinkedao.eurekadelta.com yinkedao
-```
-
-要点：
-- 项目创建后即使远端 main 还是旧代码，可先连上——旧代码会构建一次 production，无害；push 新代码后自动重建覆盖。
-- Production branch 保持默认 `main`（银中贵改过 branch 名，本项目不需要）。
-- `vercel domains add` 的输出（待验证 DNS 记录）会回填到下方第 5 节。
-
-## 5. Cloudflare DNS 操作指引（用户在 Cloudflare 后台做）
-
-域名：`eurekadelta.com` → DNS → 添加记录：
+在当前管理 `eurekadelta.com` DNS 的面板里加：
 
 | 类型 | 名称 | 目标 | 代理状态 |
 |---|---|---|---|
-| CNAME | `yinkedao` | `cname.vercel-dns.com` | **仅 DNS（灰云）** |
+| **CNAME** | `yinkedao` | `cname.vercel-dns.com` | **仅 DNS（灰云，勿开橙云）** |
 
-以第 4 步 `vercel domains add` 实际返回值为准（子域预期即上述 CNAME；若给的是 A 记录 `76.76.21.21` 则照抄）。
+- Cloudflare 路径：eurekadelta.com → DNS → Records → Add record → 上述四项照抄（代理状态点成灰色「DNS only」）。
+- 记录加完后 Vercel 会自动签发 Let's Encrypt 边缘证书（无需任何额外验证操作，域名 verified 已通过）。
+
+### ⚠ NS 警示（加记录前先确认这一条）
+
+Vercel 侧观察到 `eurekadelta.com` 的权威 NS 当前是 `launch1/launch2.spaceship.net`（**Spaceship 注册商默认 NS，不是 Cloudflare**）。两种情况：
+
+- 若 Cloudflare 面板里该 zone 状态是 **Pending / 待激活**：说明 NS 尚未从 Spaceship 切到 Cloudflare，此时在 CF 加的记录**不生效**。两条路二选一：
+  1. 按计划切 NS（Spaceship 域名管理 → 改 NS 为 Cloudflare 分配的两条 → 等 zone 变 Active）→ 再在 CF 加上述 CNAME；
+  2. 或直接在 **Spaceship 的 DNS 管理**里加同样的 CNAME（最快，跳过 Cloudflare）。
+- 若 CF zone 已 Active（NS 已切，Vercel 数据是旧缓存）：直接在 CF 加 CNAME 即可，忽略本条。
 
 **代理状态（橙云）决策——两阶段：**
 
-1. **先灰云（仅 DNS）**：Vercel 需完成域名验证并经 HTTP-01 签发 Let's Encrypt 边缘证书。橙云会拦截/代理验证请求，存在验证失败或证书卡 Pending 的风险。
+1. **先灰云（仅 DNS）**：Vercel 需经 HTTP-01 签发 Let's Encrypt 边缘证书。橙云会拦截/代理验证请求，存在验证失败或证书卡 Pending 的风险。
 2. **证书 Active 后再决定是否开橙云**：
    - 开橙云前提：Cloudflare SSL/TLS 模式必须设 **Full (strict)**（Cloudflare 以 HTTPS 回源 Vercel 有效证书）；
    - **严禁 Flexible**：HTTP 回源 + Vercel 强制 HTTPS → 无限重定向循环；
    - 橙云收益：CF WAF/缓存/隐藏源站；代价：Vercel 侧部分 Header/地域信息失真。本站是动态 AI 应用，缓存收益小，**建议长期保持灰云**，除非另有 Cloudflare 安全需求。
 
-## 6. 部署时序
+## 6. 部署时序（Vercel 侧已就绪，剩两条并行线）
 
 ```
-工程 agent 完成内容迁移
-        │
-        ▼
-主对话 git push origin main ──► Vercel 自动构建（production=main）
-        │                              │
-        │（可与 push 并行）             ▼
-        │                       构建产物就绪（*.vercel.app 可访问）
-        ▼
-agent: vercel domains add yinkedao.eurekadelta.com
-        │
-        ▼
-用户: Cloudflare 加 CNAME（灰云）
-        │
-        ▼
-Vercel 证书签发 → Domains 页状态变 Active（通常几分钟，最长数小时）
-        │
-        ▼
-https://yinkedao.eurekadelta.com 上线 ──► 按第 7 节验证
+【Vercel 侧：全部完成，无需任何操作】
+项目 ✓ Git 集成 ✓ 域名 ✓ 环境变量 ✓
+
+【线 A：DNS（用户，§4 操作卡）】          【线 B：代码（主对话）】
+用户加 CNAME yinkedao →                 工程agent完成 → git push origin main
+cname.vercel-dns.com（灰云）                    │
+        │                                       ▼
+        ▼                              Vercel 自动构建（production=main）
+DNS 生效（秒~分钟级）                    → *.vercel.app 立即可访问
+        │                              注：push 前若有人触发构建（如首次
+        ▼                              link 时远端 main 是旧代码，会先构建
+Vercel 自动签发 Let's Encrypt            一版旧 production，无妨——新 push
+边缘证书 → Active                        会重建覆盖）
+        │                                       │
+        └───────────────┬───────────────────────┘
+                        ▼
+        https://yinkedao.eurekadelta.com 上线 ──► 按 §7 验证
 ```
+
+说明：
+- **首次自动构建时机**：Git link 已挂好，主对话 `git push origin main` 的瞬间即触发 production 构建，无需任何手动动作；
+- 远端 main 当前是 fork 初期的旧代码——若此刻有部署被触发，会构建旧版并占用 production 指针，**无妨**：新代码 push 后自动重建并替换；旧部署还可用作回滚锚点；
+- 环境变量（DEMO_MODE=true）已配置在 production 环境，首次构建即为 DEMO 形态。
 
 ## 7. 上线验证清单
 
@@ -174,11 +170,15 @@ curl -s -o /dev/null -w "%{http_code}\n" \
 ## 8. 回滚方式
 
 - **Dashboard**：项目 → Deployments → 找到上一个正常 deployment → 右侧菜单 **Promote to Production**（秒级，指向既有构建产物，不重新构建）。
-- **CLI**：`vercel rollback`（回滚到上一个 production）或 `vercel promote <deployment-url>`（指定任意历史版本）。
+- **API（CLI 不可用，走此路线）**：
+  - 查历史部署：`GET /v6/deployments?projectId=prj_77ye01EbrzMmoOnBGYSb4f2mIoTD&teamId=…&state=READY&target=production`
+  - 回滚：`POST /v13/deployments/{deploymentId}/promote?teamId=…`（body: `{}`，指定目标 deployment）
 - 域名/DNS 层不动，仅切流量指向。
 - 若新部署构建失败：production 仍指向上一个成功构建，**线上不受影响**，修复代码再 push 即可。
 
 ## 9. 已知遗留（不阻塞部署）
 
+- **eurekadelta.com 权威 NS 是 spaceship.net 而非 Cloudflare**（Vercel 侧实测）——见 §4 NS 警示，用户加 CNAME 前需先确认 CF zone 状态，否则记录不生效。
 - `next.config.ts` 含 fork 遗留的 `shop.randomplayx.com` host 301 规则与 `/collection` 重写——在 yinkedao 域名下 host 永不命中，无害；是否清理由工程 agent 决定。
 - `.env.example` / `.env.local` 内容受权限保护未直接读取，环境变量清单已从源码 `process.env.*` 引用全量重建（本文档第 2 节即完整清单）。
+- vercel CLI 本机网络不可用（所有路径 fetch failed），后续运维（域名状态检查/回滚/环境变量迭代）继续走 REST API 路线，命令模板已沉淀在 §3 备注与 §8。
