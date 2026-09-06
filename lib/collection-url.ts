@@ -13,3 +13,12 @@ export const COLLECTION_URL =
 
 /** 是否已配置真实成品站地址（用于决定链接是否可交互的兜底判断）。 */
 export const HAS_COLLECTION_URL = COLLECTION_URL !== "#";
+
+/**
+ * 苗银区块下线开关（临时止血）——
+ * /collection/* 整站系 fork 自苗银站的残留（银饰内容 + 死链），
+ * 待改造成印可道内容前，站内一切指向它的入口（顶栏「成品系列」「关于」、
+ * 首页成品直购 CTA）统一隐藏；路由与页面文件均未删除。
+ * 恢复方式：改回 true 即可全部还原。
+ */
+export const SHOW_LEGACY_COLLECTION = false;
