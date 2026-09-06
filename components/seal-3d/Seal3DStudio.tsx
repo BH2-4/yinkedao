@@ -3,26 +3,55 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, RefreshCw, Box } from "lucide-react";
+import { ArrowLeft, RefreshCw, Box, Download, Type } from "lucide-react";
+import * as THREE from "three";
+import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { decodeSealOrder, encodeSealOrder } from "@/lib/design/seal-order";
 import type { Seal3dStatusApiResponse, Seal3dStatusResponse } from "@/types/seal-3d";
-import { ModelViewer } from "./ModelViewer";
+import { Seal3DScene } from "./Seal3DScene";
 
 /**
- * 3D 效果图预览工作台（B 线 Phase 1）。
+ * 3D 效果图预览工作台（B 线 · 印面叠字版）。
  *
  * 数据来源：URL query ?task=<meshy_task_id>（任务由效果图结果页创建后
  * 跳转过来；刷新/分享链接均可恢复轮询——服务端无状态，Meshy 任务对象
  * 是唯一状态源）。流程：GET /api/3d-model/{task} 轮询（5s 间隔）→
- * SUCCEEDED 时后端完成 blob 转存并回传长期 URL → model-viewer 交互。
+ * SUCCEEDED 时后端完成 blob 转存并回传长期 URL → R3F 合成场景
+ * （章石 glb + 崇羲印面贴图 plane）交互预览。
  *
- * 印面文字叠加（Phase 2 接口预留，本页不实现）：
- *   TODO(seal-face-3d): SUCCEEDED 后在 model-viewer 场景之上叠加崇羲
- *   字体引擎产出的印面贴图（plane 贴印面法向），接口形态为在 ready
- *   分支注入 overlayProps（texture URL + 印面定位参数），由字体引擎
- *   agent 的链路供给——两线合流点，避免与本 Phase 撞车。
+ * 印面文字叠加（Phase 1 预留 TODO(seal-face-3d) 的落地实现）：
+ *   Seal3DScene 在章石包围盒顶面叠崇羲贴图 plane（镜像版——从上往
+ *   下看是反字，钤印方向正确）；朱文/白文即时切换；合成结果可导出
+ *   glb。贴图由 scripts/seal-3d-face/make-face-textures.mjs 离线生成
+ *   （opentype.js 直读崇羲 OTF，取形/排布与 A 线同源）——字体文件
+ *   不进客户端，符合崇曦合规路线（CC BY-ND：只渲染不分发）。
  */
+
+/** 印面贴图（镜像版：贴印面的是反字，钤出来才是正字） */
+const FACE_TEXTURES = {
+  zhuwen: "/seal-3d-face/zhuwen-mirrored.png",
+  baiwen: "/seal-3d-face/baiwen-mirrored.png",
+} as const;
+
+type FaceStyle = keyof typeof FACE_TEXTURES;
+
+/** blob 公开桶域名（本地缓存路径约定与之配对） */
+const BLOB_HOST = "i5y1y4ahjeuoicd3.public.blob.vercel-storage.com";
+
+/** glb 的 blob URL → 加载路径。本地 dev 读预拉缓存
+ *  （scripts/seal-3d-face/fetch-blob-cache.sh——本机网络对该域大文件
+ *  传输不稳，curl 走代理预拉一次最稳）；生产直连 blob（CORS 通）。
+ *  非本桶 URL 原样返回。 */
+function toAssetProxyUrl(url: string): string {
+  const m = /^https:\/\/([^/]+)\/(.+)$/.exec(url);
+  if (m && m[1] === BLOB_HOST) {
+    return process.env.NODE_ENV === "development"
+      ? `/blob-cache/${m[2]}`
+      : url;
+  }
+  return url;
+}
 
 type Phase = "polling" | "ready" | "error";
 
@@ -43,9 +72,13 @@ export function Seal3DStudio() {
     Extract<Seal3dStatusResponse, { status: "SUCCEEDED" }> | null
   >(null);
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
-  /* glb 拉取进度（blob CDN 下载，与建模进度是两段不同的进度） */
-  const [loadRatio, setLoadRatio] = useState<number | null>(null);
   const [rendered, setRendered] = useState(false);
+
+  /* 印面叠字状态（B 线：朱白切换 + 视角预设 + 导出） */
+  const [faceStyle, setFaceStyle] = useState<FaceStyle>("zhuwen");
+  const [view, setView] = useState<"orbit" | "top">("orbit");
+  const [exporting, setExporting] = useState(false);
+  const sceneRef = useRef<THREE.Group | null>(null);
 
   const cancelledRef = useRef(false);
 
@@ -87,6 +120,36 @@ export function Seal3DStudio() {
       cancelledRef.current = true;
     };
   }, [poll]);
+
+  /* 场景对象就绪（含印面 plane）——引用稳定防 SealModel effect 重跑 */
+  const handleSceneObject = useCallback((scene: THREE.Group) => {
+    sceneRef.current = scene;
+  }, []);
+  const handleRendered = useCallback(() => setRendered(true), []);
+
+  /* 导出合成 glb（章石+印面，GLTFExporter binary——spike 验证零膨胀） */
+  const exportGlb = useCallback(async () => {
+    const scene = sceneRef.current;
+    if (!scene || exporting) return;
+    setExporting(true);
+    try {
+      const exporter = new GLTFExporter();
+      const result = (await exporter.parseAsync(scene, { binary: true })) as ArrayBuffer;
+      const blob = new Blob([result], { type: "model/gltf-binary" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `seal-composed-${faceStyle}.glb`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setErrorDetail(err instanceof Error ? err.message : String(err));
+    } finally {
+      setExporting(false);
+    }
+  }, [exporting, faceStyle]);
 
   if (!taskId) {
     return (
@@ -179,22 +242,21 @@ export function Seal3DStudio() {
         <div className="flex flex-col gap-8">
           <figure className="flex flex-col gap-4">
             <div className="relative mx-auto aspect-square w-full max-w-[640px] overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[#e8e6e0]">
-              {/* TODO(seal-face-3d): Phase 2 印面文字叠加挂载点——在
-                  model-viewer 场景内叠印面 plane（见组件头注释） */}
-              <ModelViewer
-                src={model.model_url}
-                alt={t("seal3d.viewerAlt")}
-                onProgress={setLoadRatio}
-                onLoad={() => setRendered(true)}
-                onError={(m) => setErrorDetail(m)}
+              {/* 印面叠字落地：章石 + 崇曦印面 plane（朱白切换重建场景树）。
+                  Suspense 在 Seal3DScene 的 Canvas 内——R3F 要求边界必须在
+                  Canvas 内，放外面会让 useLoader throw 时卸载重挂 Canvas */}
+              <Seal3DScene
+                key={faceStyle}
+                glbUrl={toAssetProxyUrl(model.model_url)}
+                faceTextureUrl={FACE_TEXTURES[faceStyle]}
+                onSceneObject={handleSceneObject}
+                onRendered={handleRendered}
               />
               {!rendered && (
                 <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#efede8]">
                   <Box className="h-6 w-6 animate-pulse text-[var(--color-silver-400)]" strokeWidth={1.5} />
                   <p className="font-mono text-[11px] tracking-[0.14em] text-[var(--color-silver-500)] uppercase">
-                    {loadRatio !== null && loadRatio < 1
-                      ? `${Math.round(loadRatio * 100)}%`
-                      : t("seal3d.rendering")}
+                    {t("seal3d.rendering")}
                   </p>
                 </div>
               )}
@@ -206,6 +268,53 @@ export function Seal3DStudio() {
               <span>{t("seal3d.dragHint")}</span>
             </figcaption>
           </figure>
+
+          {/* 印面文字控制卡（朱白切换 + 导出） */}
+          <div className="flex flex-col gap-4 border-l-2 border-[var(--color-line-strong)] pl-5">
+            <span className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] text-[var(--color-silver-500)] uppercase">
+              <Type className="h-3.5 w-3.5" strokeWidth={1.5} />
+              {t("seal3d.faceLabel")}
+            </span>
+            <div className="flex flex-wrap items-center gap-3">
+              {(["top", "orbit"] as const).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  onClick={() => setView(v)}
+                  className={`btn-pill ${view === v ? "btn-pill-primary" : "btn-pill-secondary"}`}
+                  aria-pressed={view === v}
+                >
+                  {t(`seal3d.view_${v}`)}
+                </button>
+              ))}
+              {(["zhuwen", "baiwen"] as const).map((style) => (
+                <button
+                  key={style}
+                  type="button"
+                  onClick={() => {
+                    setRendered(false);
+                    setFaceStyle(style);
+                  }}
+                  className={`btn-pill ${faceStyle === style ? "btn-pill-primary" : "btn-pill-secondary"}`}
+                  aria-pressed={faceStyle === style}
+                >
+                  {t(`seal3d.face_${style}`)}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => void exportGlb()}
+                disabled={exporting || !rendered}
+                className="btn-pill btn-pill-secondary"
+              >
+                <Download className="h-4 w-4" strokeWidth={1.5} />
+                {exporting ? t("seal3d.exporting") : t("seal3d.exportGlb")}
+              </button>
+            </div>
+            <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--color-silver-400)]">
+              {t("seal3d.faceCredit")}
+            </p>
+          </div>
 
           {/* AI 声明（反冒充红线——与效果图页同款语义） */}
           <div className="flex flex-col gap-2 border-l-2 border-[var(--color-line-strong)] pl-5">

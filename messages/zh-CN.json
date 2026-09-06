@@ -641,8 +641,16 @@
     "sizeNote": "GLB · {size} MB",
     "dragHint": "拖动旋转 · 滚轮缩放",
     "aiNoticeLabel": "AI 效果声明",
-    "aiNoticeBody": "本 3D 模型由六宫格照片重建，是 AI 效果示意而非实物扫描；印面文字由标准篆字引擎另行叠加，本模型不含任何文字。",
-    "aiNoticeBody2": "石料质感与实际出货石材存在差异，定制以匠人实物加工为准。"
+    "aiNoticeBody": "本 3D 模型由六宫格照片重建，是 AI 效果示意而非实物扫描；印面文字由崇曦篆字引擎后期叠加，为示意排布而非最终镌刻效果。",
+    "aiNoticeBody2": "石料质感与实际出货石材存在差异，定制以匠人实物加工为准。",
+    "faceLabel": "印面文字",
+    "face_zhuwen": "朱文",
+    "face_baiwen": "白文",
+    "exportGlb": "导出合成 GLB",
+    "exporting": "导出中…",
+    "faceCredit": "崇曦篆体「印可道」三字印（右上→右下→左下）；印面为字体引擎后期叠加的示意排布——从印面正上方看是反字，钤印方向正确。",
+    "view_top": "正视印面",
+    "view_orbit": "全景"
   },
   "designBrief": {
     "stageLabel": "Stage 1 · Design Brief",

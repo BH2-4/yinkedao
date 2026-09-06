@@ -63,7 +63,9 @@ export function MotionReveal({
     return () => io.disconnect();
   }, [threshold]);
 
-  const Tag = as as React.ElementType;
+  /* R3F v9 扩展全局 JSX 后 ElementType 联合会退化为 children: never
+     （动态标签组件的已知冲突）——cast 到具体标签类型，运行时不变 */
+  const Tag = as as "div";
   return (
     <Tag
       ref={ref as never}
