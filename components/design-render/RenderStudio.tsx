@@ -2,12 +2,13 @@
 
 import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, RefreshCw } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { ArrowLeft, ArrowRight, Box, RefreshCw } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { decodeSealOrder, encodeSealOrder } from "@/lib/design/seal-order";
 import type { SealOrder } from "@/lib/design/seal-order";
 import type { SealRenderApiResponse } from "@/types/design-render";
+import type { Seal3dApiResponse } from "@/types/seal-3d";
 import { SealFaceProof } from "./SealFaceProof";
 
 /**
@@ -20,6 +21,7 @@ import { SealFaceProof } from "./SealFaceProof";
  */
 export function RenderStudio() {
   const { t } = useI18n();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const order: SealOrder | null = useMemo(
     () => decodeSealOrder(searchParams.toString()),
@@ -36,6 +38,10 @@ export function RenderStudio() {
   /* 失败详情（服务端 error envelope 原文）——不展示的话，网络不通、
      型号未开通、限流三种完全不同的故障在 UI 上长得一模一样。 */
   const [errorDetail, setErrorDetail] = useState<string | null>(null);
+
+  /* 3D 效果图入口状态（B 线：六宫格照片 → Meshy 建模，异步任务制） */
+  const [creating3d, setCreating3d] = useState(false);
+  const [error3d, setError3d] = useState<string | null>(null);
 
   const generate = useCallback(
     async (nextSeed: number) => {
@@ -60,6 +66,34 @@ export function RenderStudio() {
     },
     [order],
   );
+
+  /* 生成 3D 效果图：把六宫格 SVG 送服务端裁选格建 Meshy 任务，
+     成功后携 task_id 跳预览页轮询（sheet dataUrl 数 MB 不进 URL）。 */
+  const start3d = useCallback(async () => {
+    if (!order || !result || creating3d) return;
+    setCreating3d(true);
+    setError3d(null);
+    try {
+      const res = await fetch("/api/3d-model", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sheet_data_url: result.image.data_url,
+          order,
+          seed: result.image.seed,
+        }),
+      });
+      const body = (await res.json()) as Seal3dApiResponse;
+      if (!body.success) throw new Error(`${body.error} [${body.code}]`);
+      router.push(
+        `/3d-preview?task=${encodeURIComponent(body.task_id)}&${encodeSealOrder(order)}&seed=${result.image.seed}`,
+      );
+    } catch (err) {
+      setError3d(err instanceof Error ? err.message : String(err));
+    } finally {
+      setCreating3d(false);
+    }
+  }, [order, result, creating3d, router]);
 
   /* 空态：URL 无有效参数单 → 回参数单确认页 */
   if (!order) {
@@ -176,6 +210,24 @@ export function RenderStudio() {
 
           {/* 行动区 */}
           <div className="flex flex-wrap items-center gap-4 border-t border-[var(--color-line)] pt-8">
+            {/* 3D 效果图（B 线）：六宫格照片 → Meshy 异步建模 */}
+            <button
+              type="button"
+              onClick={() => void start3d()}
+              disabled={creating3d}
+              className="btn-pill btn-pill-primary"
+            >
+              <Box className="h-4 w-4" strokeWidth={1.5} />
+              {creating3d ? t("designRender.view3dCreating") : t("designRender.view3dCta")}
+              <span className="ml-1 font-mono text-[10px] text-[var(--color-silver-500)]">
+                {t("designRender.view3dNote")}
+              </span>
+            </button>
+            {error3d && (
+              <p className="max-w-md font-mono text-[11px] leading-relaxed break-all text-[var(--color-silver-500)]">
+                {t("designRender.view3dFailed")}：{error3d}
+              </p>
+            )}
             <button
               type="button"
               onClick={() => generate(seed + 1)}
