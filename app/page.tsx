@@ -8,7 +8,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useI18n } from "@/components/i18n/I18nProvider";
 import { HeroIntroScene } from "@/components/home/HeroIntroScene";
 import { JourneySection } from "@/components/journey/JourneySection";
-import { COLLECTION_URL } from "@/lib/collection-url";
+import { COLLECTION_URL, SHOW_LEGACY_COLLECTION } from "@/lib/collection-url";
 import { SEAL_3D_URL } from "@/lib/story-url";
 
 /**
@@ -272,16 +272,19 @@ function ActFive() {
               {t("common.actions.enterStudio")}
               <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
             </Link>
-            {/* 成品直购线 —— 跳转独立站，与定制线并行 */}
-            <a
-              href={COLLECTION_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-pill btn-pill-secondary"
-            >
-              {t("home.shopCollection")}
-              <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
-            </a>
+            {/* 成品直购线 —— 跳转独立站，与定制线并行。
+                苗银残留下线中（SHOW_LEGACY_COLLECTION=false），恢复时改回 true */}
+            {SHOW_LEGACY_COLLECTION && (
+              <a
+                href={COLLECTION_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-pill btn-pill-secondary"
+              >
+                {t("home.shopCollection")}
+                <ArrowUpRight className="h-4 w-4" strokeWidth={1.5} />
+              </a>
+            )}
           </div>
           <a
             href="#journey"
