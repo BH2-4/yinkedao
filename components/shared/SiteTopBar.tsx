@@ -49,8 +49,9 @@ export function SiteTopBar() {
             />
           </button>
 
-          <div className="journey-menu-panel invisible absolute left-1/2 top-full z-50 w-[340px] -translate-x-1/2 translate-y-2 pt-3 opacity-0 transition-all duration-300 ease-[var(--ease-atelier)] group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
-            <div className="border border-[var(--color-line)] bg-[rgba(4,4,5,0.96)] p-2 backdrop-blur-md">
+          {/* 宣纸底面板：与触发词左对齐，浅色描边 + 柔投影，180ms ease-out 展开 */}
+          <div className="journey-menu-panel invisible absolute left-0 top-full z-50 w-[440px] translate-y-[-4px] pt-3 opacity-0 transition-[opacity,transform] duration-[180ms] ease-out group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100">
+            <div className="border border-[rgba(20,20,20,0.12)] bg-[#FAF8F2] px-8 py-7 shadow-[0_16px_40px_rgba(20,20,20,0.10)]">
               {JOURNEY_STAGES.map((stage, i) => {
                 const active = i === journeyIndex;
                 return (
@@ -62,20 +63,31 @@ export function SiteTopBar() {
                     data-prologue={stage.prologue || undefined}
                     className="journey-menu-item group/item"
                   >
-                    <span className="font-mono text-[11px] tracking-[0.14em] text-[var(--color-silver-600)] transition-colors duration-300 group-hover/item:text-[var(--color-silver-300)]">
+                    {/* 编号 —— 朱砂红衬线，印章编号的朱批笔意 */}
+                    <span className="font-editorial text-[12px] leading-[1.6] tracking-[0.14em] text-[#9E2B22]">
                       {stage.code}
                     </span>
                     <span className="flex flex-col gap-1">
-                      <span className="text-[13px] tracking-[0.06em] text-[var(--color-silver-200)] transition-colors duration-300 group-hover/item:text-[var(--color-ivory)]">
+                      <span className="font-editorial text-[15px] tracking-[0.06em] text-[#1A1A1A]">
                         {t(stage.nameKey)}
                       </span>
-                      <span className="text-[11px] leading-relaxed text-[var(--color-silver-600)]">
+                      <span className="text-[13px] leading-relaxed text-[#6B6B66]">
                         {t(stage.descKey)}
                       </span>
                     </span>
                   </Link>
                 );
               })}
+
+              {/* 面板脚注 —— 回首页 THE JOURNEY 区块 */}
+              <div className="mt-3 border-t border-[rgba(20,20,20,0.08)] pt-4">
+                <Link
+                  href="/#journey"
+                  className="inline-block border-b border-transparent py-1 text-[12px] tracking-[0.08em] text-[#6B6B66] transition-colors duration-[180ms] ease-out hover:border-[#9E2B22] hover:text-[#9E2B22] focus-visible:text-[#9E2B22] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#9E2B22]"
+                >
+                  {t("journey.viewAll")}
+                </Link>
+              </div>
             </div>
           </div>
         </nav>

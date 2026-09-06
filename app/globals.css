@@ -1213,25 +1213,30 @@ html[data-stage="design-render"] .stage-space::after {
   }
 }
 
-/* JOURNEY 菜单 —— 顶栏 hover 展开的旅程站点面板 */
+/* JOURNEY 菜单 —— 顶栏 hover 展开的旅程站点面板（宣纸底 + 朱砂强调） */
 .journey-menu-item {
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  padding: 12px 14px;
-  border-left: 1px solid transparent;
-  transition: background-color var(--dur-hover) var(--ease-atelier),
-    border-color var(--dur-hover) var(--ease-atelier);
+  padding: 10px 14px 10px 12px;
+  border-left: 2px solid transparent;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out;
+}
+/* 条目间距：上下 padding 10+10 加 12px 外距 = 32px 视觉间距 */
+.journey-menu-item + .journey-menu-item {
+  margin-top: 12px;
 }
 .journey-menu-item:hover,
 .journey-menu-item:focus-visible {
-  background: rgba(26, 26, 26, 0.02);
-  border-left-color: rgba(231, 226, 211, 0.4);
-  outline: none;
+  background: rgba(0, 0, 0, 0.03);
+  border-left-color: #9e2b22;
+}
+.journey-menu-item:focus-visible {
+  outline: 2px solid #9e2b22;
+  outline-offset: -2px;
 }
 .journey-menu-item[data-active] {
-  background: rgba(26, 26, 26, 0.015);
-  border-left-color: var(--color-ivory);
+  border-left-color: rgba(158, 43, 34, 0.45);
 }
 
 /* ==========================================================================
