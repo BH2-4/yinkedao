@@ -47,3 +47,5 @@ test-*.png
 test-*.json
 .DS_Store
 .vercel-token
+public/blob-cache/
+tmp/
