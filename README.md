@@ -58,6 +58,10 @@ IMAGE_PROVIDER=openai-gpt-image
 OPENAI_API_KEY=
 OPENAI_BASE_URL=          # 支持中转站，如 https://tokenx24.com/v1
 
+# 3D 效果图（B 线 · 不填则 /api/3d-model 返回配置错误）
+MESHY_API_KEY=            # Meshy openapi key（msy_ 前缀）
+BLOB_READ_WRITE_TOKEN=    # @vercel/blob 读写 token（glb 转存公开桶）
+
 # 成品系列独立站地址
 NEXT_PUBLIC_COLLECTION_URL=/collection
 ```
