@@ -57,12 +57,13 @@ function curlJson(method, url, body) {
 
 /* 实测约束（2026-09-06）：multi-image-to-3d 限 1-4 张图，六格全喂会被
  * 400 拒绝（"You must provide between 1 and 4 images"）。
- * 按六格语义（specimen-sheet.ts PANEL_LABELS）选信息互补的 4 格：
- *   格1 白底正面（几何主输入）格3 低角度侧光（体积感）
- *   格5 局部特写（材质细节）  格6 整体多角度（整体校验） */
-const CELLS = ["cell-r0c0.png", "cell-r1c0.png", "cell-r2c0.png", "cell-r2c1.png"];
+ * 对齐生产 ABC 方案取 3 张（PANEL_LABELS 语义）：
+ *   A 白底正面 cell-r0c0（几何主输入）
+ *   B 低角度侧光 cell-r1c0（体积感）
+ *   C 强光透射   cell-r1c1（质地/半透明度） */
+const CELLS = ["cell-r0c0.png", "cell-r1c0.png", "cell-r1c1.png"];
 
-console.log(`\n[1] 装配 4 格输入${PROXY ? `（经代理 ${PROXY}）` : "（直连）"}`);
+console.log(`\n[1] 装配 3 格输入（ABC）${PROXY ? `（经代理 ${PROXY}）` : "（直连）"}`);
 const imageUrls = CELLS.map((name) => {
   const buf = readFileSync(resolve(IMAGE_DIR, name));
   console.log(`  · ${name}  ${(buf.length / 1024).toFixed(0)} KB`);
