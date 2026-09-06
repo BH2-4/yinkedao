@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>overlay-spike</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; background: #f5f4f0; }
+  canvas { display: block; width: 100vw; height: 80vh; }
+  #log { padding: 8px 16px; font-size: 13px; line-height: 1.8; }
+  .ok { color: #1a7f37; } .err { color: #c0392b; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="log">
+  <div id="l1">· 挂载中…</div>
+  <div id="l2">· 加载中…</div>
+  <div id="l3">· 叠层待命</div>
+  <div id="l4">· 导出待命</div>
+</div>
+<script src="/bundle.js"></script>
+</body>
+</html>
