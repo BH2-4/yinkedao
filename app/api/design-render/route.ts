@@ -3,6 +3,7 @@ import { z } from "zod";
 import { SealOrderSchema } from "@/lib/design/seal-order";
 import { buildSealImagePrompt } from "@/lib/design/seal-prompt";
 import { generateSealDesignImage } from "@/lib/ai/image-generator";
+import { composeSpecimenSheet } from "@/lib/design/specimen-sheet";
 import type { SealRenderApiResponse } from "@/types/design-render";
 
 /**
@@ -62,13 +63,23 @@ export async function POST(request: Request) {
     const prompt = buildSealImagePrompt(order);
     const image = await generateSealDesignImage({ prompt, seed });
 
+    /* 档案版面合成：生图只出无字六宫格照片，分格标签与信息栏在这里由
+       代码写上去（同「文字层」性质的确定性合成，不经过模型）。 */
+    const sheet = composeSpecimenSheet({
+      photoDataUrl: image.dataUrl,
+      order,
+      provider: image.provider,
+      model: image.model,
+      seed,
+    });
+
     const body: SealRenderApiResponse = {
       success: true,
       order,
       image_prompt: prompt,
       image: {
-        data_url: image.dataUrl,
-        mime: image.mime,
+        data_url: sheet,
+        mime: "image/svg+xml",
         provider: image.provider,
         model: image.model,
         generated_at: image.generatedAt,
@@ -78,11 +89,16 @@ export async function POST(request: Request) {
     return NextResponse.json(body, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Seal render failed.";
-    const code: ErrorCode = /timeout/i.test(message)
+    // 生图是唯一的外部依赖，失败原因（网络不通 / 型号未开通 / 限流）只有
+    // 服务端日志看得到——不记就等于把线索丢了。
+    console.error("[design-render] 生图失败:", err);
+    // 注意 SDK 抛的是 "Request timed out."（timed out，非 timeout），
+    // 只匹配 /timeout/ 会让超时被误判成 unknown。
+    const code: ErrorCode = /time[d]? ?out/i.test(message)
       ? "timeout"
-      : /rate limit/i.test(message)
+      : /rate.?limit|429/i.test(message)
         ? "rate_limited"
-        : /render/i.test(message)
+        : /render|no image data|model_not_found|connection/i.test(message)
           ? "render_failed"
           : "unknown";
     return errorResponse(message, code, 500);

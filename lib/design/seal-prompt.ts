@@ -126,40 +126,64 @@ export function buildSealImagePrompt(order: SealOrder): SealImagePrompt {
   const decor = DECOR_VISUAL[order.decoration_level] ?? DECOR_VISUAL.unknown;
   const formOthers = FORM_OTHERS[order.seal_form] ?? FORM_OTHERS.unknown;
 
-  const segments: string[] = [
-    `FORM: a single Chinese seal stone — ${formNoun}, crowned with ${finial}`,
+  /* 六宫格标本档案版面：一次生成保证六格是同一方石头（分次生成会漂）。
+     顺序必须与 lib/design/specimen-sheet.ts 的 PANEL_LABELS 逐格对应，
+     否则标签会张冠李戴——两处都留了这条注释。 */
+  const panels: string[] = [
+    "Panel 1 (top-left): front view, even soft studio light, pure white seamless background",
+    "Panel 2 (top-right): the same front view, even soft light, dark charcoal slate background",
+    "Panel 3 (middle-left): low-angle raking side light on a dark background, grazing light revealing surface relief",
+    "Panel 4 (middle-right): strong backlight transmission — a flashlight behind the stone making it glow translucent from within",
+    "Panel 5 (bottom-left): extreme macro close-up of the stone surface showing crystalline grain, veining and tiny mineral specks, shallow depth of field",
+    "Panel 6 (bottom-right): a group arrangement of the same stone photographed from four different angles on a light grey background",
+  ];
+
+  /* 石料本体描述——六格共用同一份，模型据此保持跨格一致 */
+  const subject: string[] = [
+    `THE SAME IDENTICAL STONE APPEARS IN EVERY PANEL — ${formNoun}, crowned with ${finial}`,
     `carved from ${stone}, showing ${look}`,
     `${decor}`,
-    "professional product photography, three-quarter studio view, stone centered, soft diffused lighting with gentle specular highlights",
-    "clean seamless dark neutral studio background",
   ];
 
   /* 边款氛围：只留「刻痕区域」的视觉暗示，绝不出现文字 */
   if (order.side_inscription !== "none" && order.side_inscription !== "unknown") {
-    segments.push(
+    subject.push(
       "one side face carries a narrow vertical band of fine shallow engraved lines (an uncarved inscription area, NO readable characters)",
     );
   }
 
   /* 印面区域：完整平面留白，供文字层后叠加 */
-  segments.push(
+  subject.push(
     "the bottom seal face is a clean flat polished plane left completely blank",
   );
+
+  const segments: string[] = [
+    "A photographic specimen contact sheet of ONE single Chinese seal stone, arranged as a clean 2-column by 3-row grid of six separate photographs separated by thin white gutters, each photograph filling its cell edge to edge",
+    ...subject,
+    ...panels,
+    "sharp product photography, high detail, neutral and consistent color across all six panels",
+  ];
 
   const constraints = [
     // 质感层/文字层分离第一道闸（PRD 8.1 架构说明）
     "NO TEXT RULE: the stone must be completely free of any characters, letters, numerals, seal script, calligraphy or readable engraving — text layers are composited later by a deterministic font engine",
+    // 档案版面第二道闸：标签栏与信息栏由 specimen-sheet.ts 用代码写上去，
+    // 模型画的任何文字都会与真标签重叠，必须全域禁止
+    "NO LABELS RULE: do not draw any panel labels, captions, titles, borders with text, measurement scales, rulers, coins or watermarks anywhere in the grid — the sheet is annotated later in code",
     "no symbolic or cultural meaning should be depicted; the stone is a material object only",
     "present as a contemporary custom design concept, not a replica of any historical artifact",
   ];
 
   const negative: string[] = [
-    "any characters, letters, Chinese seal script, calligraphy, inscriptions or text of any kind",
+    "any characters, letters, numbers, Chinese seal script, calligraphy, inscriptions or text of any kind",
     "readable engraved writing on any face",
+    "panel labels, captions, titles, annotations, measurement scales, rulers or coins",
     "human hands, face or model",
     "complex scene, busy background",
     "gold, jade jewelry, beads or beads-string",
-    "multiple stones (exactly one seal stone)",
+    // 注意：不能禁「多颗石头」——第 6 格就是同一方石头的多角度合影。
+    // 要禁的是「不同的石头」，即六格之间石头本体发生变化。
+    "a different stone in different panels, mismatched colour or pattern between panels",
     "watermark",
     "logo",
   ];

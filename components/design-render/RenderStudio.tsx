@@ -33,11 +33,15 @@ export function RenderStudio() {
     Extract<SealRenderApiResponse, { success: true }> | null
   >(null);
   const [seed, setSeed] = useState(1);
+  /* 失败详情（服务端 error envelope 原文）——不展示的话，网络不通、
+     型号未开通、限流三种完全不同的故障在 UI 上长得一模一样。 */
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
 
   const generate = useCallback(
     async (nextSeed: number) => {
       if (!order) return;
       setPhase("generating");
+      setErrorDetail(null);
       try {
         const res = await fetch("/api/design-render", {
           method: "POST",
@@ -45,11 +49,12 @@ export function RenderStudio() {
           body: JSON.stringify({ order, seed: nextSeed }),
         });
         const body = (await res.json()) as SealRenderApiResponse;
-        if (!body.success) throw new Error(body.error);
+        if (!body.success) throw new Error(`${body.error} [${body.code}]`);
         setResult(body);
         setSeed(nextSeed);
         setPhase("done");
-      } catch {
+      } catch (err) {
+        setErrorDetail(err instanceof Error ? err.message : String(err));
         setPhase("error");
       }
     },
@@ -118,6 +123,11 @@ export function RenderStudio() {
         <div className="flex flex-col items-start gap-5 border-t border-[var(--color-line)] pt-10">
           <h3 className="act-title text-[22px]">{t("designRender.errorInterrupted")}</h3>
           <p className="act-body max-w-lg">{t("designRender.errorBody")}</p>
+          {errorDetail && (
+            <p className="max-w-lg font-mono text-[11px] leading-relaxed break-all text-[var(--color-silver-500)]">
+              {errorDetail}
+            </p>
+          )}
           <button
             type="button"
             onClick={() => generate(seed)}

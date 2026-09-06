@@ -496,6 +496,32 @@ export interface SealImageRequest {
 const SEAL_REFERENCE_DIR = path.join(process.cwd(), "public", "seal-references");
 
 /**
+ * 生图模型名（env 可换，不改代码）。
+ *
+ * 官方端点用 `gpt-image-2`；走中转站时按其型号表填——例如 DMXAPI 推荐
+ * `gpt-image-2-ssvip`（更稳更快）。注意各中转站开通的型号不同：同一个
+ * key 上 `gpt-image-2` 可用而 `gpt-image-1` 返回 model_not_found 是常态，
+ * 换站必先验型号。
+ */
+function getImageModel(): string {
+  return process.env.IMAGE_MODEL?.trim() || "gpt-image-2";
+}
+
+/**
+ * 生图请求超时。必须 ≤ 路由的 maxDuration（见 app/api/design-render/route.ts），
+ * 否则线上函数先被平台杀掉，SDK 还在空等，客户端只能收到平台的超时页而非
+ * 我们的 typed error envelope。
+ */
+const IMAGE_TIMEOUT_MS = Number(process.env.IMAGE_TIMEOUT_MS) || 55_000;
+
+/**
+ * 标本档案版面尺寸：2 列 × 3 行、单格 512²，故为竖版 1024×1536。
+ * 必须与 lib/design/specimen-sheet.ts 的 PHOTO_W/PHOTO_H 一致——
+ * 标签是按格网坐标绝对定位的，尺寸对不上标签就会错位。
+ */
+const SHEET_SIZE = "1024x1536" as const;
+
+/**
  * 形制 → 参考图目录（forms/ 章型钮制 + craftsmanship/ 工艺特写必附）。
  * materials/<石种> 目录属 M1 石料照片库（待采购拍摄）；缺失时降级到
  * forms+craftsmanship，再缺失走纯文本生成（同模型）。
@@ -527,16 +553,20 @@ async function pickSealReferences(
   }
   if (candidates.length === 0) return [];
 
+  /* 步长与候选数互质才能不重复取样：原先固定步长 3 在候选数为 3 的倍数时
+     （freeform = freeform 1 张 + bask-relief 2 张）三次全落同一张图，
+     等于把「三张参考图」退化成一张。 */
   const count = Math.min(3, candidates.length);
+  const step = candidates.length % 3 === 0 ? 1 : 3;
   const start = seed % candidates.length;
   const picked: string[] = [];
   for (let i = 0; i < count; i++) {
-    picked.push(candidates[(start + i * 3) % candidates.length]);
+    picked.push(candidates[(start + i * step) % candidates.length]);
   }
   return picked;
 }
 
-/** 印章质感层生成入口（gpt-image-2 参考图编辑 / mock 章型 SVG）。 */
+/** 印章质感层生成入口（gpt-image 参考图编辑 / mock 章型 SVG）。 */
 export async function generateSealDesignImage(
   request: SealImageRequest,
 ): Promise<DesignImageResult> {
@@ -566,10 +596,11 @@ async function generateSealViaGptImage(
 
   const fullPrompt = `${referenceIntro} ${prompt.prompt} Do not add these elements: ${prompt.negative_prompt}.`;
 
+  const model = getImageModel();
   const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
     baseURL: process.env.OPENAI_BASE_URL || undefined,
-    timeout: 180_000,
+    timeout: IMAGE_TIMEOUT_MS,
   });
 
   const referencePaths = await pickSealReferences(
@@ -579,18 +610,18 @@ async function generateSealViaGptImage(
 
   if (referencePaths.length === 0) {
     const response = await openai.images.generate({
-      model: "gpt-image-2",
+      model,
       prompt: fullPrompt,
       n: 1,
-      size: "1024x1024",
+      size: SHEET_SIZE,
     });
     const b64 = response.data?.[0]?.b64_json;
-    if (!b64) throw new Error("gpt-image-2 returned no image data.");
+    if (!b64) throw new Error(`${model} returned no image data.`);
     return {
       dataUrl: `data:image/png;base64,${b64}`,
       mime: "image/png",
       provider: "openai-gpt-image",
-      model: "gpt-image-2",
+      model,
       generatedAt: new Date().toISOString(),
     };
   }
@@ -602,20 +633,20 @@ async function generateSealViaGptImage(
   );
 
   const response = await openai.images.edit({
-    model: "gpt-image-2",
+    model,
     image: files,
     prompt: fullPrompt,
     n: 1,
-    size: "1024x1024",
+    size: SHEET_SIZE,
   });
 
   const b64 = response.data?.[0]?.b64_json;
-  if (!b64) throw new Error("gpt-image-2 returned no image data for the seal render.");
+  if (!b64) throw new Error(`${model} returned no image data for the seal render.`);
   return {
     dataUrl: `data:image/png;base64,${b64}`,
     mime: "image/png",
     provider: "openai-gpt-image",
-    model: "gpt-image-2",
+    model,
     generatedAt: new Date().toISOString(),
   };
 }
@@ -729,34 +760,61 @@ function renderSealMockSvg({ prompt, seed }: SealImageRequest): string {
     `<ellipse cx="${cx}" cy="${faceY + 26}" rx="${bw * 0.52}" ry="14" fill="rgba(60,58,52,0.14)"/>`,
   );
 
-  const info = [
-    `FORM ${escapeXml(form.seal_form.toUpperCase())}`,
-    `FINIAL ${escapeXml(form.finial_type.toUpperCase())}`,
-    `STONE ${escapeXml(stone.stone_type.toUpperCase())} · ${escapeXml(stone.stone_look.toUpperCase())}`,
-    `DECOR ${escapeXml(decoration.decoration_level.toUpperCase())}`,
-  ].join("  ·  ");
+  /* 六宫格版面：把上面画好的单方章体（1024² 坐标系）实例化进 6 个
+     512² 格，各格换背景与取景，复刻标本档案的六种拍法。尺寸与格网
+     必须对齐 SHEET_SIZE 与 specimen-sheet.ts 的 PHOTO_W/PHOTO_H——
+     标签是按格网绝对定位的。文字一律不画（交给合成层）。 */
+  const body = piece.join("\n    ");
+  const CELL = 512;
 
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" role="img">
+  /** 单格：背景 + 章体（scale 把 1024² 缩进 512² 格） */
+  const cellMarkup = (
+    col: number,
+    row: number,
+    bg: string,
+    inner: string,
+  ) => `  <g clip-path="url(#cell)" transform="translate(${col * CELL},${row * CELL})">
+    <rect width="${CELL}" height="${CELL}" fill="${bg}"/>
+    ${inner}
+  </g>`;
+
+  const stoneAt = (scale: number, dx = 0, dy = 0) =>
+    `<g transform="translate(${dx},${dy}) scale(${scale * 0.5})">\n    ${body}\n    </g>`;
+
+  const cells = [
+    // A 白底 / A 黑底 / B 侧光（深底，章体偏移模拟斜光）
+    cellMarkup(0, 0, "#ffffff", stoneAt(1)),
+    cellMarkup(1, 0, "#2a2c2e", stoneAt(1)),
+    cellMarkup(0, 1, "#1c1e20", stoneAt(1, -18, 8)),
+    // C 强光透射：深底 + 石体后方一团高光
+    cellMarkup(
+      1,
+      1,
+      "#141618",
+      `<ellipse cx="${CELL / 2}" cy="${CELL / 2}" rx="150" ry="170" fill="rgba(255,240,190,0.5)"/>${stoneAt(1)}`,
+    ),
+    // D 局部特写：放大到只见质地
+    cellMarkup(0, 2, stopB, stoneAt(3.1, -430, -520)),
+    // 多角度：同一方章体的三个小副本
+    cellMarkup(
+      1,
+      2,
+      "#eceae5",
+      `${stoneAt(0.52, 40, 30)}${stoneAt(0.52, 210, 30)}${stoneAt(0.52, 125, 200)}`,
+    ),
+  ];
+
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${CELL * 2}" height="${CELL * 3}" viewBox="0 0 ${CELL * 2} ${CELL * 3}" role="img">
   <defs>
-    <radialGradient id="bg" cx="50%" cy="40%" r="82%">
-      <stop offset="0%" stop-color="#faf8f3"/>
-      <stop offset="100%" stop-color="#efeadf"/>
-    </radialGradient>
+    <clipPath id="cell"><rect width="${CELL}" height="${CELL}"/></clipPath>
     <linearGradient id="stone" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="${stopA}"/>
       <stop offset="55%" stop-color="${stopB}"/>
       <stop offset="100%" stop-color="${stopC}"/>
     </linearGradient>
   </defs>
-  <rect width="${W}" height="${H}" fill="url(#bg)"/>
-  ${piece.join("\n  ")}
-  <g font-family="ui-monospace, monospace" text-anchor="middle">
-    <text x="${cx}" y="${H - 116}" font-size="18" letter-spacing="6" fill="#1a1a1a">AI 效果示意 · 素坯质感层</text>
-    <text x="${cx}" y="${H - 86}" font-size="13" letter-spacing="2" fill="#8a8f98">印面文字由标准篆字引擎另行叠加 · 本层无任何文字</text>
-    <text x="${cx}" y="${H - 60}" font-size="11" letter-spacing="1.5" fill="#86868b">${info}</text>
-    <text x="${cx}" y="${H - 36}" font-size="11" letter-spacing="2" fill="#a1a1a6">非实物 · 不代表任何真实藏品</text>
-  </g>
+${cells.join("\n")}
 </svg>`;
 
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  return `data:image/svg+xml;base64,${Buffer.from(svg, "utf8").toString("base64")}`;
 }
