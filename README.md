@@ -69,4 +69,4 @@ DEMO_MODE=true IMAGE_PROVIDER=mock OPENAI_API_KEY= \
 
 ## 线上地址
 
-https://randomplayx.com （Vercel 部署，project: randomplayx-engine）
+https://yinkedao.eurekadelta.com （Vercel 部署，别名 yinkedao.vercel.app）
