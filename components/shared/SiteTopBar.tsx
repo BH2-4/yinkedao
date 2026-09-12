@@ -2,10 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { BrandMark } from "@/components/shared/BrandMark";
 import { useI18n } from "@/components/i18n/I18nProvider";
-import { COLLECTION_URL, SHOW_LEGACY_COLLECTION } from "@/lib/collection-url";
 import {
   JOURNEY_STAGES,
   stageIndexFromPathname,
@@ -14,8 +13,8 @@ import {
 /**
  * 全局顶部导航条 — 博物馆 / 高级设计工作室风。
  *
- * 左品牌字标 / 中 JOURNEY（hover 展开旅程站点下拉）/ 右成品系列、
- * 关于与语言切换。极轻、极静，不与页面内容争夺注意力。
+ * 左品牌字标 / 中 JOURNEY（hover 展开旅程站点下拉）/ 右语言切换。
+ * 极轻、极静，不与页面内容争夺注意力。
  */
 export function SiteTopBar() {
   const pathname = usePathname();
@@ -91,40 +90,6 @@ export function SiteTopBar() {
             </div>
           </div>
         </nav>
-
-        <div className="flex items-center gap-7">
-          {/* 成品直购线 —— 跳转独立站，与定制线并行。
-              苗银残留下线中（SHOW_LEGACY_COLLECTION=false），恢复时改回 true */}
-          {SHOW_LEGACY_COLLECTION && (
-            <a
-              href={COLLECTION_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group hidden items-center gap-1.5 border-b border-transparent pb-0.5 text-[13px] tracking-[0.16em] text-[var(--color-silver-300)] uppercase transition-colors duration-300 hover:border-[var(--color-silver-300)] hover:text-[var(--color-ivory)] sm:inline-flex"
-            >
-              {t("common.collectionLabel")}
-              <ArrowUpRight
-                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                strokeWidth={1.5}
-              />
-            </a>
-          )}
-          {/* 关于 —— 指向成品站的工坊介绍页（苗银残留，同开关下线） */}
-          {SHOW_LEGACY_COLLECTION && (
-            <a
-              href="/collection/about/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group hidden items-center gap-1.5 border-b border-transparent pb-0.5 text-[13px] tracking-[0.16em] text-[var(--color-silver-300)] uppercase transition-colors duration-300 hover:border-[var(--color-silver-300)] hover:text-[var(--color-ivory)] sm:inline-flex"
-            >
-              {t("common.navAbout")}
-              <ArrowUpRight
-                className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                strokeWidth={1.5}
-              />
-            </a>
-          )}
-        </div>
       </div>
     </div>
   );
