@@ -15,15 +15,20 @@
 - 五维度访谈 + 六宫格真图（DMXAPI gpt-image-2-ssvip，maxDuration 300 + 240s 超时 + 502 重试，实测 34.5s–240.3s）
 - materials/ 石料实拍参考图接线（按石种文件名命中置顶参考位）
 - 旅程下拉宣纸朱砂化 + 苗银残留全入口下线（6e0df7d）
-- F 批清理（本批）：删 108MB 银饰资产、heritage 切 SealCulture 数据、删银饰死代码管线、README 重写——**以 git log 最新提交为准核对本批是否完成推送**
+- F 批清理（**已完成并上线**，ed8f319→7732fa5 共 5 提交）：删 108MB 银饰资产、heritage 切 SealCulture 数据（verify 348/348）、删银饰死代码管线、README 重写。铁证：线上 `/collection` 返回 404
 - 断链修复：效果图页「返回参数单」改指 /design-brief（cbe7dd5）
+- **崇曦字体已入库 main**（779bcf6）：assets/fonts/chongxi/ 三文件（otf 21.2MB + License.jpg + 说明.txt），clone 即得
 
-### 分支池（均未合 main）
+### 分支池（均未合 main；worktree 路径是原机器概念，新机直接 `git checkout <分支>` 即可）
 | 分支 | 内容 | 去向 |
 |---|---|---|
-| feature/3d-production（10 提交，worktree ~/yinkedao-3d） | Meshy 3D 管线全套（见 §2.1） | **下一个上线动作** |
+| feature/3d-production（10 提交） | Meshy 3D 管线全套（见 §2.1） | **下一个上线动作** |
 | feature/chongxi-mainline（4 提交） | 崇曦字体 Phase 1（服务端渲染+双栈+OpenCC，29 断言绿） | Phase 2 完成后合（见 §2.2） |
 | feature/3d-pipeline-spike | 早期 spike 留档 | 不合，可于稳定后删 |
+
+### 已知遗留（原机器权限所限未完成）
+- `.env.example` 三处待手改（原机 `.env*` 文件被 deny 权限拦，所有 agent 改不了）：①首行 `# Silver Forged Gui — Global Demand Engine V1` → `# 印可道 — AI 篆刻定制` ②删 NEXT_PUBLIC_COLLECTION_URL 段（约 L59-66）③IMAGE_TIMEOUT_MS 注释「maxDuration 当前 60s」改为实际 240s/300s。新机若无此权限限制可顺手补
+- Vercel env 配置方法：vercel CLI（`vercel env add MESHY_API_KEY production`）或 dashboard 手动；配完 env 后 push 才会带上（env 变更不触发已开始的构建）
 
 ### 架构铁律（PRD 8.1）
 质感层/文字层分离：Meshy 只碰石料材质与几何，**印面文字永不进 Meshy**（无法指定面、会烘焙全身），一律字体引擎后期叠加。
@@ -49,7 +54,7 @@
 ### 2.2 崇曦字体 Phase 2（4-6 人日，产品核心承诺）
 
 Phase 1 已冻结在 feature/chongxi-mainline。待办：
-1. **字体入库**：chongxi_seal.otf（21.2MB，TrueType glyf）直接入 git（已拍板不用 git-lfs），从 ~/seal-ai-hackathon/fonts/chongxi/ 迁入 assets/fonts/chongxi/（含 License.jpg）。入库后新机器 clone 即得，免去迁移
+1. ~~字体入库~~ **已完成**（main 779bcf6，assets/fonts/chongxi/）；注意：chongxi 分支上该目录原被其 .gitignore 暂缓，合流时若 .gitignore 冲突以 main（已入库）为准
 2. 视觉调参两实证改进点（第三方视觉复核结论，agent 自验曾过度自信）：**斑驳质感基本缺席**（需加做旧效果）、**留白过紧**（字贴框一线之隔，墨迹盒 88% 已是 3D 贴图侧的修正值，印蜕侧同步）
 3. 「劉雨茜」第三字识读分歧（视觉模型读「蒼」，文件名是「茜」）——**请用户人眼裁定** /tmp/chongxi-visual/劉雨茜-zhuwen.svg.png（若原机器 /tmp 已失，用分支内崇曦链路重新生成同名样本）
 4. 切默认栈：`SEAL_FONT_STACK=chongxi`（现默认 yishan 峄山碑；峄山碑降为应急回退）
@@ -88,7 +93,7 @@ heritage 三件套（match/guardrail/evidence）已切 SealCulture-v1 篆刻数�
 | Vercel 部署 token | ~/yinkedao/.vercel-token | 用户重新生成或 vercel CLI 登录；RELEASE-SOP.md 有用法（**任何输出禁回显明文**） |
 | Meshy key | ~/seal-ai-hackathon/tools/meshy.key | 用户拷贝；上线 2.1 前必须就位 |
 | DMXAPI key | ~/seal-ai-hackathon/tools/dmxapi.key | 线上 env 已配（本地开发才需要） |
-| 崇曦字体 | ~/seal-ai-hackathon/fonts/chongxi/ | 2.2 入库 git 后 clone 即得；入库前需拷贝 |
+| 崇曦字体 | ~~需迁移~~ | **已入库 main（779bcf6），clone 即得** |
 | ~/seal-ai-hackathon/ 资产库 | gen-samples 样图 / 3d篆章 / 篆刻资料库 / tools | 大项，用户整体拷贝（约 300MB+） |
 | blob store | i5y1y4ahjeuoicd3（公开桶） | 无需迁移，URL 直用 |
 
