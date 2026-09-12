@@ -1,6 +1,7 @@
-# 印可道 · 交接计划书（plan.md）
+# 印可道 · 交接计划书（keplan.md）
 
 > 生成于 2026-09-12，供另一台电脑的 agent 接手。本文件自足：不需要原机器的会话记忆即可继续工作。
+> **交接模式（用户拍板）：只开发，不部署**——不 push main、不配 Vercel env、不触发上线、不花线上 credits。线上停在当前干净稳定版（F 批清理后，/collection 404），不受开发影响。
 > 仓库：github.com/BH2-4/yinkedao（PUBLIC，origin=新仓，upstream=SilverForgedGui 保留作 fork 溯源）
 > 线上：https://yinkedao.eurekadelta.com（Vercel 自动部署，push main 即触发）
 > PRD：飞书 https://cosmiclinks.feishu.cn/docx/V4JTdkArhoGl0axBoX9czp4Vnrg（v0.4 进度看板版，原地迭代）
@@ -19,10 +20,10 @@
 - 断链修复：效果图页「返回参数单」改指 /design-brief（cbe7dd5）
 - **崇曦字体已入库 main**（779bcf6）：assets/fonts/chongxi/ 三文件（otf 21.2MB + License.jpg + 说明.txt），clone 即得
 
-### 分支池（均未合 main；worktree 路径是原机器概念，新机直接 `git checkout <分支>` 即可）
+### 分支池（均未合 main，**已全部推上远端**，clone 即得；worktree 路径是原机器概念，新机直接 `git checkout <分支>` 即可）
 | 分支 | 内容 | 去向 |
 |---|---|---|
-| feature/3d-production（10 提交） | Meshy 3D 管线全套（见 §2.1） | **下一个上线动作** |
+| feature/3d-production（10 提交） | Meshy 3D 管线全套（见 §2.1） | 开发迭代（上线留待用户拍板） |
 | feature/chongxi-mainline（4 提交） | 崇曦字体 Phase 1（服务端渲染+双栈+OpenCC，29 断言绿） | Phase 2 完成后合（见 §2.2） |
 | feature/3d-pipeline-spike | 早期 spike 留档 | 不合，可于稳定后删 |
 
@@ -35,9 +36,9 @@
 
 ## 2. 剩余工作（按优先级）
 
-### 2.1 3D 管线第二波上线（第一优先，用户已多次催促 3D）
+### 2.1 3D 管线第二波上线（代码就绪，**上线动作留待用户拍板**——交接模式为只开发不部署）
 
-代码全部就绪于 feature/3d-production，端到端已验证（含印面叠字与漂移修复）。步骤：
+代码全部就绪于 feature/3d-production，端到端已验证（含印面叠字与漂移修复）。开发迭代继续在该分支；上线时步骤：
 
 1. **配 env 先于 push**：`MESHY_API_KEY`（值问用户要，或从原机器 ~/seal-ai-hackathon/tools/meshy.key 迁移）→ Vercel project env（target=production）。`BLOB_READ_WRITE_TOKEN` 已随 blob store 连接存在勿动；`OUTBOUND_PROXY_URL` **不要配**（Vercel 直连即通，那只是本地调试用的）
 2. 合并：主仓 `git checkout main && git merge --no-ff feature/3d-production`
@@ -118,8 +119,9 @@ heritage 三件套（match/guardrail/evidence）已切 SealCulture-v1 篆刻数�
 - 中文回复与代码注释
 - 召回词：用户说「篆刻黑客松」或「印可道」调出项目记忆；「3D 生产化」「启动崇曦」是历史召回词（对应 §2.1/§2.2）
 
-## 6. 接手第一步（建议序列）
+## 6. 接手第一步（只开发不部署模式）
 
-1. `git log --oneline -10` + 线上三站 curl 核对 §1 状态（确认 F 批已推齐）
-2. 问用户两件事：Meshy key 是否已迁移（2.1 前置）、3D 是否直接线上验收（原机器 3001 预览已不可达，建议改「先上线后线上验」，分支留档可回滚）
-3. 执行 §2.1 第二波上线
+1. `git clone` + `git log --oneline -10` 核对 §1 状态（main=bfd52c1 或更新，三分支在远端）
+2. 本地开发就绪：`npm install` → `.env.local` 配 Meshy/DMXAPI key（问用户要）→ `npm run dev`（Turbopack 注意 §4.4）
+3. 在 feature/3d-production 上继续开发迭代；**禁止**：push main、配 Vercel env、触发部署、花线上 credits（本地测试调 Meshy 前先问用户）
+4. 上线（§2.1）只在做完用户认可的验收后、且用户明确说「上线」时执行
