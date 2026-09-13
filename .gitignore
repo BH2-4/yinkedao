@@ -40,6 +40,8 @@ next-env.d.ts
 .vscode/
 .idea/
 
+# 崇曦原始字体及授权说明已入库；运行时仅向浏览器发送渲染结果。
+
 # local test artifacts
 .test-render/
 _patch_render.mjs

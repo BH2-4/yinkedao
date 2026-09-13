@@ -10,18 +10,28 @@ import {
   parseSealText,
 } from "@/lib/seal-face/layout";
 import type { Fleck } from "@/lib/seal-face/layout";
+import type { SealFontStack } from "@/lib/seal-face/font-stack";
+import { ChongxiSealView } from "./ChongxiSealView";
 
 /**
- * 小篆印蜕渲染器（文字层 · 客户端组件）。
+ * 小篆印蜕渲染器（文字层 · 客户端组件 · FONT_STACK 双源）。
  *
- * 渲染逻辑 ported from JackerKun/XiaoZhuan (MIT)：DOM + CSS 字体渲染
- * （峄山碑篆体 woff2 unicode-range 分片，浏览器按需加载）+ canvas
- * measureText 真实墨迹边界紧凑排布 + SVG 斑驳层。
- * 字序映射已按 PRD 05 改为传统读序（lib/seal-face/layout.ts）。
+ * 双栈分流（INTEGRATION-CHONGXI.md §5.1）：
+ *   - yishan（峄山碑 demo 栈，默认）：DOM + CSS 字体渲染（woff2
+ *     unicode-range 分片浏览器按需加载）+ canvas measureText 真实
+ *     墨迹边界紧凑排布 + SVG 斑驳层。渲染逻辑 ported from
+ *     JackerKun/XiaoZhuan (MIT)；字序按 PRD 05 传统读序。
+ *   - chongxi（崇曦正式栈）：服务端取形拼 SVG（路线 A），本组件渲染
+ *     /api/seal-face 返回的 dataUrl（ChongxiSealView）——客户端永不
+ *     见字体文件，简繁前置映射在服务端完成。
+ *
+ * 两栈共享排布层（lib/seal-face/layout.ts）与控件（文本/朱白/斑驳/
+ * 错落/seed）——同一组件两种数据源，视觉规格逐一对齐。
  *
  * 本组件是印蜕视图（钤印效果）：白文=红底纸字、朱文=红字纸底——
  * 不涉及印面视图的字形镜像（那是刻制视角，M6 规格另定）。
- * 缺字如实告知：按字体 unicodeRange 检查，绝不造字。
+ * 缺字如实告知：yishan 按字体 unicodeRange 检查；chongxi 按服务端
+ * cmap 查询结果——两栈均绝不造字。
  */
 
 const FONT_FAMILY = "峄山碑篆体";
@@ -133,9 +143,11 @@ interface SealFaceProofProps {
   initialText: string;
   /** 参数单朱白倾向：baiwen/zhuwen/recommend */
   initialStyle: string;
+  /** 字体栈（服务端 page 层经回退链解析后传入；默认 yishan demo 栈） */
+  fontStack?: SealFontStack;
 }
 
-export function SealFaceProof({ initialText, initialStyle }: SealFaceProofProps) {
+export function SealFaceProof({ initialText, initialStyle, fontStack = "yishan" }: SealFaceProofProps) {
   const { t } = useI18n();
   const [text, setText] = useState(initialText);
   const [isWhite, setIsWhite] = useState(initialStyle !== "zhuwen"); // 默认白文（印蜕饱满）
@@ -154,15 +166,17 @@ export function SealFaceProof({ initialText, initialStyle }: SealFaceProofProps)
   );
   const wear = useMemo(() => generateFlecks(seed), [seed]);
 
-  /* 缺字检测（字体分片元数据到达后由 fontsReady 触发重算——useMemo 派生，无 effect 级联） */
+  /* 缺字检测（yishan 栈：字体分片元数据到达后由 fontsReady 触发重算；
+     chongxi 栈：由服务端 cmap 查询结果带回，ChongxiSealView 内展示） */
   const [fontsReady, setFontsReady] = useState(false);
   useEffect(() => {
+    if (fontStack !== "yishan") return;
     document.fonts.ready.then(() => setFontsReady(true));
-  }, []);
+  }, [fontStack]);
   const missing = useMemo(() => {
-    if (!fontsReady || !chars) return [] as string[];
+    if (fontStack !== "yishan" || !fontsReady || !chars) return [] as string[];
     return [...new Set(chars.filter((c) => !isCharSupported(c)))];
-  }, [chars, fontsReady]);
+  }, [fontStack, chars, fontsReady]);
 
   const shuffle = useCallback(() => setSeed((s) => s + 1), []);
 
@@ -228,8 +242,17 @@ export function SealFaceProof({ initialText, initialStyle }: SealFaceProofProps)
         )}
       </div>
 
-      {/* 印蜕展示 */}
+      {/* 印蜕展示（双源分流：chongxi=服务端 SVG / yishan=客户端 DOM） */}
       <div className="flex flex-wrap items-start gap-10">
+        {fontStack === "chongxi" ? (
+          <ChongxiSealView
+            text={text}
+            isWhite={isWhite}
+            texture={texture}
+            freedom={freedom}
+            seed={seed}
+          />
+        ) : (
         <div className="seal-proof-paper">
           <div
             className={`seal-proof ${isWhite ? "white-style" : "red-style"} ${texture ? "" : "clean"}`}
@@ -264,6 +287,7 @@ export function SealFaceProof({ initialText, initialStyle }: SealFaceProofProps)
             {texture && <WearLayer flecks={wear.flecks} edges={wear.edges} />}
           </div>
         </div>
+        )}
 
         {/* 控制区 */}
         <div className="flex w-56 flex-col gap-4">
@@ -312,9 +336,11 @@ export function SealFaceProof({ initialText, initialStyle }: SealFaceProofProps)
             <RefreshCw className="h-3.5 w-3.5" strokeWidth={1.5} />
             {t("designRender.sealFaceShuffle")}
           </button>
-          {/* 字体来源标注（授权合规：产出物标注来源） */}
+          {/* 字体来源标注（授权合规：产出物标注来源——两栈各署其源） */}
           <p className="border-t border-[var(--color-line)] pt-3 text-[10px] leading-relaxed text-[var(--color-silver-600)]">
-            {t("designRender.sealFaceFontCredit")}
+            {fontStack === "chongxi"
+              ? t("designRender.sealFaceFontCreditChongxi")
+              : t("designRender.sealFaceFontCredit")}
           </p>
         </div>
       </div>
