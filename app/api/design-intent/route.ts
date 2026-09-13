@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import Anthropic from "@anthropic-ai/sdk";
-import {
-  getAiMaxTokens,
-  getAiModel,
-  getAiTimeoutMs,
-  getAnthropicApiKey,
-  isDemoMode,
-} from "@/lib/env";
+import { isDemoMode } from "@/lib/env";
+import { generateInterviewContext } from "@/lib/ai/text-client";
 import {
   INTENT_SYNTHESIS_SYSTEM_PROMPT,
   OUTPUT_LANGUAGE_NAMES,
@@ -24,23 +18,15 @@ import {
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 const RequestBodySchema = z.object({
   answers: InterviewAnswersSchema,
 });
 
 const AiContextSchema = z.object({
-  user_context: z.string().min(1).max(400),
+  user_context: z.string().min(1).max(200),
 });
-
-/** Anthropic 返回块 → 纯文本 */
-function extractText(blocks: Anthropic.ContentBlock[]): string {
-  return blocks
-    .filter((b): b is Anthropic.TextBlock => b.type === "text")
-    .map((b) => b.text)
-    .join("\n")
-    .trim();
-}
 
 /** 宽容提取首个顶层 JSON 对象（与 anthropic provider 同策略） */
 function firstJsonObject(text: string): string | null {
@@ -116,45 +102,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ intent: baseIntent, source: "rule" as const });
   }
 
-  const apiKey = getAnthropicApiKey();
-  if (!apiKey) {
-    return NextResponse.json({ intent: baseIntent, source: "rule" as const });
-  }
-
   // AI 润色 user_context（其余字段由规则引擎闭合，不接受 AI 修改）
   try {
-    const client = new Anthropic({
-      apiKey,
-      timeout: getAiTimeoutMs(),
-      maxRetries: 1,
-    });
-
-    const response = await client.messages.create({
-      model: getAiModel(),
-      max_tokens: getAiMaxTokens(),
-      system: INTENT_SYNTHESIS_SYSTEM_PROMPT,
-      messages: [
-        {
-          role: "user",
-          content: `访谈答案（JSON）：${JSON.stringify(answers)}\n输出语言：${OUTPUT_LANGUAGE_NAMES[locale] ?? "简体中文"}`,
-        },
-      ],
-    });
-
-    const raw = extractText(response.content);
+    const raw = await generateInterviewContext(INTENT_SYNTHESIS_SYSTEM_PROMPT, `访谈答案（JSON）：${JSON.stringify(answers)}\n输出语言：${OUTPUT_LANGUAGE_NAMES[locale] ?? "简体中文"}`);
     const jsonSlice = firstJsonObject(raw);
     if (!jsonSlice) throw new Error("响应中未找到 JSON");
 
     const { user_context } = AiContextSchema.parse(JSON.parse(jsonSlice));
 
     // 文化护栏：命中即回退规则模板
-    const safeContext = containsCulturalClaims(user_context)
-      ? baseIntent.user_context
-      : user_context;
+    if (containsCulturalClaims(user_context)) {
+      return NextResponse.json({ intent: baseIntent, source: "rule" as const });
+    }
 
     const finalIntent = UserDesignIntentSchema.parse({
       ...baseIntent,
-      user_context: safeContext,
+      user_context,
     });
 
     return NextResponse.json({

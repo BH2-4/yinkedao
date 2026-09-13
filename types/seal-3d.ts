@@ -26,6 +26,8 @@ export type Seal3dCreateResponse = {
   status: Extract<Seal3dTaskStatus, "PENDING" | "IN_PROGRESS">;
   /** 建议的下一次轮询间隔（毫秒）；Meshy 实测约 96s 出模 */
   poll_after_ms: number;
+  kind?: "model" | "retexture";
+  cached?: boolean;
 };
 
 /** GET /api/3d-model/{task_id} 成功响应（未终态 / 已完成） */
@@ -57,6 +59,9 @@ export type Seal3dErrorResponse = {
   error: string;
   code:
     | "invalid_input"
+    | "generation_disabled"
+    | "creation_in_progress"
+    | "creation_uncertain"
     | "meshy_unauthorized"
     | "meshy_insufficient_credits"
     | "meshy_rate_limited"

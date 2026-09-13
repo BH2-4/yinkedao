@@ -23,9 +23,7 @@ import * as opentype from "opentype.js";
 /**
  * 崇曦 OTF 路径解析：env 覆写 → 仓库内默认位置。
  *
- * 字体文件不入 git（.gitignore /assets/fonts/——安置方式待决）：
- * 缺文件时本模块返回不可用，font-stack.ts 据此回退峄山碑栈——
- * demo 永不断。
+ * 原始字体及许可附件已入库；缺文件时由 font-stack.ts 回退峄山碑。
  */
 export function resolveChongxiFontPath(): string {
   const fromEnv = process.env.SEAL_CHONGXI_FONT_PATH?.trim();
@@ -37,18 +35,25 @@ export function resolveChongxiFontPath(): string {
 
 /** 字体资产是否就位（font-stack 回退链的探测点）。 */
 export function chongxiFontAvailable(): boolean {
-  return existsSync(resolveChongxiFontPath());
+  return existsSync(/* turbopackIgnore: true */ resolveChongxiFontPath());
 }
 
 /* ─── 字体单例（21.2MB 解析一次，进程级缓存） ────────────────── */
 
 let fontPromise: Promise<opentype.Font> | null = null;
+let loadedPath: string | null = null;
 
 async function loadFont(): Promise<opentype.Font> {
+  const currentPath = resolveChongxiFontPath();
+  if (loadedPath !== currentPath) {
+    fontPromise = null;
+    loadedPath = currentPath;
+  }
   if (!fontPromise) {
     fontPromise = (async () => {
       const filePath = resolveChongxiFontPath();
-      const buffer = readFileSync(filePath);
+      // 字体由 next.config.ts 显式打包，避免动态路径把整仓资产带入函数。
+      const buffer = readFileSync(/* turbopackIgnore: true */ filePath);
       // readFileSync 返回的 Buffer 持有池化内存，parse 需要“干净”的
       // ArrayBuffer 视图——按预跑验证过的切片方式传入。
       return opentype.parse(
@@ -97,7 +102,7 @@ export async function lookupChongxiGlyph(
   if (glyphIndex === 0) return { ok: false, reason: "missing" };
   const glyph = font.glyphs.get(glyphIndex);
   // fontSize=100：与客户端版 GlyphBox（canvas 100px measureText）同标尺，
-  // 紧凑排布参数（97% 格占位/±0.6% 错落）在两栈间直接可比。
+  // 紧凑排布参数（88% 格占位/±0.6% 错落）在两栈间直接可比。
   const p = glyph.getPath(0, 0, 100);
   const box = p.getBoundingBox();
   return {

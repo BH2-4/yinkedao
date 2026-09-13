@@ -1,6 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { InterviewAnswers } from "@/lib/design-interview/intent-types";
+import { buildUserDesignIntent, makeInterviewLabels } from "@/lib/design-interview/engine";
+import { sealOrderFromIntent } from "@/lib/design/seal-order";
 import Image from "next/image";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { useI18n } from "@/components/i18n/I18nProvider";
@@ -25,6 +28,7 @@ import type { Scenario } from "@/lib/cultural-match/repository";
 interface CulturalHintCardsProps {
   /** 访谈用途答案（occasion token） */
   occasion: string;
+  answers: InterviewAnswers;
   /** 倾向芯片点击回填（写入访谈答案，等同用户预选） */
   onApplyHint: (patch: { field: string; token: string }) => void;
   /** 继续访谈 */
@@ -33,6 +37,7 @@ interface CulturalHintCardsProps {
 
 export function CulturalHintCards({
   occasion,
+  answers,
   onApplyHint,
   onContinue,
 }: CulturalHintCardsProps) {
@@ -56,6 +61,17 @@ export function CulturalHintCards({
     [scenario],
   );
   const [applied, setApplied] = useState<string[]>([]);
+  const requestBody = JSON.stringify({ order: sealOrderFromIntent(buildUserDesignIntent(answers, makeInterviewLabels(t))) });
+  const [matched, setMatched] = useState<{ key: string; cards: Scenario["culture_elements"] } | null>(null);
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch("/api/cultural-match", { method: "POST", headers: { "Content-Type": "application/json" }, body: requestBody, signal: controller.signal })
+      .then((res) => res.json())
+      .then((body) => {
+        if (!controller.signal.aborted && body.enabled && body.verified && body.cards?.length === 3) setMatched({ key: requestBody, cards: body.cards });
+      }).catch(() => { /* 灰度关闭或接口失败时沿用已有静态引导。 */ });
+    return () => controller.abort();
+  }, [requestBody]);
 
   if (!scenario) return null;
 
@@ -126,7 +142,7 @@ export function CulturalHintCards({
 
       {/* 3 张文化元素卡 */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {scenario.culture_elements.map((el) => (
+        {(matched?.key === requestBody ? matched.cards : scenario.culture_elements).map((el) => (
           <article
             key={el.id}
             className="flex flex-col gap-3 rounded-[2px] border border-[var(--color-line)] p-5"

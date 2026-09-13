@@ -21,7 +21,7 @@ import type { Seal3dErrorResponse } from "@/types/seal-3d";
 const MESHY_BASE = "https://api.meshy.ai/openapi/v1";
 
 /** 创建参数集中于此——降档取舍只动这一处 */
-const CREATE_OPTIONS = {
+export const CREATE_OPTIONS = {
   ai_model: "latest",
   should_texture: true,
   /** 降体积主闸：remesh 减面 */
@@ -33,6 +33,14 @@ const CREATE_OPTIONS = {
   enable_pbr: false,
   target_formats: ["glb"],
 } as const;
+
+export const RETEXTURE_OPTIONS = {
+  ai_model: "meshy-6", texture_resolution: "4k", enable_original_uv: true,
+  enable_pbr: true, remove_lighting: true, target_formats: ["glb"],
+} as const;
+
+export type MeshyJobKind = "model" | "retexture";
+const taskPath = (kind: MeshyJobKind) => kind === "retexture" ? "/retexture" : "/multi-image-to-3d";
 
 export interface MeshyTask {
   id: string;
@@ -67,7 +75,7 @@ export function taskFailureEnvelope(task: MeshyTask): Seal3dErrorResponse {
   const reason = task.task_error?.message?.slice(0, 300) ?? "无错误详情";
   return {
     success: false,
-    error: `Meshy 建模任务${task.status === "CANCELED" ? "被取消" : "失败"}：${reason}（credits 已退还）`,
+    error: `Meshy 任务${task.status === "CANCELED" ? "被取消" : "失败"}：${reason}，额度变动请以 Meshy 账户记录为准。`,
     code: "meshy_task_failed",
   };
 }
@@ -109,7 +117,7 @@ async function meshyJson(
 export function buildSeal3dTexturePrompt(order: SealOrder): string {
   const stone = STONE_VISUAL[order.stone_type] ?? STONE_VISUAL.unknown;
   const look = LOOK_VISUAL[order.stone_look] ?? LOOK_VISUAL.unknown;
-  return `Polished Chinese seal stone, ${stone}, ${look}. Solid mineral material, no metal, no glass, no fabric.`;
+  return `Chinese seal stone, ${stone}, ${look}. Preserve the reference mineral color distribution and fine natural inclusions. Subtle waxy surface sheen, soft mineral translucency, realistic stone grain, restrained polish. Solid mineral material, no metal, no glass, no fabric.`;
 }
 
 /** 创建 multi-image-to-3d 任务。返回 task id（响应字段是 result 不是 id）。 */
@@ -136,13 +144,35 @@ export async function createMeshyTask(
 }
 
 /** 查询任务状态 */
-export async function getMeshyTask(key: string, taskId: string): Promise<MeshyTask | Seal3dErrorResponse> {
-  const res = await meshyJson(key, `/multi-image-to-3d/${encodeURIComponent(taskId)}`, {
+export async function getMeshyTask(key: string, taskId: string, kind: MeshyJobKind = "model"): Promise<MeshyTask | Seal3dErrorResponse> {
+  const res = await meshyJson(key, `${taskPath(kind)}/${encodeURIComponent(taskId)}`, {
     method: "GET",
     timeoutMs: 15_000,
   });
   if (!res.ok) return classifyMeshyHttpError(res.status, res.bodyText);
   return res.body as MeshyTask;
+}
+
+/** 余额检查不触发生成；预估来自官方 2K 建模 / 4K 重贴图档位。 */
+export async function getMeshyBalance(key: string): Promise<{ balance: number } | Seal3dErrorResponse> {
+  const res = await meshyJson(key, "/balance", { method: "GET", timeoutMs: 15_000 });
+  if (!res.ok) return classifyMeshyHttpError(res.status, res.bodyText);
+  const body = res.body as { balance?: number } | null;
+  if (typeof body?.balance !== "number" || !Number.isFinite(body.balance)) {
+    return { success: false, code: "unknown", error: "Meshy 余额响应异常，未发起生成。" };
+  }
+  return { balance: body.balance };
+}
+
+/** 仅接收服务端查到的无字章体 URL；客户端不能上传带印文的模型。 */
+export async function createMeshyRetextureTask(key: string, modelUrl: string, order: SealOrder): Promise<{ taskId: string } | Seal3dErrorResponse> {
+  const res = await meshyJson(key, "/retexture", {
+    method: "POST", timeoutMs: 30_000,
+    body: JSON.stringify({ model_url: modelUrl, text_style_prompt: buildSeal3dTexturePrompt(order), ...RETEXTURE_OPTIONS }),
+  });
+  if (!res.ok) return classifyMeshyHttpError(res.status, res.bodyText);
+  const body = res.body as { result?: string } | null;
+  return body?.result ? { taskId: body.result } : { success: false, code: "unknown", error: "Meshy 创建响应缺少任务编号，请核对账户任务记录。" };
 }
 
 /** 下载 glb 产物（Meshy CDN 签名 URL，3 天过期前必须取走） */

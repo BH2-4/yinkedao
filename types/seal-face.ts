@@ -32,6 +32,8 @@ export type SealFaceApiResponse =
       mapping_changes: SealFaceMappingChange[];
       /** 映射后 cmap 仍未命中的字——如实告知，绝不造字 */
       missing: string[];
+      /** 按需生成；缺字时为空，避免导出不完整印文。 */
+      textures: { front: string; mirrored: string; size: number } | null;
       /** 字体元信息（覆盖验收/诊断） */
       font: {
         num_glyphs: number;

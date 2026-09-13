@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { Canvas, useLoader, useThree } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { GLTF } from "three/examples/jsm/loaders/GLTFLoader.js";
@@ -29,9 +29,9 @@ export interface Seal3DSceneProps {
   /** 章石 glb 兜底地址（本地缓存路径——blob 偶发中断时回退） */
   glbFallbackUrl?: string;
   /** 印面贴图（镜像版 PNG 的公开路径） */
-  faceTextureUrl: string;
+  faceTextureUrl?: string;
   /** 场景对象就绪回调（导出 GLB 用——把含印面的 scene 树交给外层） */
-  onSceneObject?: (scene: THREE.Group) => void;
+  onSceneObject?: (scene: THREE.Group | null) => void;
   /** 渲染完成回调（进度遮罩撤除） */
   onRendered?: () => void;
   /** 交互提示（加载失败回调） */
@@ -113,16 +113,18 @@ function SealModel({
   faceTextureUrl,
   onSceneObject,
   onRendered,
-}: Omit<Seal3DSceneProps, "onError">) {
+  onError,
+}: Seal3DSceneProps) {
   /* 手动 fetch + parseAsync（不用 useLoader）：FileLoader 的 onError
      只给 ProgressEvent（吞掉真实错误），parseAsync 会带完整栈。
      blob 主地址失败（偶发中断）时回退本地缓存再试一次 */
   const [gltf, setGltf] = useState<GLTF | null>(null);
   useEffect(() => {
     let alive = true;
+    const controller = new AbortController();
     (async () => {
       const load = async (url: string) => {
-        const res = await fetch(url);
+        const res = await fetch(url, { signal: controller.signal });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const buf = await res.arrayBuffer();
         return new GLTFLoader().parseAsync(buf, "");
@@ -131,27 +133,36 @@ function SealModel({
       try {
         parsed = await load(glbUrl);
       } catch (primaryErr) {
+        if (controller.signal.aborted) return;
         if (!glbFallbackUrl) throw primaryErr;
         console.warn("[3d-scene] blob 主地址失败，回退本地缓存:", primaryErr);
         parsed = await load(glbFallbackUrl);
       }
       if (alive) setGltf(parsed);
     })().catch((err: unknown) => {
-      console.error("[3d-scene] glb 加载/解析失败:", err);
+      if (alive) onError?.(err instanceof Error ? err.message : "模型加载失败");
     });
     return () => {
       alive = false;
+      controller.abort();
     };
-  }, [glbUrl, glbFallbackUrl]);
+  }, [glbUrl, glbFallbackUrl, onError]);
 
-  const faceTex = useLoader(THREE.TextureLoader, faceTextureUrl);
-  const [composed, setComposed] = useState<THREE.Group | null>(null);
-
-  /* eslint-disable react-hooks/immutability -- three.js 场景装配是命令式
-     惯用法（纹理参数/add/transform），React Compiler 不可变规则不适用 */
+  const [loadedTexture, setLoadedTexture] = useState<{ url: string; texture: THREE.Texture } | null>(null);
   useEffect(() => {
-    if (!gltf) return;
-    const model = gltf.scene;
+    if (!faceTextureUrl) return;
+    let alive = true;
+    const tex = new THREE.TextureLoader().load(faceTextureUrl, (texture) => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = 8;
+      if (alive) setLoadedTexture({ url: faceTextureUrl, texture });
+    }, undefined, () => { if (alive) onError?.("印面贴图加载失败"); });
+    return () => { alive = false; tex.dispose(); };
+  }, [faceTextureUrl, onError]);
+  const faceTex = loadedTexture?.url === faceTextureUrl ? loadedTexture?.texture : null;
+  const composed = useMemo(() => {
+    if (!gltf || (faceTextureUrl && !faceTex)) return null;
+    const model = gltf.scene.clone(true);
 
     /* 姿态校正（haiku 检验根因）：Meshy 章料常呈「立板」姿态——最薄
        轴才是印面法向（本例 X 厚 0.444，印面是 ±X 的 1.87×1.87 大面，
@@ -169,8 +180,9 @@ function SealModel({
     const size = new THREE.Vector3();
     box.getSize(size);
     /* 章料坐到 y=0（旋转后中心在原点，悬空） */
-    wrapper.position.y = -box.min.y;
-    box.translate(new THREE.Vector3(0, -box.min.y, 0));
+    model.position.y -= box.min.y;
+    model.updateWorldMatrix(true, true);
+    box.setFromObject(wrapper);
 
     /* 印面 plane：贴真实顶面（姿态校正后的印面端面），尺寸取顶面
        两条实际边长的短边（不再假设竖方章 min(X,Z)） */
@@ -178,14 +190,10 @@ function SealModel({
     const center = new THREE.Vector3();
     box.getCenter(center);
 
-    const tex = faceTex as THREE.Texture;
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 8;
-
     const plane = new THREE.Mesh(
       new THREE.PlaneGeometry(planeW, planeW),
       new THREE.MeshStandardMaterial({
-        map: tex,
+        map: faceTex ?? null,
         transparent: true,
         alphaTest: 0.05,
         roughness: 0.62,
@@ -200,13 +208,23 @@ function SealModel({
     plane.rotation.x = -Math.PI / 2;
     plane.position.set(center.x, box.max.y + FACE_LIFT * size.y, center.z);
     plane.name = "seal-face-overlay";
+    plane.visible = !!faceTex;
     wrapper.add(plane);
+    return wrapper;
+  }, [gltf, faceTex, faceTextureUrl]);
 
-    onSceneObject?.(wrapper);
+  useEffect(() => {
+    if (!composed) return;
+    onSceneObject?.(composed);
     onRendered?.();
-    setComposed(wrapper);
-    /* eslint-enable react-hooks/immutability */
-  }, [gltf, faceTex, onSceneObject, onRendered]);
+    return () => { onSceneObject?.(null); };
+  }, [composed, onSceneObject, onRendered]);
+
+  useEffect(() => () => {
+    const plane = composed?.getObjectByName("seal-face-overlay") as THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial> | undefined;
+    plane?.geometry.dispose();
+    plane?.material.dispose();
+  }, [composed]);
 
   return composed ? <primitive object={composed} /> : null;
 }
@@ -221,6 +239,7 @@ const VIEWS: Record<"orbit" | "top", { pos: [number, number, number]; target: [n
 function Controls({ view }: { view: "orbit" | "top" }) {
   const { camera, gl } = useThree();
   const controlsRef = useRef<OrbitControls | null>(null);
+  useFrame(() => controlsRef.current?.update());
 
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
@@ -247,9 +266,6 @@ function Controls({ view }: { view: "orbit" | "top" }) {
 }
 
 export function Seal3DScene(props: Seal3DSceneProps) {
-  /* 贴图切换时强制重建印面 plane（useLoader 缓存 texture，组件级 key 换树） */
-  const modelKey = useMemo(() => props.faceTextureUrl, [props.faceTextureUrl]);
-
   return (
     <Canvas
       camera={{ position: [2.7, 2.3, 3.6], fov: 38 }}
@@ -259,15 +275,15 @@ export function Seal3DScene(props: Seal3DSceneProps) {
       <ambientLight intensity={1.1} />
       <directionalLight position={[5, 9, 6]} intensity={2.2} />
       <directionalLight position={[-6, 4, -5]} intensity={0.7} />
-      <Suspense fallback={null}>
       <SealModel
-        key={modelKey}
+        key={props.glbUrl}
         glbUrl={props.glbUrl}
+        glbFallbackUrl={props.glbFallbackUrl}
         faceTextureUrl={props.faceTextureUrl}
         onSceneObject={props.onSceneObject}
         onRendered={props.onRendered}
+        onError={props.onError}
       />
-      </Suspense>
       <Controls view={props.view ?? "orbit"} />
     </Canvas>
   );

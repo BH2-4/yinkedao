@@ -5,8 +5,8 @@
  *              cmap 查字。字体资产缺失时自动回退 yishan 并标注。
  *   yishan  —— 峄山碑 demo 栈：客户端 woff2 分片渲染（现状不动）。
  *
- * 切换：env SEAL_FONT_STACK=chongxi|yishan，默认 yishan——直到视觉
- * 对齐与调参完成（方案文档步骤 ⑥）才切默认，回退链保证 demo 永不断。
+ * 切换：env SEAL_FONT_STACK=chongxi|yishan，默认 chongxi。
+ * 峄山碑保留为显式应急开关，以及字体资产缺失时的回退。
  */
 
 import { chongxiFontAvailable } from "./glyph-chongxi";
@@ -28,7 +28,7 @@ export interface SealFontStackInfo {
  */
 export function resolveSealFontStack(): SealFontStackInfo {
   const requested = process.env.SEAL_FONT_STACK?.trim().toLowerCase();
-  if (requested === "chongxi") {
+  if (requested !== "yishan") {
     if (chongxiFontAvailable()) {
       return { stack: "chongxi", fallback: false };
     }

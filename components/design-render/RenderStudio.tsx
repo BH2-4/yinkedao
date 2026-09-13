@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Box, RefreshCw } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -20,7 +20,7 @@ import { SealFaceProof } from "./SealFaceProof";
  * 「重新生成」＝ 换 seed（换参考图组合产生变体）。
  * 印面文字由字体引擎另行叠加——本页展示的是无文字素坯质感层。
  */
-export function RenderStudio({ sealFontStack = "yishan" }: { sealFontStack?: SealFontStack }) {
+export function RenderStudio({ sealFontStack = "chongxi" }: { sealFontStack?: SealFontStack }) {
   const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -43,6 +43,9 @@ export function RenderStudio({ sealFontStack = "yishan" }: { sealFontStack?: Sea
   /* 3D 效果图入口状态（B 线：六宫格照片 → Meshy 建模，异步任务制） */
   const [creating3d, setCreating3d] = useState(false);
   const [error3d, setError3d] = useState<string | null>(null);
+  const creating3dRef = useRef(false);
+  const [faceChoice, setFaceChoice] = useState<{ text: string; style: "baiwen" | "zhuwen" } | null>(null);
+  const handleFaceChange = useCallback((text: string, style: "baiwen" | "zhuwen") => setFaceChoice({ text, style }), []);
 
   const generate = useCallback(
     async (nextSeed: number) => {
@@ -71,7 +74,8 @@ export function RenderStudio({ sealFontStack = "yishan" }: { sealFontStack?: Sea
   /* 生成 3D 效果图：把六宫格 SVG 送服务端裁选格建 Meshy 任务，
      成功后携 task_id 跳预览页轮询（sheet dataUrl 数 MB 不进 URL）。 */
   const start3d = useCallback(async () => {
-    if (!order || !result || creating3d) return;
+    if (!order || !result || creating3dRef.current) return;
+    creating3dRef.current = true;
     setCreating3d(true);
     setError3d(null);
     try {
@@ -86,15 +90,17 @@ export function RenderStudio({ sealFontStack = "yishan" }: { sealFontStack?: Sea
       });
       const body = (await res.json()) as Seal3dApiResponse;
       if (!body.success) throw new Error(`${body.error} [${body.code}]`);
+      const currentOrder = faceChoice ? { ...order, seal_text: faceChoice.text, seal_style: faceChoice.style } : order;
       router.push(
-        `/3d-preview?task=${encodeURIComponent(body.task_id)}&${encodeSealOrder(order)}&seed=${result.image.seed}`,
+        `/3d-preview?task=${encodeURIComponent(body.task_id)}&${encodeSealOrder(currentOrder)}&seed=${result.image.seed}`,
       );
     } catch (err) {
       setError3d(err instanceof Error ? err.message : String(err));
     } finally {
+      creating3dRef.current = false;
       setCreating3d(false);
     }
-  }, [order, result, creating3d, router]);
+  }, [order, result, faceChoice, router]);
 
   /* 空态：URL 无有效参数单 → 回参数单确认页 */
   if (!order) {
@@ -178,6 +184,7 @@ export function RenderStudio({ sealFontStack = "yishan" }: { sealFontStack?: Sea
           <figure className="flex flex-col gap-4">
             <div className="relative mx-auto aspect-square w-full max-w-[640px] overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-line)]">
               {/* dataUrl 自包含 SVG/PNG，Next/Image 无收益 */}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={result.image.data_url}
                 alt={t("designRender.imageAlt")}
@@ -251,9 +258,10 @@ export function RenderStudio({ sealFontStack = "yishan" }: { sealFontStack?: Sea
 
           {/* 印蜕 · 文字层（与质感层并列——石是载体，印是灵魂） */}
           <SealFaceProof
-            initialText={order.seal_text ?? ""}
-            initialStyle={order.seal_style}
+            initialText={faceChoice?.text ?? order.seal_text ?? ""}
+            initialStyle={faceChoice?.style ?? order.seal_style}
             fontStack={sealFontStack}
+            onChange={handleFaceChange}
           />
         </div>
       )}
@@ -261,9 +269,10 @@ export function RenderStudio({ sealFontStack = "yishan" }: { sealFontStack?: Sea
       {/* 印蜕 · 文字层（未生成质感图时同样可用——独立渲染） */}
       {phase !== "done" && (
         <SealFaceProof
-          initialText={order.seal_text ?? ""}
-          initialStyle={order.seal_style}
+          initialText={faceChoice?.text ?? order.seal_text ?? ""}
+          initialStyle={faceChoice?.style ?? order.seal_style}
           fontStack={sealFontStack}
+          onChange={handleFaceChange}
         />
       )}
     </section>

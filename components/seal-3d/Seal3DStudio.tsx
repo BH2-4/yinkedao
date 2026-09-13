@@ -1,340 +1,143 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { ArrowLeft, RefreshCw, Box, Download, Type } from "lucide-react";
-import * as THREE from "three";
-import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
-import { useI18n } from "@/components/i18n/I18nProvider";
-import { decodeSealOrder, encodeSealOrder } from "@/lib/design/seal-order";
-import type { Seal3dStatusApiResponse, Seal3dStatusResponse } from "@/types/seal-3d";
-import { Seal3DScene } from "./Seal3DScene";
+import dynamic from "next/dynamic";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ArrowLeft, RefreshCw, Download } from "lucide-react";
+import type { Group } from "three";
+import { decodeSealOrder, encodeSealOrder, type SealOrder } from "@/lib/design/seal-order";
+import type { Seal3dApiResponse, Seal3dStatusApiResponse, Seal3dStatusResponse } from "@/types/seal-3d";
+import { useSealFace } from "@/components/design-render/useSealFace";
+import { VirtualStamp } from "./VirtualStamp";
 
-/**
- * 3D 效果图预览工作台（B 线 · 印面叠字版）。
- *
- * 数据来源：URL query ?task=<meshy_task_id>（任务由效果图结果页创建后
- * 跳转过来；刷新/分享链接均可恢复轮询——服务端无状态，Meshy 任务对象
- * 是唯一状态源）。流程：GET /api/3d-model/{task} 轮询（5s 间隔）→
- * SUCCEEDED 时后端完成 blob 转存并回传长期 URL → R3F 合成场景
- * （章石 glb + 崇羲印面贴图 plane）交互预览。
- *
- * 印面文字叠加（Phase 1 预留 TODO(seal-face-3d) 的落地实现）：
- *   Seal3DScene 在章石包围盒顶面叠崇羲贴图 plane（镜像版——从上往
- *   下看是反字，钤印方向正确）；朱文/白文即时切换；合成结果可导出
- *   glb。贴图由 scripts/seal-3d-face/make-face-textures.mjs 离线生成
- *   （opentype.js 直读崇羲 OTF，取形/排布与 A 线同源）——字体文件
- *   不进客户端，符合崇曦合规路线（CC BY-ND：只渲染不分发）。
- */
-
-/** 印面贴图（镜像版：贴印面的是反字，钤出来才是正字） */
-const FACE_TEXTURES = {
-  zhuwen: "/seal-3d-face/zhuwen-mirrored.png",
-  baiwen: "/seal-3d-face/baiwen-mirrored.png",
-} as const;
-
-type FaceStyle = keyof typeof FACE_TEXTURES;
-
-/** blob 公开桶域名（本地缓存路径约定与之配对） */
-const BLOB_HOST = "i5y1y4ahjeuoicd3.public.blob.vercel-storage.com";
-
-/** glb 加载地址对：blob 主地址优先，本地缓存回退（本机网络对该域
- *  大文件传输偶发中断——预拉缓存见 scripts/seal-3d-face/fetch-blob-cache.sh；
- *  线上缓存不存在时 blob 已成功，回退路径不会被触发）。 */
-function glbLoadUrls(url: string): { primary: string; fallback?: string } {
-  const m = /^https:\/\/([^/]+)\/(.+)$/.exec(url);
-  if (m && m[1] === BLOB_HOST) {
-    return { primary: url, fallback: `/blob-cache/${m[2]}` };
-  }
-  return { primary: url };
-}
-
-type Phase = "polling" | "ready" | "error";
+const Seal3DScene = dynamic(() => import("./Seal3DScene").then((m) => m.Seal3DScene), { ssr: false });
+type Model = Extract<Seal3dStatusResponse, { status: "SUCCEEDED" }>;
+type Kind = "model" | "retexture";
 
 export function Seal3DStudio() {
-  const { t } = useI18n();
-  const searchParams = useSearchParams();
-  const taskId = searchParams.get("task");
+  const params = useSearchParams();
+  const taskId = params.get("task");
+  const kind = params.get("kind") === "retexture" ? "retexture" : "model";
+  const rawSeed = Number(params.get("seed") ?? 1);
+  const seed = Number.isInteger(rawSeed) && rawSeed >= 0 && rawSeed <= 2 ** 31 - 1 ? rawSeed : 1;
+  if (!taskId) return <section className="flex flex-col gap-6"><h2 className="act-title">还没有可预览的 3D 任务</h2><Link href="/design-render" className="btn-pill btn-pill-primary self-start">去生成效果图</Link></section>;
+  return <Studio key={`${kind}:${taskId}`} taskId={taskId} kind={kind} seed={seed} order={decodeSealOrder(params.toString())} />;
+}
 
-  const order = useMemo(
-    () => decodeSealOrder(searchParams.toString()),
-    [searchParams],
-  );
-  const seed = searchParams.get("seed") ?? "1";
-
-  const [phase, setPhase] = useState<Phase>("polling");
+function Studio({ taskId, kind, seed, order }: { taskId: string; kind: Kind; seed: number; order: SealOrder | null }) {
+  const router = useRouter();
+  const [phase, setPhase] = useState<"polling" | "ready" | "error">("polling");
+  const [model, setModel] = useState<Model | null>(null);
   const [progress, setProgress] = useState(0);
-  const [model, setModel] = useState<
-    Extract<Seal3dStatusResponse, { status: "SUCCEEDED" }> | null
-  >(null);
-  const [errorDetail, setErrorDetail] = useState<string | null>(null);
-  const [rendered, setRendered] = useState(false);
-
-  /* 印面叠字状态（B 线：朱白切换 + 视角预设 + 导出） */
-  const [faceStyle, setFaceStyle] = useState<FaceStyle>("zhuwen");
+  const [error, setError] = useState<string | null>(null);
+  const [retry, setRetry] = useState(0);
+  const [text, setText] = useState(order?.seal_text ?? "");
+  const [style, setStyle] = useState<"zhuwen" | "baiwen">(order?.seal_style === "zhuwen" ? "zhuwen" : "baiwen");
+  const [texture, setTexture] = useState(true);
   const [view, setView] = useState<"orbit" | "top">("orbit");
   const [exporting, setExporting] = useState(false);
-  const sceneRef = useRef<THREE.Group | null>(null);
-
-  const cancelledRef = useRef(false);
-
-  const poll = useCallback(async () => {
-    if (!taskId) return;
-    cancelledRef.current = false;
-
-    const tick = async () => {
-      if (cancelledRef.current) return;
-      try {
-        const res = await fetch(`/api/3d-model/${encodeURIComponent(taskId)}`, {
-          cache: "no-store",
-        });
-        const body = (await res.json()) as Seal3dStatusApiResponse;
-        if (!body.success) throw new Error(`${body.error} [${body.code}]`);
-
-        if (body.status === "SUCCEEDED") {
-          setModel(body);
-          setProgress(100);
-          setPhase("ready");
-          return;
-        }
-        setProgress(body.progress);
-        if (!cancelledRef.current) {
-          setTimeout(tick, body.poll_after_ms);
-        }
-      } catch (err) {
-        if (cancelledRef.current) return;
-        setErrorDetail(err instanceof Error ? err.message : String(err));
-        setPhase("error");
-      }
-    };
-    void tick();
-  }, [taskId]);
+  const [retexturing, setRetexturing] = useState(false);
+  const retextureLock = useRef(false);
+  const sceneRef = useRef<Group | null>(null);
+  const [readyTexture, setReadyTexture] = useState<string | null>(null);
+  const [sceneError, setSceneError] = useState<string | null>(null);
+  const face = useSealFace({ text, style, texture, freedom: 50, seed, include_textures: true });
+  const faceUrl = face.result?.textures?.mirrored;
+  const exportReady = !!faceUrl && readyTexture === faceUrl && !sceneError;
+  const backHref = order ? `/design-render?${encodeSealOrder({ ...order, seal_text: text, seal_style: style })}` : "/design-render";
 
   useEffect(() => {
-    void poll();
-    return () => {
-      cancelledRef.current = true;
+    const controller = new AbortController();
+    let timer: ReturnType<typeof setTimeout>;
+    let errors = 0;
+    const deadline = Date.now() + 15 * 60_000;
+    const tick = async () => {
+      try {
+        const res = await fetch(`/api/3d-model/${encodeURIComponent(taskId)}?kind=${kind}`, { cache: "no-store", signal: controller.signal });
+        const body = await res.json() as Seal3dStatusApiResponse;
+        if (controller.signal.aborted) return;
+        if (!body.success) {
+          if ((res.status === 429 || res.status >= 500) && errors++ < 3) { timer = setTimeout(tick, 10_000); return; }
+          throw new Error(body.error);
+        }
+        errors = 0;
+        if (body.status === "SUCCEEDED") { setModel(body); setPhase("ready"); return; }
+        if (Date.now() >= deadline) throw new Error("任务仍在处理中，可稍后从当前链接继续查询。");
+        setProgress(body.progress);
+        timer = setTimeout(tick, Math.max(3000, Math.min(body.poll_after_ms, 15_000)));
+      } catch (err) {
+        if (!controller.signal.aborted) { setError(err instanceof Error ? err.message : "查询失败"); setPhase("error"); }
+      }
     };
-  }, [poll]);
+    timer = setTimeout(tick, 0);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [taskId, kind, retry]);
 
-  /* 场景对象就绪（含印面 plane）——引用稳定防 SealModel effect 重跑 */
-  const handleSceneObject = useCallback((scene: THREE.Group) => {
-    sceneRef.current = scene;
-  }, []);
-  const handleRendered = useCallback(() => setRendered(true), []);
-
-  /* 导出合成 glb（章石+印面，GLTFExporter binary——spike 验证零膨胀） */
-  const exportGlb = useCallback(async () => {
-    const scene = sceneRef.current;
-    if (!scene || exporting) return;
+  const handleScene = useCallback((scene: Group | null) => { sceneRef.current = scene; setReadyTexture(scene ? faceUrl ?? null : null); }, [faceUrl]);
+  const handleSceneError = useCallback((message: string) => setSceneError(message), []);
+  const exportGlb = async () => {
+    if (!sceneRef.current || exporting || !exportReady) return;
     setExporting(true);
     try {
-      const exporter = new GLTFExporter();
-      const result = (await exporter.parseAsync(scene, { binary: true })) as ArrayBuffer;
-      const blob = new Blob([result], { type: "model/gltf-binary" });
-      const url = URL.createObjectURL(blob);
+      const { GLTFExporter } = await import("three/examples/jsm/exporters/GLTFExporter.js");
+      const scene = sceneRef.current;
+      scene.userData = { ...scene.userData, attribution: "崇羲篆體·中研院小學堂；王心怡・季旭昇・莊德明／中央研究院；CC BY-ND 3.0 TW", fontSource: "https://xiaoxue.iis.sinica.edu.tw/chongxi/" };
+      const result = await new GLTFExporter().parseAsync(scene, { binary: true }) as ArrayBuffer;
+      const url = URL.createObjectURL(new Blob([result], { type: "model/gltf-binary" }));
       const a = document.createElement("a");
-      a.href = url;
-      a.download = `seal-composed-${faceStyle}.glb`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      setErrorDetail(err instanceof Error ? err.message : String(err));
-    } finally {
-      setExporting(false);
-    }
-  }, [exporting, faceStyle]);
-
-  if (!taskId) {
-    return (
-      <section className="animate-fade-in flex flex-col items-start gap-6 border-t border-[var(--color-line)] pt-16">
-        <span className="stage-index">{t("seal3d.emptyLabel")}</span>
-        <h2 className="act-title max-w-xl">{t("seal3d.emptyTitle")}</h2>
-        <p className="act-body max-w-lg">{t("seal3d.emptyBody")}</p>
-        <Link href="/design-render" className="btn-pill btn-pill-primary">
-          {t("seal3d.emptyCta")}
-        </Link>
-      </section>
-    );
-  }
-
-  const orderQuery = order ? encodeSealOrder(order) : "";
-  const backHref = orderQuery
-    ? `/design-render?${orderQuery}`
-    : "/design-render";
+      a.href = url; a.download = `seal-composed-${style}.glb`; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch { setError("模型导出失败，请重试。"); }
+    finally { setExporting(false); }
+  };
+  const retextureModel = async () => {
+    if (!order || !model || retextureLock.current) return;
+    retextureLock.current = true; setRetexturing(true); setError(null);
+    try {
+      const res = await fetch("/api/3d-model/retexture", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ source_task_id: taskId, source_kind: kind, order }) });
+      const body = await res.json() as Seal3dApiResponse;
+      if (!body.success) throw new Error(body.error);
+      router.push(`/3d-preview?task=${encodeURIComponent(body.task_id)}&kind=retexture&seed=${seed}&${encodeSealOrder({ ...order, seal_text: text, seal_style: style })}`);
+    } catch (err) { setError(err instanceof Error ? err.message : "质感生成失败"); }
+    finally { retextureLock.current = false; setRetexturing(false); }
+  };
 
   return (
-    <section className="animate-fade-in flex flex-col gap-12">
-      {/* 参数单摘要条（与效果图页同款——可追溯；unknown 无信息量
-          不渲染，防止链接丢失 order query 时露出原始 i18n key） */}
-      {order && (
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-y border-[var(--color-line)] py-4 font-mono text-[12px] tracking-[0.12em] text-[var(--color-silver-400)] uppercase">
-          {order.seal_form !== "unknown" && (
-            <span>FORM · {t(`interview.values.sealForm.${order.seal_form}`)}</span>
-          )}
-          {order.stone_type !== "unknown" && (
-            <span>STONE · {t(`interview.values.stone.${order.stone_type}`)}</span>
-          )}
-          <span>SEED · {seed}</span>
-          <span>TASK · {taskId.slice(0, 13)}</span>
-        </div>
-      )}
-
-      {phase === "polling" && (
-        <div className="flex flex-col items-center justify-center gap-6 py-24">
-          <div
-            className="h-7 w-7 animate-spin rounded-full border border-[rgba(26,26,26,0.12)] border-t-[var(--color-silver-300)]"
-            role="status"
-            aria-label={t("seal3d.pollingTitle")}
-          />
-          <p className="font-sans text-[15px] tracking-[0.06em] text-[var(--color-silver-400)]">
-            {t("seal3d.pollingTitle")}
-            {progress > 0 ? ` · ${progress}%` : ""}
-          </p>
-          <p className="max-w-md text-[12px] leading-relaxed text-[var(--color-silver-600)]">
-            {t("seal3d.pollingNote")}
-          </p>
-          <p className="font-mono text-[11px] tracking-[0.14em] text-[var(--color-silver-500)] uppercase">
-            {t("seal3d.taskLabel")} · {taskId}
-          </p>
-        </div>
-      )}
-
-      {phase === "error" && (
-        <div className="flex flex-col items-start gap-5 border-t border-[var(--color-line)] pt-10">
-          <h3 className="act-title text-[22px]">{t("seal3d.errorTitle")}</h3>
-          <p className="act-body max-w-lg">{t("seal3d.errorBody")}</p>
-          {errorDetail && (
-            <p className="max-w-lg font-mono text-[11px] leading-relaxed break-all text-[var(--color-silver-500)]">
-              {errorDetail}
-            </p>
-          )}
-          <div className="flex flex-wrap items-center gap-4">
-            {/* 网络抖动/查询失败：同任务重试（Meshy 任务可能仍在跑） */}
-            <button
-              type="button"
-              onClick={() => {
-                setPhase("polling");
-                setErrorDetail(null);
-                void poll();
-              }}
-              className="btn-pill btn-pill-secondary"
-            >
-              <RefreshCw className="h-4 w-4" strokeWidth={1.5} />
-              {t("seal3d.retryPoll")}
-            </button>
-            {/* 任务级失败：额度已退还，回效果图页重新发起建模 */}
-            <Link href={backHref} className="btn-pill btn-pill-secondary">
-              <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
-              {t("seal3d.backToRender")}
-            </Link>
+    <section className="flex flex-col gap-8">
+      <p className="break-all border-y border-[var(--color-line)] py-4 font-mono text-xs text-[var(--color-silver-500)]">任务 · {taskId}{kind === "retexture" ? " · 石料重贴图" : ""}</p>
+      {phase === "polling" && <div className="flex flex-col items-center gap-5 py-20" role="status"><RefreshCw className="h-6 w-6 animate-spin" /><h2 className="text-xl">{kind === "retexture" ? "正在细化石料质感" : "正在建立立体形态"} · {progress}%</h2><p className="act-body max-w-lg">建模通常需要 4–6 分钟。你可以稍后从当前链接继续查看。</p></div>}
+      {error && <p role="alert" className="text-sm text-[#9e2b22]">{error}</p>}
+      {phase === "error" && <button type="button" className="btn-pill btn-pill-secondary self-start" onClick={() => { setError(null); setPhase("polling"); setRetry((n) => n + 1); }}>重试查询当前任务</button>}
+      {phase === "ready" && model && <>
+        <figure className="flex flex-col gap-3">
+          <div className="mx-auto aspect-square w-full max-w-[640px] overflow-hidden rounded-md border border-[var(--color-line)] bg-[#e8e6e0]">
+            <Seal3DScene glbUrl={model.model_url} glbFallbackUrl={model.model_url.includes(".public.blob.vercel-storage.com/") ? `/blob-cache/${new URL(model.model_url).pathname.slice(1)}` : undefined} faceTextureUrl={faceUrl} view={view} onSceneObject={handleScene} onError={handleSceneError} />
           </div>
+          <figcaption className="text-center text-xs text-[var(--color-silver-500)]">GLB · {(model.model_size / 1024 / 1024).toFixed(1)} MB · 拖动旋转，滚轮缩放</figcaption>
+        </figure>
+        {sceneError && <p role="alert" className="text-sm text-[#9e2b22]">{sceneError}</p>}
+        <div className="flex flex-col gap-4 border-l-2 border-[var(--color-line-strong)] pl-5">
+          <label htmlFor="seal-3d-text" className="text-sm">印面文字 · 1–4 字</label>
+          <input id="seal-3d-text" value={text} maxLength={12} onChange={(e) => { setText(e.target.value); setSceneError(null); }} placeholder="输入你的印文" className="max-w-sm border border-[var(--color-line)] bg-transparent px-4 py-3 text-lg tracking-widest" />
+          <div className="flex flex-wrap gap-3">
+            {(["zhuwen", "baiwen"] as const).map((s) => <button key={s} type="button" aria-pressed={style === s} onClick={() => { setStyle(s); setSceneError(null); }} className={`btn-pill ${style === s ? "btn-pill-primary" : "btn-pill-secondary"}`}>{s === "zhuwen" ? "朱文" : "白文"}</button>)}
+            {(["top", "orbit"] as const).map((v) => <button key={v} type="button" aria-pressed={view === v} onClick={() => setView(v)} className={`btn-pill ${view === v ? "btn-pill-primary" : "btn-pill-secondary"}`}>{v === "top" ? "正视印面" : "全景"}</button>)}
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={texture} onChange={(e) => setTexture(e.target.checked)} />印泥斑驳</label>
+            <button type="button" disabled={exporting || !exportReady} onClick={() => void exportGlb()} className="btn-pill btn-pill-secondary"><Download className="h-4 w-4" />{exporting ? "导出中…" : "导出合成 GLB"}</button>
+          </div>
+          {face.loading && <p role="status" className="text-sm">正在排布印文…</p>}
+          {!face.valid && <p className="text-sm text-[#9e2b22]">请输入 1–4 字印文；超长文字不会截断。</p>}
+          {face.error && <p role="alert" className="text-sm text-[#9e2b22]">{face.error}</p>}
+          {!!face.result?.missing.length && <p role="status" className="text-sm text-[#9e2b22]">字体未收录：{face.result.missing.join("、")}。请修改印文或与篆刻师确认，当前不提供合成导出。</p>}
+          {!!face.result?.mapping_changes.length && <p className="text-sm">字形映射：{face.result.mapping_changes.map((m) => `${m.from}→${m.to}`).join("、")}</p>}
+          <p className="text-xs text-[var(--color-silver-500)]">崇羲篆體·中研院小學堂。印面为镜像，钤印后为正字。</p>
         </div>
-      )}
-
-      {phase === "ready" && model && (
-        <div className="flex flex-col gap-8">
-          <figure className="flex flex-col gap-4">
-            <div className="relative mx-auto aspect-square w-full max-w-[640px] overflow-hidden rounded-[var(--radius-md)] border border-[var(--color-line)] bg-[#e8e6e0]">
-              {/* 印面叠字落地：章石 + 崇曦印面 plane（朱白切换重建场景树）。
-                  Suspense 在 Seal3DScene 的 Canvas 内——R3F 要求边界必须在
-                  Canvas 内，放外面会让 useLoader throw 时卸载重挂 Canvas */}
-              <Seal3DScene
-                key={faceStyle}
-                glbUrl={glbLoadUrls(model.model_url).primary}
-                glbFallbackUrl={glbLoadUrls(model.model_url).fallback}
-                faceTextureUrl={FACE_TEXTURES[faceStyle]}
-                onSceneObject={handleSceneObject}
-                onRendered={handleRendered}
-              />
-              {!rendered && (
-                <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#efede8]">
-                  <Box className="h-6 w-6 animate-pulse text-[var(--color-silver-400)]" strokeWidth={1.5} />
-                  <p className="font-mono text-[11px] tracking-[0.14em] text-[var(--color-silver-500)] uppercase">
-                    {t("seal3d.rendering")}
-                  </p>
-                </div>
-              )}
-            </div>
-            <figcaption className="flex flex-wrap items-center justify-between gap-3 font-mono text-[11px] tracking-[0.14em] text-[var(--color-silver-500)] uppercase">
-              <span>{t("seal3d.sizeNote", {
-                size: (model.model_size / 1024 / 1024).toFixed(1),
-              })}</span>
-              <span>{t("seal3d.dragHint")}</span>
-            </figcaption>
-          </figure>
-
-          {/* 印面文字控制卡（朱白切换 + 导出） */}
-          <div className="flex flex-col gap-4 border-l-2 border-[var(--color-line-strong)] pl-5">
-            <span className="inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] text-[var(--color-silver-500)] uppercase">
-              <Type className="h-3.5 w-3.5" strokeWidth={1.5} />
-              {t("seal3d.faceLabel")}
-            </span>
-            <div className="flex flex-wrap items-center gap-3">
-              {(["top", "orbit"] as const).map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => setView(v)}
-                  className={`btn-pill ${view === v ? "btn-pill-primary" : "btn-pill-secondary"}`}
-                  aria-pressed={view === v}
-                >
-                  {t(`seal3d.view_${v}`)}
-                </button>
-              ))}
-              {(["zhuwen", "baiwen"] as const).map((style) => (
-                <button
-                  key={style}
-                  type="button"
-                  onClick={() => {
-                    setRendered(false);
-                    setFaceStyle(style);
-                  }}
-                  className={`btn-pill ${faceStyle === style ? "btn-pill-primary" : "btn-pill-secondary"}`}
-                  aria-pressed={faceStyle === style}
-                >
-                  {t(`seal3d.face_${style}`)}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={() => void exportGlb()}
-                disabled={exporting || !rendered}
-                className="btn-pill btn-pill-secondary"
-              >
-                <Download className="h-4 w-4" strokeWidth={1.5} />
-                {exporting ? t("seal3d.exporting") : t("seal3d.exportGlb")}
-              </button>
-            </div>
-            <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--color-silver-400)]">
-              {t("seal3d.faceCredit")}
-            </p>
-          </div>
-
-          {/* AI 声明（反冒充红线——与效果图页同款语义） */}
-          <div className="flex flex-col gap-2 border-l-2 border-[var(--color-line-strong)] pl-5">
-            <span className="font-mono text-[11px] tracking-[0.18em] text-[var(--color-silver-500)] uppercase">
-              {t("seal3d.aiNoticeLabel")}
-            </span>
-            <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--color-silver-300)]">
-              {t("seal3d.aiNoticeBody")}
-            </p>
-            <p className="max-w-2xl text-[13px] leading-relaxed text-[var(--color-silver-400)]">
-              {t("seal3d.aiNoticeBody2")}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-4 border-t border-[var(--color-line)] pt-8">
-            <Link href={backHref} className="btn-pill btn-pill-secondary">
-              <ArrowLeft className="h-4 w-4" strokeWidth={1.5} />
-              {t("seal3d.backToRender")}
-            </Link>
-          </div>
-        </div>
-      )}
+        {face.result?.textures && <VirtualStamp key={face.result.svg.data_url} proofUrl={face.result.svg.data_url} />}
+        {order && <div className="flex flex-col items-start gap-3 border-t border-[var(--color-line)] pt-6"><button type="button" onClick={() => void retextureModel()} disabled={retexturing} className="btn-pill btn-pill-secondary">{retexturing ? "正在创建质感任务…" : "细化石料质感 · 约 10 credits"}</button><p className="text-xs text-[var(--color-silver-500)]">保留章体形状，使用 4K 贴图细化材质；同一方案优先复用已有结果。</p></div>}
+        <p className="act-body text-sm">模型由照片重建，供设计参考。石料纹理和最终刻制效果以实物方案为准。</p>
+      </>}
+      <Link href={backHref} className="btn-pill btn-pill-secondary self-start"><ArrowLeft className="h-4 w-4" />返回效果图</Link>
     </section>
   );
 }

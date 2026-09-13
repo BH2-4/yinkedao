@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Inter, Fraunces } from "next/font/google";
 import { I18nProvider } from "@/components/i18n/I18nProvider";
 import { SiteTopBar } from "@/components/shared/SiteTopBar";
@@ -54,6 +55,10 @@ export default async function RootLayout({
             <SiteTopBar />
             <JourneyRail />
             <PageTransition>{children}</PageTransition>
+            <footer className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-4 border-t border-[var(--color-line)] px-8 py-6 text-xs text-[var(--color-silver-500)] sm:px-12 lg:px-16">
+              <span>字形来源：崇羲篆體·中研院小學堂</span>
+              <Link href="/about" className="underline underline-offset-4">关于印可道 · 字体与来源</Link>
+            </footer>
           </I18nProvider>
         </div>
       </body>

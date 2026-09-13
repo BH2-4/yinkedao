@@ -100,7 +100,7 @@ function GlyphBox({ char }: { char: string }) {
       viewBox={`${-box.left} ${-box.top} ${box.w} ${box.h}`}
       preserveAspectRatio="none"
       aria-hidden="true"
-      style={{ display: "block", width: "97%", height: "97%", overflow: "visible" }}
+      style={{ display: "block", width: "88%", height: "88%", overflow: "visible" }}
     >
       <text
         x={0}
@@ -145,9 +145,10 @@ interface SealFaceProofProps {
   initialStyle: string;
   /** 字体栈（服务端 page 层经回退链解析后传入；默认 yishan demo 栈） */
   fontStack?: SealFontStack;
+  onChange?: (text: string, style: "zhuwen" | "baiwen") => void;
 }
 
-export function SealFaceProof({ initialText, initialStyle, fontStack = "yishan" }: SealFaceProofProps) {
+export function SealFaceProof({ initialText, initialStyle, fontStack = "chongxi", onChange }: SealFaceProofProps) {
   const { t } = useI18n();
   const [text, setText] = useState(initialText);
   const [isWhite, setIsWhite] = useState(initialStyle !== "zhuwen"); // 默认白文（印蜕饱满）
@@ -186,7 +187,7 @@ export function SealFaceProof({ initialText, initialStyle, fontStack = "yishan" 
     return chars[hit.charIndex] ?? null;
   };
 
-  const tooLong = text.replace(/\s/g, "").length > 4;
+  const tooLong = Array.from(text.replace(/\s/g, "")).length > 4;
 
   return (
     <section className="animate-fade-in flex flex-col gap-8">
@@ -220,7 +221,7 @@ export function SealFaceProof({ initialText, initialStyle, fontStack = "yishan" 
           type="text"
           value={text}
           maxLength={8}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => { setText(e.target.value); onChange?.(e.target.value, isWhite ? "baiwen" : "zhuwen"); }}
           placeholder={t("designRender.sealFaceInputPlaceholder")}
           className="w-full max-w-sm rounded-[2px] border border-[var(--color-line)] bg-transparent px-4 py-3 text-[16px] tracking-[0.2em] text-[var(--color-silver-100)] outline-none transition-colors duration-300 placeholder:text-[var(--color-silver-600)] focus:border-[rgba(245,245,247,0.32)]"
         />
@@ -295,7 +296,7 @@ export function SealFaceProof({ initialText, initialStyle, fontStack = "yishan" 
             <button
               type="button"
               aria-pressed={isWhite}
-              onClick={() => setIsWhite(true)}
+              onClick={() => { setIsWhite(true); onChange?.(text, "baiwen"); }}
               className={`flex-1 rounded-[2px] border px-3 py-2 text-[12px] transition-colors duration-300 ${isWhite ? "border-[var(--color-silver-300)] text-[var(--color-silver-100)]" : "border-[var(--color-line)] text-[var(--color-silver-500)]"}`}
             >
               {t("designRender.sealFaceBaiwen")}
@@ -303,7 +304,7 @@ export function SealFaceProof({ initialText, initialStyle, fontStack = "yishan" 
             <button
               type="button"
               aria-pressed={!isWhite}
-              onClick={() => setIsWhite(false)}
+              onClick={() => { setIsWhite(false); onChange?.(text, "zhuwen"); }}
               className={`flex-1 rounded-[2px] border px-3 py-2 text-[12px] transition-colors duration-300 ${!isWhite ? "border-[var(--color-silver-300)] text-[var(--color-silver-100)]" : "border-[var(--color-line)] text-[var(--color-silver-500)]"}`}
             >
               {t("designRender.sealFaceZhuwen")}

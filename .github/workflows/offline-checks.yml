@@ -1,0 +1,24 @@
+name: 本地逻辑与字体门禁
+on:
+  pull_request:
+  push:
+    branches: [main, feature/3d-production, feature/chongxi-mainline]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      DEMO_MODE: "true"
+      IMAGE_PROVIDER: mock
+      MESHY_GENERATION_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run test:backend
+      - run: npm run typecheck
+      - run: npm run build

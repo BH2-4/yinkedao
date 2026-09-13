@@ -169,7 +169,7 @@ function evidenceReasons(
 function categoryWearabilityFit(
   category: string,
   brief: GlobalDesignBrief,
-  signals: BriefSignals,
+  _signals: BriefSignals,
 ): number {
   const everyday = CATEGORY_EVERYDAY[category];
   if (everyday === undefined) return 0.5;

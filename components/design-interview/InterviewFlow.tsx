@@ -100,7 +100,7 @@ export function InterviewFlow({ demoMode: _demoMode }: InterviewFlowProps) {
         const res = await fetch("/api/design-intent", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify(finalAnswers),
+          body: JSON.stringify({ answers: finalAnswers }),
         });
         if (!res.ok) throw new Error(`API ${res.status}`);
         const body = (await res.json()) as DesignIntentResponse;
@@ -266,6 +266,7 @@ export function InterviewFlow({ demoMode: _demoMode }: InterviewFlowProps) {
           {phase.kind === "cultural" && answers.occasion?.[0] && (
             <CulturalHintCards
               occasion={answers.occasion[0]}
+              answers={answers}
               onApplyHint={applyCulturalHint}
               onContinue={() => setPhase({ kind: "interview" })}
             />

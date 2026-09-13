@@ -12,7 +12,17 @@ export function getAnthropicApiKey(): string | null {
 
 export function getAiModel(): string {
   const raw = process.env.AI_MODEL?.trim();
-  return raw && raw.length > 0 ? raw : "claude-opus-4-7";
+  return raw && raw.length > 0 ? raw : getTextAiProvider() === "bigmodel" ? "glm-4.7" : "claude-opus-4-7";
+}
+
+export function getTextAiProvider(): "bigmodel" | "anthropic" {
+  const provider = process.env.TEXT_AI_PROVIDER?.trim();
+  if (provider) return provider === "bigmodel" ? "bigmodel" : "anthropic";
+  return process.env.BIGMODEL_API_KEY?.trim() ? "bigmodel" : "anthropic";
+}
+
+export function getTextAiKey(): string | null {
+  return getTextAiProvider() === "bigmodel" ? process.env.BIGMODEL_API_KEY?.trim() || null : getAnthropicApiKey();
 }
 
 export function getAiMaxTokens(): number {
@@ -38,6 +48,5 @@ export function getAiTimeoutMs(): number {
 export function isDemoMode(): boolean {
   const flag = process.env.DEMO_MODE?.trim().toLowerCase();
   if (flag === "true" || flag === "1") return true;
-  if (flag === "false" || flag === "0") return getAnthropicApiKey() === null;
-  return getAnthropicApiKey() === null;
+  return getTextAiKey() === null;
 }

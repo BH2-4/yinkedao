@@ -181,10 +181,14 @@ export type InterviewAnswers = Partial<
   Record<InterviewQuestionId, string[] | null>
 >;
 
-export const InterviewAnswersSchema = z.record(
-  z.string().max(40),
-  z.union([z.array(z.string().max(40)).max(3), z.null()]),
-);
+const answerField = (values: readonly string[]) => z.array(z.enum([...values, "unsure"])).max(3).nullable().optional();
+export const InterviewAnswersSchema = z.object({
+  occasion: answerField(OCCASIONS), stone_type: answerField(STONE_TYPES),
+  stone_look: answerField(STONE_LOOKS), stone_budget: answerField(STONE_BUDGETS),
+  seal_form: answerField(SEAL_FORMS), finial_type: answerField(FINIAL_TYPES),
+  side_inscription: answerField(SIDE_INSCRIPTIONS), decoration_level: answerField(DECORATION_LEVELS),
+  text_type: answerField(TEXT_TYPES), text_count: answerField(TEXT_COUNTS), seal_style: answerField(SEAL_STYLES),
+}).strict();
 
 /** API 响应：intent + 合成来源（ai = AI 润色 user_context / rule = 纯规则） */
 export type DesignIntentResponse = {

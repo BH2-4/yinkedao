@@ -7,7 +7,7 @@
  *   - 色值：印泥红 #a83527 / 纸色 #f7f0e2（同 CSS --stamp-ink/paper）
  *   - 坐标系：400×400（同 wear 生成器原生坐标系）
  *   - 结构：8px 边框（400 系 10.67）+ 2px 内衬 + 2×2 格 + 墨迹盒
- *     紧凑（每格 97%、非均匀拉伸——客户端 GlyphBox 同规则）
+ *     紧凑（每格 88%、非均匀拉伸——客户端 GlyphBox 同规则）
  *   - 质感：斑驳 ellipse（layout.generateFlecks 同 seed 同密度）+
  *     carved 滤镜（feTurbulence+feDisplacementMap 同参数）
  *   - 朱白：白文=红底纸字 / 朱文=纸底红字；边框恒红（同 CSS）
@@ -42,8 +42,8 @@ const CONTENT_X0 = BORDER + PADDING;
 const MARGIN = 30;
 const CANVAS = FACE + 2 * MARGIN; // 460
 
-/** 墨迹盒占格比例（客户端 GlyphBox width/height 97%） */
-const GLYPH_FILL = 0.97;
+/** 墨迹盒占格比例（客户端 GlyphBox width/height 88%） */
+export const GLYPH_FILL = 0.88;
 
 /** 白文描边加粗（客户端 white-style text-shadow 1px 的 400 系近似） */
 const STROKE_BW = 1.33;
@@ -56,7 +56,7 @@ export interface SealProofGlyphInput {
 
 export interface SealProofSvgInput {
   /** 已通过 cmap 的字形序列（顺序 = 印文字序） */
-  glyphs: SealProofGlyphInput[];
+  glyphs: (SealProofGlyphInput | null)[];
   /** 朱白（白文=红底纸字 / 朱文=纸底红字） */
   style: "baiwen" | "zhuwen";
   /** 印泥斑驳开关 */
@@ -65,6 +65,9 @@ export interface SealProofSvgInput {
   freedom: number;
   /** 变体种子 */
   seed: number;
+  /** 纸上印蜕或透明底印面；两者共享字形、章法和做旧。 */
+  surface?: "proof" | "face";
+  mirrored?: boolean;
 }
 
 /* ─── 工具 ─────────────────────────────────────────────────── */
@@ -111,7 +114,7 @@ function cellRect(position: CellPosition): { x: number; y: number; size: number 
   }
 }
 
-/** 单字形元素：墨迹盒非均匀拉伸至格内 97%（±错落）。 */
+/** 单字形元素：墨迹盒非均匀拉伸至格内 88%（±错落）。 */
 function glyphNode(
   metrics: GlyphBoxMetrics,
   cell: { x: number; y: number; size: number },
@@ -123,7 +126,7 @@ function glyphNode(
   const h0 = metrics.y2 - metrics.y1;
   if (w0 <= 0 || h0 <= 0) return ""; // 空字形防御：绝不输出退化 path
 
-  // 目标盒：格中心 ± 半尺寸×97%×错落缩放；中心偏移=错落位移（% 相对格）
+  // 目标盒：格中心 ± 半尺寸×88%×错落缩放；中心偏移=错落位移（% 相对格）
   const cx = cell.x + cell.size / 2 + (jitter.dx / 100) * cell.size;
   const cy = cell.y + cell.size / 2 + (jitter.dy / 100) * cell.size;
   const hw = (cell.size * GLYPH_FILL * jitter.sx) / 2;
@@ -148,8 +151,11 @@ function glyphNode(
  * 纯确定性：同输入同输出（CI 可断言）——路线 A 的工程红利。
  */
 export function composeSealProofSvg(input: SealProofSvgInput): string {
+  const onPaper = input.surface !== "face";
+  const margin = onPaper ? MARGIN : 0;
+  const canvas = onPaper ? CANVAS : FACE;
   const isWhite = input.style === "baiwen";
-  const faceFill = isWhite ? INK : PAPER;
+  const faceFill = isWhite ? INK : "none";
   const glyphFill = isWhite ? PAPER : INK;
   const strokeWidth = isWhite ? STROKE_BW : STROKE_ZW;
 
@@ -181,13 +187,13 @@ export function composeSealProofSvg(input: SealProofSvgInput): string {
     const { flecks, edges } = generateFlecks(input.seed);
     const all = [...flecks, ...edges];
     wearSvg =
-      `<g fill="${PAPER}" opacity="0.55">` +
+      '<g fill="black" opacity="0.9">' +
       all
         .map(
           (f) =>
             `<ellipse cx="${fmt(f.cx)}" cy="${fmt(f.cy)}" rx="${fmt(
-              f.rx,
-            )}" ry="${fmt(f.ry)}" transform="rotate(${fmt(f.rotate)} ${fmt(
+              f.rx * 1.8,
+            )}" ry="${fmt(f.ry * 1.8)}" transform="rotate(${fmt(f.rotate)} ${fmt(
               f.cx,
             )} ${fmt(f.cy)})"/>`,
         )
@@ -195,30 +201,33 @@ export function composeSealProofSvg(input: SealProofSvgInput): string {
       "</g>";
   }
 
-  /* 印面（边框+底+字+斑驳）整体套 carved 滤镜与 -2° 旋转（同 CSS） */
+  /* 全部印面元素在同一个 400 坐标系；纸边仅在最外层平移。 */
   const faceSvg =
-    `<g transform="rotate(-2 ${fmt(MARGIN + FACE / 2)} ${fmt(MARGIN + FACE / 2)})" filter="url(#seal-carved)">` +
-    `<path d="${roundedRect(MARGIN + BORDER / 2, MARGIN + BORDER / 2, FACE - BORDER, FACE - BORDER, [
+    `<g transform="translate(${margin} ${margin})">` +
+    (onPaper ? '<g transform="rotate(-2 200 200)">' : "<g>") +
+    (input.mirrored ? '<g transform="translate(400 0) scale(-1 1)">' : "<g>") +
+    '<g filter="url(#seal-carved)" mask="url(#seal-wear)">' +
+    `<path d="${roundedRect(BORDER / 2, BORDER / 2, FACE - BORDER, FACE - BORDER, [
       16, 8, 20, 8,
     ])}" fill="${faceFill}" stroke="${INK}" stroke-width="${fmt(BORDER)}"/>` +
     glyphSvg +
-    wearSvg +
-    "</g>";
+    "</g></g></g></g>";
 
   return (
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${CANVAS} ${CANVAS}" width="${CANVAS}" height="${CANVAS}" role="img">` +
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${canvas} ${canvas}" width="${canvas}" height="${canvas}" role="img">` +
+    '<title>印可道·印面文字层</title><metadata>崇羲篆體·中研院小學堂；王心怡・季旭昇・莊德明／中央研究院；CC BY-ND 3.0 TW；https://xiaoxue.iis.sinica.edu.tw/chongxi/</metadata>' +
     "<defs>" +
+    '<mask id="seal-wear" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="400" style="mask-type:luminance"><rect width="400" height="400" fill="white"/>' + wearSvg + '</mask>' +
     `<radialGradient id="paper-grad" cx="20%" cy="30%" r="75%">` +
     `<stop offset="0%" stop-color="rgba(213,198,172,0.25)"/>` +
     `<stop offset="65%" stop-color="rgba(213,198,172,0)"/>` +
     "</radialGradient>" +
     `<filter id="seal-carved" x="-8%" y="-8%" width="116%" height="116%">` +
-    '<feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="12" result="noise"/>' +
+    `<feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="3" seed="${input.seed % 10000}" result="noise"/>` +
     '<feDisplacementMap in="SourceGraphic" in2="noise" scale="2.6" xChannelSelector="R" yChannelSelector="G"/>' +
     "</filter>" +
     "</defs>" +
-    `<rect width="${CANVAS}" height="${CANVAS}" fill="${PAPER}"/>` +
-    `<rect width="${CANVAS}" height="${CANVAS}" fill="url(#paper-grad)"/>` +
+    (onPaper ? `<rect width="${canvas}" height="${canvas}" fill="${PAPER}"/><rect width="${canvas}" height="${canvas}" fill="url(#paper-grad)"/>` : "") +
     faceSvg +
     "</svg>"
   );

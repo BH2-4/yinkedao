@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { parseSealText } from "@/lib/seal-face/layout";
-import { mapForChongxi } from "@/lib/seal-face/variant-map";
-import {
-  getChongxiFontInfo,
-  lookupChongxiGlyph,
-  type GlyphBoxMetrics,
-} from "@/lib/seal-face/glyph-chongxi";
-import { composeSealProofSvg } from "@/lib/seal-face/svg-proof";
+import { renderSealFace } from "@/lib/seal-face/render";
 import { resolveSealFontStack } from "@/lib/seal-face/font-stack";
 import type { SealFaceApiResponse } from "@/types/seal-face";
 
@@ -36,6 +30,7 @@ const RequestSchema = z.object({
   freedom: z.number().min(0).max(100).default(50),
   /** 变体种子（换 seed 重生成） */
   seed: z.number().int().min(0).max(2 ** 31 - 1).default(21),
+  include_textures: z.boolean().default(false),
 });
 
 type ErrorCode = NonNullable<
@@ -69,13 +64,13 @@ export async function POST(request: Request): Promise<NextResponse<SealFaceApiRe
     );
   }
 
-  const { text, style, texture, freedom, seed } = parsed.data;
+  const { text } = parsed.data;
 
   /* 印文整理：1-4 字（客户端 SealFaceProof 同规则；>4 为经典正格外场景） */
   const chars = parseSealText(text);
   if (chars === null) {
     return errorResponse(
-      "Seal text must contain 1-4 CJK characters after trimming whitespace.",
+      "去除空白后，印文应为 1–4 字。",
       "invalid_input",
       400,
     );
@@ -85,51 +80,14 @@ export async function POST(request: Request): Promise<NextResponse<SealFaceApiRe
   const stack = resolveSealFontStack();
   if (stack.stack !== "chongxi") {
     return errorResponse(
-      "Chongxi font assets are not available; the yishan fallback renders client-side.",
+      "崇曦字体当前不可用，印蜕页已提供峄山碑应急字体。",
       "font_unavailable",
       503,
     );
   }
 
   try {
-    /* ① 简繁前置映射（必选层：简体直查 cmap 覆盖仅 ~53%） */
-    const { mapped, changes } = mapForChongxi(chars.join(""));
-
-    /* ② cmap 逐字查询：命中取形，未命中如实记录（绝不造字） */
-    const glyphs: { char: string; metrics: GlyphBoxMetrics }[] = [];
-    const missing: string[] = [];
-    for (const char of Array.from(mapped)) {
-      const lookup = await lookupChongxiGlyph(char);
-      if (lookup.ok) {
-        glyphs.push({ char, metrics: lookup.glyph.metrics });
-      } else {
-        missing.push(char);
-      }
-    }
-
-    /* ③ 排布 + 拼装（缺字格留空——与「绝不造字」一致） */
-    const svg = composeSealProofSvg({ glyphs, style, texture, freedom, seed });
-
-    const fontInfo = await getChongxiFontInfo();
-    const body: SealFaceApiResponse = {
-      success: true,
-      fontStack: "chongxi",
-      svg: {
-        data_url: `data:image/svg+xml;base64,${Buffer.from(svg, "utf-8").toString("base64")}`,
-        mime: "image/svg+xml",
-      },
-      mapped_text: mapped,
-      mapping_changes: changes,
-      missing,
-      font: {
-        num_glyphs: fontInfo.numGlyphs,
-        units_per_em: fontInfo.unitsPerEm,
-        outlines_format: fontInfo.outlinesFormat,
-      },
-      generated_at: new Date().toISOString(),
-      seed,
-    };
-    return NextResponse.json(body);
+    return NextResponse.json(await renderSealFace(parsed.data));
   } catch (error) {
     console.error("[api/seal-face] render failed:", error);
     return errorResponse("Seal face rendering failed unexpectedly.", "unknown", 500);
