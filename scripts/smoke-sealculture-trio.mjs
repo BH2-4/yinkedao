@@ -6,15 +6,15 @@
  * 目的：证明 lib/heritage/ 三件套（match/guardrail/evidence）机制在
  * SealCulture-v1 数据上照常工作——「换的是内容，不换的是机制」。
  *
- * 手法（不改 lib/heritage 任何一行、不走路由）：
+ * 手法（不走路由）：
  *   1. 用仓库内自带的 typescript 把 lib/heritage/*.ts 与
  *      lib/cultural-match/repository.ts 转译到临时目录（scripts/.tmp-trio-smoke，
  *      跑完即删）；
- *   2. 注册 Module._resolveFilename 钩子，把三件套仓库里写死的
- *      `@/data/SilverHeritage-GZ-v1/*` 重映射到 `data/SealCulture-v1/data/*`
- *      ——即"临时脚本 import 三件套指向新数据集"。M8 正式接线时由
- *      lib/heritage/repository.ts 改 import 路径完成，届时本脚本的重映射
- *      自动变成无操作（幂等可复跑）。
+ *   2. 注册 Module._resolveFilename 钩子，把 `@/` 别名解析到仓库根路径
+ *      （Node 原生不认识 tsconfig 的 paths 别名）。
+ *      F 批正式接线后 lib/heritage/repository.ts 已直接 import
+ *      `@/data/SealCulture-v1/data/*`，旧版脚本的 SilverHeritage→SealCulture
+ *      重映射桥已移除。
  *
  * 四例：
  *   [1] match     —— matchCulturalHeritage 在新数据集上产出 3 条文化方向匹配，
@@ -38,16 +38,11 @@ const ROOT = resolve(__dirname, "..");
 const TMP = resolve(__dirname, ".tmp-trio-smoke");
 const require = createRequire(import.meta.url);
 
-/* ---------------- 模块重映射钩子（指向新数据集） ---------------- */
-const SILVER_PREFIX = "data/SilverHeritage-GZ-v1/";
+/* ---------------- 别名解析钩子（@/ → 仓库根路径） ---------------- */
 const resolveOrig = Module._resolveFilename;
 Module._resolveFilename = function (request, ...rest) {
   if (request.startsWith("@/")) {
-    let rel = request.slice(2);
-    if (rel.startsWith(SILVER_PREFIX)) {
-      rel = "data/SealCulture-v1/" + rel.slice(SILVER_PREFIX.length);
-    }
-    return resolveOrig.call(this, resolve(ROOT, rel), ...rest);
+    return resolveOrig.call(this, resolve(ROOT, request.slice(2)), ...rest);
   }
   return resolveOrig.call(this, request, ...rest);
 };

@@ -593,7 +593,7 @@ html[data-stage="render"]::before {
 
 /* --------------------------------------------------------------------
  * PARTICLE DEMOTION · 粒子降级
- * 粒子只是氛围层。在银饰视觉主导的场景（首页叙事、Stage 5 展厅）
+ * 粒子只是氛围层。在主体视觉主导的场景（首页叙事、Stage 5 展厅）
  * 粒子退场或大幅调暗，绝不与展品争夺注意力。
  * --------------------------------------------------------------------*/
 #particle-field {
@@ -629,11 +629,11 @@ html[data-stage="home"] #particle-field {
 }
 
 /* --------------------------------------------------------------------
- * HERO FIRST VIEW · 数字银饰展厅首屏
- * 左侧克制叙事 + 右侧银饰主体 + 巨大墙面字（SILVER FUTURE）沉入黑暗。
+ * HERO FIRST VIEW · 数字展厅首屏
+ * 左侧克制叙事 + 右侧主体展品 + 巨大墙面字沉入黑暗。
  * --------------------------------------------------------------------*/
 
-/* 墙面大字 —— 展览墙上的巨型 typography，银饰挂在它前面：
+/* 墙面大字 —— 展览墙上的巨型 typography，展品挂在它前面：
    低透明度银白、轻微 blur、左缘渐隐入黑暗、右缘出血到视口外。 */
 .hero-wall {
   filter: blur(1.5px);
@@ -796,7 +796,7 @@ a.stage-hero-visual:hover img,
   background: rgba(16, 16, 17, 0.92);
 }
 
-/* 生成中的银饰轮廓 —— Stage 5 generating 状态：
+/* 生成中的章体轮廓 —— Stage 5 generating 状态：
    从 blur 20px + scale 1.04 缓慢对焦成型。 */
 @keyframes atelier-develop {
   0% {
@@ -1213,25 +1213,30 @@ html[data-stage="design-render"] .stage-space::after {
   }
 }
 
-/* JOURNEY 菜单 —— 顶栏 hover 展开的旅程站点面板 */
+/* JOURNEY 菜单 —— 顶栏 hover 展开的旅程站点面板（宣纸底 + 朱砂强调） */
 .journey-menu-item {
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  padding: 12px 14px;
-  border-left: 1px solid transparent;
-  transition: background-color var(--dur-hover) var(--ease-atelier),
-    border-color var(--dur-hover) var(--ease-atelier);
+  padding: 10px 14px 10px 12px;
+  border-left: 2px solid transparent;
+  transition: background-color 180ms ease-out, border-color 180ms ease-out;
+}
+/* 条目间距：上下 padding 10+10 加 12px 外距 = 32px 视觉间距 */
+.journey-menu-item + .journey-menu-item {
+  margin-top: 12px;
 }
 .journey-menu-item:hover,
 .journey-menu-item:focus-visible {
-  background: rgba(26, 26, 26, 0.02);
-  border-left-color: rgba(231, 226, 211, 0.4);
-  outline: none;
+  background: rgba(0, 0, 0, 0.03);
+  border-left-color: #9e2b22;
+}
+.journey-menu-item:focus-visible {
+  outline: 2px solid #9e2b22;
+  outline-offset: -2px;
 }
 .journey-menu-item[data-active] {
-  background: rgba(26, 26, 26, 0.015);
-  border-left-color: var(--color-ivory);
+  border-left-color: rgba(158, 43, 34, 0.45);
 }
 
 /* ==========================================================================

@@ -154,13 +154,9 @@ for (const [k, v] of Object.entries(manifest.counts)) {
   assert(actual[k] === v, `manifest counts.${k} = ${v} matches actual ${actual[k]}`);
 }
 
-/* 6. SilverHeritage-GZ-v1 原样保留（F 批夹具，本批不删不改） */
+/* 6. SilverHeritage-GZ-v1 已删除（F 批银饰残留清理） */
 const shDir = resolve(ROOT, "data", "SilverHeritage-GZ-v1");
-const shFiles = ["README.md", "docs/schema.md", "data/dataset_manifest.json",
-  "data/sources.json", "data/motifs.json", "data/crafts.json",
-  "data/heritage_items.json", "data/regional_styles.json",
-  "data/projects.json", "data/people.json", "data/cultural_rules.json"];
-for (const f of shFiles) assert(existsSync(resolve(shDir, f)), `SilverHeritage preserved: ${f}`);
+assert(!existsSync(shDir), `SilverHeritage-GZ-v1 removed: ${shDir} 不复存在`);
 
 console.log(`\nverify-sealculture: ${passed} passed, ${failed} failed`);
 if (failed > 0) {

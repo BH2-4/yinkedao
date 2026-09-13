@@ -11,8 +11,8 @@
     "ai_inference_policy": "AI 解释与事实分字段保存（三件套 match 引擎中 matched_reasons 与 cultural_evidence 分离）。"
   },
   "domain_swap": {
-    "from": "SilverHeritage-GZ-v1（贵州苗银，F 批删除对象——本批原样保留，未删未改）",
-    "principle": "换的是内容，不换的是机制：lib/heritage/ 三件套（match/guardrail/evidence）与 glossary/search/types/repository 一行未改；本数据集经临时脚本（scripts/smoke-sealculture-trio.mjs）以模块重映射接线完成机制冒烟。",
+    "from": "SilverHeritage-GZ-v1（fork 前身贵州苗银数据集，方法论溯源对象，实体文件已于 F 批删除）",
+    "principle": "换的是内容，不换的是机制：lib/heritage/ 三件套（match/guardrail/evidence）机制未动；F 批正式接线后 lib/heritage/repository.ts 直接 import 本数据集（scripts/smoke-sealculture-trio.mjs 冒烟通过，重映射桥已移除）。",
     "structure": "对齐 SilverHeritage-GZ-v1 嵌套组织：根目录仅 README.md；data/ 放 8 实体 json + cultural-match.json + dataset_manifest.json；docs/ 放 schema.md。",
     "cultural_match_layer": "已上线引导层文件 data/cultural-match/seal-culture-v1.json（六顶层键 version/note/elements/series/items/scenarios）升级并入本数据集为 data/cultural-match.json，构成唯一真身（不另建双源）；lib/cultural-match/repository.ts 读取路径已接线至本文件——属数据路径接线，非机制改动。",
     "ce_absorption": {

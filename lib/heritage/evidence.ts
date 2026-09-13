@@ -33,7 +33,11 @@ import type {
  *     meaning dimension stays bounded by cultural_boundary.
  */
 
-/** Dataset scope of SilverHeritage-GZ-v1 — every entity lives in 贵州. */
+/**
+ * Fork 前身苗银数据集的地域归一化词表。SealCulture-v1 实体均无地域著录
+ * （county 为空 → unattributed=true 走 fallback 标签），词表不再命中；
+ * 保留 parseRegionInfo 归一化机制本身，region_info 无 UI/API 消费面。
+ */
 const DATASET_PROVINCE = "贵州";
 
 /** Township-level nodes and style classifications documented in V1. */

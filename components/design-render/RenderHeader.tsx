@@ -24,7 +24,7 @@ export function RenderHeader() {
 
       <div className="relative z-10 flex flex-col gap-9 pt-2">
         <Link
-          href="/design-proposal"
+          href="/design-brief"
           className="inline-flex items-center gap-2 text-[12px] tracking-[0.16em] text-[var(--color-silver-500)] uppercase transition-colors hover:text-[var(--color-silver-200)]"
         >
           <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.5} />

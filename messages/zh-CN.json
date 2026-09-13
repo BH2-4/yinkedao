@@ -49,9 +49,7 @@
       "designRender": "02 · 效果图"
     },
     "navAria": "流程阶段",
-    "collectionLabel": "成品系列",
-    "navJourney": "旅程",
-    "navAbout": "关于"
+    "navJourney": "旅程"
   },
   "journey": {
     "railAria": "设计旅程导航",
@@ -60,6 +58,7 @@
     "subtitle": "一次连续的定制旅程——你的故事，经文化、设计与刀石，成为一方可以握在手中的印。",
     "prologueLabel": "序 · 可选",
     "enter": "进入",
+    "viewAll": "查看完整旅程 →",
     "stations": {
       "s0": {
         "name": "五维度访谈",
@@ -101,8 +100,6 @@
     "act5Label": "第四章 · 记忆",
     "act5Title": "你的记忆，成印。",
     "act5Body": "一段旅程、一个名字、一次告别。把它交给工作室——让 AI 与匠人一起，把它刻进一方石头里。",
-    "shopCollection": "直接选购成品",
-    "shopCollectionHint": "不想定制？浏览我们的已有作品，直接询盘或购买 →",
     "act3StoryLink": "想转一方印细看？进入 3D 篆章展厅",
     "footer3dStory": "3D 篆章展厅"
   },

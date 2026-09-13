@@ -1,12 +1,12 @@
 import { z } from "zod";
-import sourcesJson from "@/data/SilverHeritage-GZ-v1/data/sources.json";
-import projectsJson from "@/data/SilverHeritage-GZ-v1/data/projects.json";
-import regionalStylesJson from "@/data/SilverHeritage-GZ-v1/data/regional_styles.json";
-import heritageItemsJson from "@/data/SilverHeritage-GZ-v1/data/heritage_items.json";
-import motifsJson from "@/data/SilverHeritage-GZ-v1/data/motifs.json";
-import craftsJson from "@/data/SilverHeritage-GZ-v1/data/crafts.json";
-import peopleJson from "@/data/SilverHeritage-GZ-v1/data/people.json";
-import culturalRulesJson from "@/data/SilverHeritage-GZ-v1/data/cultural_rules.json";
+import sourcesJson from "@/data/SealCulture-v1/data/sources.json";
+import projectsJson from "@/data/SealCulture-v1/data/projects.json";
+import regionalStylesJson from "@/data/SealCulture-v1/data/regional_styles.json";
+import heritageItemsJson from "@/data/SealCulture-v1/data/heritage_items.json";
+import motifsJson from "@/data/SealCulture-v1/data/motifs.json";
+import craftsJson from "@/data/SealCulture-v1/data/crafts.json";
+import peopleJson from "@/data/SealCulture-v1/data/people.json";
+import culturalRulesJson from "@/data/SealCulture-v1/data/cultural_rules.json";
 import {
   CraftSchema,
   CulturalRuleSchema,
